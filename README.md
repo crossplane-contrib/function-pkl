@@ -36,6 +36,9 @@ $ docker build . --tag=runtime
 $ crossplane xpkg build -f package --embed-runtime-image=runtime
 ```
 
+## Debugging
+`crossplane beta render example/xr.yaml example/composition.yaml example/functions.yaml --verbose`
+
 [functions]: https://docs.crossplane.io/latest/concepts/composition-functions
 [go]: https://go.dev
 [function guide]: https://docs.crossplane.io/knowledge-base/guides/write-a-composition-function-in-go

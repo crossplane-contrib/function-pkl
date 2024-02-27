@@ -11,6 +11,7 @@ import (
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
 	"google.golang.org/protobuf/types/known/structpb"
+	"sigs.k8s.io/yaml"
 )
 
 // Function returns whatever response you ask it to.
@@ -62,13 +63,19 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	case "uri":
 		source = pkl.UriSource(in.Spec.Uri)
 	}
-	var out map[string]any
-	if err := evaluator.EvaluateOutputValue(ctx, source, out); err != nil {
+
+	// TODO request a new Function to EvaluateOutputValue which does not require a Struct Tag
+	out, err := evaluator.EvaluateOutputText(ctx, source)
+	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "could not evaluate Pkl file"))
+	}
+	var x map[string]any
+	if err := yaml.Unmarshal([]byte(out), &x); err != nil {
+		response.Fatal(rsp, errors.Wrap(err, "could not parse yaml to map[string]any"))
 	}
 
 	var outResources = make(map[string]*fnv1beta1.Resource)
-	st, err := structpb.NewStruct(out)
+	st, err := structpb.NewStruct(x)
 	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "could not evaluate Pkl output as map with keys and values"))
 	}
