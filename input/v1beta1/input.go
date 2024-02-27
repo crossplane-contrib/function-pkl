@@ -15,7 +15,7 @@ import (
 // +kubebuilder:object:root=true
 // +kubebuilder:storageversion
 // +kubebuilder:resource:categories=crossplane
-type PklInput struct {
+type Pkl struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
@@ -30,7 +30,7 @@ type PklSpec struct {
 	// Source from which the Project is imported
 	// +kubebuilder:validation:Enum=inline;configMap;uri
 	Source string `json:"source,omitempty"`
-	// TODO implement
+	// Contains a stringified Pkl file
 	Inline string `json:"inline,omitempty"`
 
 	// Use URI Scheme to load Project/Package

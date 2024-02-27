@@ -4,16 +4,16 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.14.0
-  name: pklinputs.template.fn.crossplane.io
+  name: pkls.template.fn.crossplane.io
 spec:
   group: template.fn.crossplane.io
   names:
     categories:
     - crossplane
-    kind: PklInput
-    listKind: PklInputList
-    plural: pklinputs
-    singular: pklinput
+    kind: Pkl
+    listKind: PklList
+    plural: pkls
+    singular: pkl
   scope: Namespaced
   versions:
   - name: v1beta1

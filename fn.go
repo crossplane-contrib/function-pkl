@@ -26,7 +26,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	rsp := response.To(req, response.DefaultTTL)
 
-	in := &v1beta1.PklInput{}
+	in := &v1beta1.Pkl{}
 	if err := request.GetInput(req, in); err != nil {
 		response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
 		return rsp, nil
