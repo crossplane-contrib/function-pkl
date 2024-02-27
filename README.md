@@ -1,5 +1,5 @@
-# function-template-go
-[![CI](https://github.com/crossplane/function-template-go/actions/workflows/ci.yml/badge.svg)](https://github.com/crossplane/function-template-go/actions/workflows/ci.yml)
+# function-pkl
+[![CI](https://github.com/Avarei/function-pkl/actions/workflows/ci.yml/badge.svg)](https://github.com/Avarei/function-pkl/actions/workflows/ci.yml)
 
 A template for writing a [composition function][functions] in [Go][go].
 
@@ -11,7 +11,7 @@ To learn how to use this template:
 
 If you just want to jump in and get started:
 
-1. Replace `function-template-go` with your function in `go.mod`,
+1. Replace `function-pkl` with your function in `go.mod`,
    `package/crossplane.yaml`, and any Go imports. (You can also do this
    automatically by running the `./init.sh <function-name>` script.)
 1. Update `input/v1beta1/` to reflect your desired input (and run `go generate`)

@@ -1,7 +1,7 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: function-template-go
+  name: function-pkl
 spec:
   compositeTypeRef:
     apiVersion: example.crossplane.io/v1
@@ -10,7 +10,7 @@ spec:
   pipeline:
   - step: run-the-template
     functionRef:
-      name: function-template-go
+      name: function-pkl
     input:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Input
