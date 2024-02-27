@@ -58,6 +58,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		source = pkl.TextSource(in.Spec.Inline)
 	case "configMap":
 		// TODO get configMap (maybe with informer pattern to cache it) and use it's content
+		response.Fatal(rsp, errors.Cause(errors.New("not yet implemented")))
 	case "uri":
 		source = pkl.UriSource(in.Spec.Uri)
 	}
