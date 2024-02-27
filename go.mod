@@ -1,4 +1,4 @@
-module github.com/crossplane/function-template-go
+module github.com/avarei/function-pkl
 
 go 1.21
 
@@ -6,6 +6,7 @@ toolchain go1.21.3
 
 require (
 	github.com/alecthomas/kong v0.8.1
+	github.com/apple/pkl-go v0.5.3
 	github.com/crossplane/crossplane-runtime v1.15.1
 	github.com/crossplane/function-sdk-go v0.2.0
 	github.com/google/go-cmp v0.6.0
@@ -45,7 +46,8 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
