@@ -44,19 +44,16 @@ spec:
                 description: Load Project/Package from ConfigMap. Will evaluate PklProject
                   and *.pkl files within the ConfigMap.
                 type: string
-              inline:
-                description: TODO implement
-                type: string
-              source:
-                description: Source from which the Project is imported
-                enum:
-                - inline
-                - configMap
-                - uri
-                type: string
-              uri:
+              files:
+                additionalProperties:
+                  type: string
+                description: Contains a stringified Pkl file
+                type: object
+              uris:
                 description: Use URI Scheme to load Project/Package
-                type: string
+                items:
+                  type: string
+                type: array
               xrdTemplate:
                 description: Pkl Template of the CompositeResourceDefinition (XRD),
                   which will be amended by the CompositeResource (XR)

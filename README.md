@@ -1,23 +1,29 @@
 # function-pkl
 [![CI](https://github.com/Avarei/function-pkl/actions/workflows/ci.yml/badge.svg)](https://github.com/Avarei/function-pkl/actions/workflows/ci.yml)
 
-A template for writing a [composition function][functions] in [Go][go].
+For now this is only a Proof of Concept.
 
-To learn how to use this template:
+For the moment this function creates the following filetree in each invocation:
+```yaml
+PklProject: <optional. may contain dependencies for using the @notation>
+Example.pkl: # name of the CompositeResourceDefinition
+  # contains the pkl template of the CompositeResourceDefinition.
+  # used to transform the yaml representation of the CompositeResource to the Pkl file
+  # - desired.composition
+  # - observed.composition
+observed:
+  composition: <(XR) contains the pkl file representation of the Composite Resource>
+  resources:
+    aPod.pkl: <A Pod Manifest containing status fields>
+    # aConfigMap.pkl has not yet been created in this example.
+desired:
+  composition: <amends "/Example.pkl">
+  resources:
+    aPod.pkl: <A Pod Manifest in Pkl File format>
+    aConfigMap.pkl: <A ConfigMap which could e.g. import "/observed/aPod.pkl" to read it's status>
+```
 
-* [Follow the guide to writing a composition function in Go][function guide]
-* [Learn about how composition functions work][functions]
-* [Read the function-sdk-go package documentation][package docs]
-
-If you just want to jump in and get started:
-
-1. Replace `function-pkl` with your function in `go.mod`,
-   `package/crossplane.yaml`, and any Go imports. (You can also do this
-   automatically by running the `./init.sh <function-name>` script.)
-1. Update `input/v1beta1/` to reflect your desired input (and run `go generate`)
-1. Add your logic to `RunFunction` in `fn.go`
-1. Add tests for your logic in `fn_test.go`
-1. Update this file, `README.md`, to be about your function!
+---
 
 This template uses [Go][go], [Docker][docker], and the [Crossplane CLI][cli] to
 build functions.

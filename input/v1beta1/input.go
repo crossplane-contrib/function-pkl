@@ -27,14 +27,11 @@ type PklSpec struct {
 	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
 	XrdTemplate string `json:"xrdTemplate,omitempty"`
 
-	// Source from which the Project is imported
-	// +kubebuilder:validation:Enum=inline;configMap;uri
-	Source string `json:"source,omitempty"`
 	// Contains a stringified Pkl file
-	Inline string `json:"inline,omitempty"`
+	Files map[string]string `json:"files,omitempty"`
 
 	// Use URI Scheme to load Project/Package
-	Uri string `json:"uri,omitempty"`
+	Uris []string `json:"uris,omitempty"`
 
 	// Load Project/Package from ConfigMap. Will evaluate PklProject and *.pkl files within the ConfigMap.
 	ConfigMapRef string `json:"configMapRef,omitempty"`
