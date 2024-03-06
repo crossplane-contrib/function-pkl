@@ -45,6 +45,41 @@ $ crossplane xpkg build -f package --embed-runtime-image=runtime
 ## Debugging
 `crossplane beta render example/xr.yaml example/composition.yaml example/functions.yaml --verbose`
 
+### Pkl yaml <-> pkl examples:
+Turn Yaml Manifest into Pkl File
+```bash
+pkl eval -p input=appproject.yaml -o appproject.pkl package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl
+pkl eval -p input=example-crd.yaml -o example-crd.pkl package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl
+```
+
+Turn Yaml CRD into Pkl template
+```bash
+pkl eval package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.0#/generate.pkl -m . -p source="https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/crds/appproject-crd.yaml"
+```
+
+comparison:
+```bash
+pkl eval -p input=example-crd.yaml -o example-crd.pkl ../packages/k8s.contrib/convert.pkl
+pkl eval -m . -p source="example-crd.yaml" ../packages/k8s.contrib.crd/generate.pkl
+```
+
+# Create Own Reader
+
+## Kinds of Readers needed
+- crossplane:  
+  the reader will provide access to everything in observed and desired.
+
+### Deep dive
+As a crossplane Function I get observed, containing composition, containing resource, containing 
+
+## Implement it like this:
+[example Implementation](https://github.com/apple/pkl-go/blob/main/cmd/internal/gen-fixtures/gen-fixtures.go#L119)
+
+## Implement the following Interface:
+- 
+
+
+
 [functions]: https://docs.crossplane.io/latest/concepts/composition-functions
 [go]: https://go.dev
 [function guide]: https://docs.crossplane.io/knowledge-base/guides/write-a-composition-function-in-go

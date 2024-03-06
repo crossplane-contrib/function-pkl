@@ -1,0 +1,26 @@
+extends "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl"
+import "pkl:yaml"
+
+// file = read("https://raw.githubusercontent.com/argoproj/argo-cd/master/docs/operator-manual/project.yaml")
+
+configMap = """
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: hello
+  namespace: world
+spec:
+  description: foo
+"""
+
+resourcesToConvert: List<Mapping> =
+  new yaml.Parser { useMapping = true }
+    //.parseAll(file.text)
+    .parseAll(configMap)
+    .filterNonNull() as List<Mapping>
+
+customResourceTemplates {
+    ["AppProject"] {
+        ["argoproj.io/v1alpha1"] = import("AppProject.pkl")
+    }
+}

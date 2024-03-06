@@ -1,0 +1,185 @@
+/// AppProject provides a logical grouping of applications, providing controls for: * where the apps may
+/// deploy to (cluster whitelist) * what may be deployed (repository whitelist, resource
+/// whitelist/blacklist) * who can access these applications (roles, OIDC group claims bindings) * and
+/// what they can do (RBAC policies) * automation access to these roles (JWT tokens)
+///
+/// This module was generated from the CustomResourceDefinition at
+/// <https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/crds/appproject-crd.yaml>.
+module io.argoproj.v1alpha1.AppProject
+
+extends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
+
+import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+
+fixed apiVersion: "argoproj.io/v1alpha1"
+
+fixed kind: "AppProject"
+
+/// Standard object's metadata.
+///
+/// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>.
+metadata: ObjectMeta?
+
+/// AppProjectSpec is the specification of an AppProject
+spec: Spec
+
+/// AppProjectStatus contains status information for AppProject CRs
+status: Status?
+
+/// AppProjectSpec is the specification of an AppProject
+class Spec {
+  /// ClusterResourceBlacklist contains list of blacklisted cluster level resources
+  clusterResourceBlacklist: Listing<NamespaceResourceWhitelist>?
+
+  /// ClusterResourceWhitelist contains list of whitelisted cluster level resources
+  clusterResourceWhitelist: Listing<NamespaceResourceWhitelist>?
+
+  /// Description contains optional project description
+  description: String?
+
+  /// Destinations contains list of destinations available for deployment
+  destinations: Listing<Destination>?
+
+  /// NamespaceResourceBlacklist contains list of blacklisted namespace level resources
+  namespaceResourceBlacklist: Listing<NamespaceResourceWhitelist>?
+
+  /// NamespaceResourceWhitelist contains list of whitelisted namespace level resources
+  namespaceResourceWhitelist: Listing<NamespaceResourceWhitelist>?
+
+  /// OrphanedResources specifies if controller should monitor orphaned resources of apps in this project
+  orphanedResources: OrphanedResources?
+
+  /// PermitOnlyProjectScopedClusters determines whether destinations can only reference clusters which
+  /// are project-scoped
+  permitOnlyProjectScopedClusters: Boolean?
+
+  /// Roles are user defined RBAC roles associated with this project
+  roles: Listing<Role>?
+
+  /// SignatureKeys contains a list of PGP key IDs that commits in Git must be signed with in order to be
+  /// allowed for sync
+  signatureKeys: Listing<SignatureKey>?
+
+  /// SourceNamespaces defines the namespaces application resources are allowed to be created in
+  sourceNamespaces: Listing<String>?
+
+  /// SourceRepos contains list of repository URLs which can be used for deployment
+  sourceRepos: Listing<String>?
+
+  /// SyncWindows controls when syncs can be run for apps in this project
+  syncWindows: Listing<SyncWindow>?
+}
+
+/// GroupKind specifies a Group and a Kind, but does not force a version. This is useful for identifying
+/// concepts during lookup stages without having partially valid types
+class NamespaceResourceWhitelist {
+  group: String
+
+  kind: String
+}
+
+/// ApplicationDestination holds information about the application's destination
+class Destination {
+  /// Name is an alternate way of specifying the target cluster by its symbolic name. This must be set if
+  /// Server is not set.
+  name: String?
+
+  /// Namespace specifies the target namespace for the application's resources. The namespace will only
+  /// be set for namespace-scoped resources that have not set a value for .metadata.namespace
+  namespace: String?
+
+  /// Server specifies the URL of the target cluster's Kubernetes control plane API. This must be set if
+  /// Name is not set.
+  server: String?
+}
+
+/// OrphanedResources specifies if controller should monitor orphaned resources of apps in this project
+class OrphanedResources {
+  /// Ignore contains a list of resources that are to be excluded from orphaned resources monitoring
+  ignore: Listing<Ignore>?
+
+  /// Warn indicates if warning condition should be created for apps which have orphaned resources
+  warn: Boolean?
+}
+
+/// OrphanedResourceKey is a reference to a resource to be ignored from
+class Ignore {
+  group: String?
+
+  kind: String?
+
+  name: String?
+}
+
+/// ProjectRole represents a role that has access to a project
+class Role {
+  /// Description is a description of the role
+  description: String?
+
+  /// Groups are a list of OIDC group claims bound to this role
+  groups: Listing<String>?
+
+  /// JWTTokens are a list of generated JWT tokens bound to this role
+  jwtTokens: Listing<Item>?
+
+  /// Name is a name for this role
+  name: String
+
+  /// Policies Stores a list of casbin formatted strings that define access policies for the role in the
+  /// project
+  policies: Listing<String>?
+}
+
+/// JWTToken holds the issuedAt and expiresAt values of a token
+class Item {
+  exp: Int?
+
+  iat: Int
+
+  id: String?
+}
+
+/// SignatureKey is the specification of a key required to verify commit signatures with
+class SignatureKey {
+  /// The ID of the key in hexadecimal notation
+  keyID: String
+}
+
+/// SyncWindow contains the kind, time, duration and attributes that are used to assign the syncWindows
+/// to apps
+class SyncWindow {
+  /// Applications contains a list of applications that the window will apply to
+  applications: Listing<String>?
+
+  /// Clusters contains a list of clusters that the window will apply to
+  clusters: Listing<String>?
+
+  /// Duration is the amount of time the sync window will be open
+  duration: String?
+
+  /// Kind defines if the window allows or blocks syncs
+  kind: String?
+
+  /// ManualSync enables manual syncs when they would otherwise be blocked
+  manualSync: Boolean?
+
+  /// Namespaces contains a list of namespaces that the window will apply to
+  namespaces: Listing<String>?
+
+  /// Schedule is the time the window will begin, specified in cron format
+  schedule: String?
+
+  /// TimeZone of the sync that will be applied to the schedule
+  timeZone: String?
+}
+
+/// AppProjectStatus contains status information for AppProject CRs
+class Status {
+  /// JWTTokensByRole contains a list of JWT tokens issued for a given role
+  jwtTokensByRole: Mapping<String, JwtTokensByRole>?
+}
+
+/// JWTTokens represents a list of JWT tokens
+class JwtTokensByRole {
+  items: Listing<Item>?
+}
