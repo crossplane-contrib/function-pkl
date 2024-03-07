@@ -1,12 +1,14 @@
 package main
 
 import (
-	"io/fs"
+	"context"
+	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/apple/pkl-go/pkl"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
+	"sigs.k8s.io/yaml"
 )
 
 type crossplaneReader struct {
@@ -30,21 +32,23 @@ func (f *crossplaneReader) HasHierarchicalUris() bool {
 // e.g. crossplane:/observed/composition/
 // TODO
 func (f *crossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
-	path := strings.TrimSuffix(strings.TrimPrefix(url.Path, "/"), "/")
+	/*
+		path := strings.TrimSuffix(strings.TrimPrefix(url.Path, "/"), "/")
 
-	entries, err := fs.ReadDir(f.fs, path)
-	if err != nil {
-		return nil, err
-	}
-	var ret []pkl.PathElement
-	for _, entry := range entries {
-		// copy Pkl's built-in `file` ModuleKey and don't follow symlinks.
-		if entry.Type()&fs.ModeSymlink != 0 {
-			continue
+		entries, err := fs.ReadDir(f.fs, path)
+		if err != nil {
+			return nil, err
 		}
-		ret = append(ret, pkl.NewPathElement(entry.Name(), entry.IsDir()))
-	}
-	return ret, nil
+		var ret []pkl.PathElement
+		for _, entry := range entries {
+			// copy Pkl's built-in `file` ModuleKey and don't follow symlinks.
+			if entry.Type()&fs.ModeSymlink != 0 {
+				continue
+			}
+			ret = append(ret, pkl.NewPathElement(entry.Name(), entry.IsDir()))
+		}
+		return ret, nil*/
+	return nil, fmt.Errorf("not implemented")
 }
 
 var _ pkl.Reader = (*crossplaneReader)(nil)
@@ -65,6 +69,7 @@ var WithCrossplane = func(req *fnv1beta1.RunFunctionRequest, scheme string) func
 	}
 }
 
+// Expects an URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file
 func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
 	path := strings.TrimSuffix(strings.TrimPrefix(url.Path, "/"), "/")
 	pathElements := strings.Split(path, "/")
@@ -77,34 +82,68 @@ func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
 		state = f.request.GetDesired()
 	default:
 		// ERR
+		return "", fmt.Errorf("unexpected state type: %s", pathElements[0])
 	}
 
-	pathElements = pathElements[:1]
+	pathElements = pathElements[1:]
+
 	var resource *fnv1beta1.Resource
-	var isComposition = false
+	// var isComposition = false
 	switch pathElements[0] {
 	case "composition":
-		isComposition = true
+		//isComposition = true
 		resource = state.GetComposite()
 	case "resources":
 		resource = state.GetResources()[pathElements[1]]
-		pathElements = pathElements[:1]
+		pathElements = pathElements[1:]
 	default:
 		// ERR
+		return "", fmt.Errorf("unexpected resource type: %s", pathElements[0])
 	}
 
-	pathElements = pathElements[:1]
+	pathElements = pathElements[1:]
 	switch pathElements[0] {
 	case "resource":
-		resource.GetResource() // convert using
-	case "connectionDetails":
-		resource.GetConnectionDetails()
-	case "ready":
-		resource.GetReady()
-	}
+		subResource := resource.GetResource().AsMap()
+		// Convert subResource to Yaml
 
-	contents, err := fs.ReadFile(f.fs, strings.TrimPrefix(url.Path, "/"))
-	return string(contents), err
+		yaml, err := yaml.Marshal(subResource)
+		if err != nil {
+			fmt.Println(err)
+			return "", err
+		}
+		yamlString := string(yaml)
+		out, err := NewYamlManifestToPklFile(yamlString, nil).SillyHack()
+		if err != nil {
+			return "", err
+		}
+		fmt.Println(out)
+
+		// Eval the pkl file
+		evaluator, err := pkl.NewEvaluator(context.TODO(), pkl.PreconfiguredOptions)
+		if err != nil {
+			return "", err
+		}
+
+		outy, err := evaluator.EvaluateOutputText(context.TODO(), pkl.TextSource(out))
+		if err != nil {
+			return "", err
+		}
+
+		fmt.Println(outy)
+
+		return outy, nil
+
+		// resource.GetResource() // convert using
+	case "connectionDetails":
+		// resource.GetConnectionDetails()
+		return "", fmt.Errorf("not implemented")
+	case "ready":
+		// resource.GetReady()
+		return "", fmt.Errorf("not implemented")
+	default:
+		return "", fmt.Errorf("unexpected resource type: %s", pathElements[0])
+	}
 }
 
 var _ pkl.ModuleReader = (*crossplaneModuleReader)(nil)
@@ -113,8 +152,9 @@ type crossplaneResourceReader struct {
 	*crossplaneReader
 }
 
+// TODO Implement
 func (f crossplaneResourceReader) Read(url url.URL) ([]byte, error) {
-	return fs.ReadFile(f.fs, strings.TrimPrefix(url.Path, "/"))
+	return nil, fmt.Errorf("not implemented")
 }
 
 var _ pkl.ResourceReader = (*crossplaneResourceReader)(nil)

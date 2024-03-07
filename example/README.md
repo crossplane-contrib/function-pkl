@@ -23,3 +23,8 @@ message: I was run with input "Hello world"!
 severity: SEVERITY_NORMAL
 step: run-the-template
 ```
+
+Run the function with simulated observed state
+```shell
+$ crossplane beta render xr.yaml composition.yaml functions.yaml --observed-resources=observed.yaml
+```

@@ -38,7 +38,9 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		xr, err := request.GetObservedCompositeResource(req)
 		myxr := req.Observed.GetComposite()
 	*/
-	evaluator, err := pkl.NewEvaluator(ctx, pkl.PreconfiguredOptions,
+	evaluatorManager := pkl.NewEvaluatorManager()
+	defer evaluatorManager.Close()
+	evaluator, err := evaluatorManager.NewEvaluator(ctx, pkl.PreconfiguredOptions,
 		WithCrossplane(req, "crossplane"),
 	) // TODO disallow FS access
 	if err != nil {
@@ -73,32 +75,10 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, err
 	}
 
-	rawYaml, err := yaml.Marshal(req.Observed.Composite.GetResource())
-	compositionYamlFile := fmt.Sprintf("%s/observed/%s", tempDir, "composition.yaml")
-	os.WriteFile(compositionYamlFile, rawYaml, 0666)
-
-	// turn yaml into  pkl file:
-	convertEvalManager := pkl.NewEvaluatorManagerWithCommand([]string{"/home/tim/.local/bin/pkl", "-p", "input=" + compositionYamlFile}) // TODO fix path
-	convertEval, err := convertEvalManager.NewEvaluator(ctx, pkl.PreconfiguredOptions)
-	if err != nil {
-		response.Fatal(rsp, errors.Wrap(err, "error creating new evaluater"))
-		return rsp, err
-	}
-	x, err := convertEval.EvaluateOutputFiles(ctx, pkl.UriSource("package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl"))
-	if len(x) > 10 {
-		response.Fatal(rsp, errors.Wrap(err, "this is a test"))
-		return rsp, err
-	}
-	//os.WriteFile(fmt.Sprintf("%s/observed/%s", tempDir, "composition.pkl"))
-	// turn input yaml to pkl file
-	// for each observed resource create a file
-	//os.WriteFile()
-
-	//req.Observed.Composite
-
 	for name, source := range sources {
 		resource, err := parseFile(ctx, evaluator, source)
 		if err != nil {
+			fmt.Print(err)
 			response.Fatal(rsp, errors.Wrap(err, "error during parsing of file"))
 		}
 		outResources[name] = resource
@@ -107,23 +87,6 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	rsp.Desired.Resources = outResources
 	return rsp, nil
 }
-
-/*
-
-// generates a Pkl File from yaml
-func createPklFile(name string) error {
-	// to yaml and then to pkl
-	rawYaml, err := yaml.Marshal(r.GetResource())
-	if err != nil {
-		return err
-	}
-
-	//string(rawYaml)
-	// try to run evaluator with command?
-	// pkl eval -p input=resource.yaml -o resource.pkl package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl
-
-	os.WriteFile(name)
-}*/
 
 func parseFile(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*fnv1beta1.Resource, error) {
 	// TODO request a new Function to EvaluateOutputValue which does not require a Struct Tag
