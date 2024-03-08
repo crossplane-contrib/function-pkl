@@ -1,4 +1,4 @@
-package main
+package function
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/avarei/function-pkl/internal/pkl/reader"
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
@@ -20,12 +21,12 @@ import (
 type Function struct {
 	fnv1beta1.UnimplementedFunctionRunnerServiceServer
 
-	log logging.Logger
+	Log logging.Logger
 }
 
 // RunFunction runs the Function.
 func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRequest) (*fnv1beta1.RunFunctionResponse, error) {
-	f.log.Info("Running function", "tag", req.GetMeta().GetTag())
+	f.Log.Info("Running function", "tag", req.GetMeta().GetTag())
 
 	rsp := response.To(req, response.DefaultTTL)
 
@@ -41,7 +42,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	evaluatorManager := pkl.NewEvaluatorManager()
 	defer evaluatorManager.Close()
 	evaluator, err := evaluatorManager.NewEvaluator(ctx, pkl.PreconfiguredOptions,
-		WithCrossplane(req, "crossplane"),
+		reader.WithCrossplane(req, "crossplane"),
 	) // TODO disallow FS access
 	if err != nil {
 		evaluator.Close()

@@ -5,6 +5,8 @@ import (
 	"github.com/alecthomas/kong"
 
 	"github.com/crossplane/function-sdk-go"
+
+	fn "github.com/avarei/function-pkl/internal/function"
 )
 
 // CLI of this Function.
@@ -24,7 +26,7 @@ func (c *CLI) Run() error {
 		return err
 	}
 
-	return function.Serve(&Function{log: log},
+	return function.Serve(&fn.Function{Log: log},
 		function.Listen(c.Network, c.Address),
 		function.MTLSCertificates(c.TLSCertsDir),
 		function.Insecure(c.Insecure))
