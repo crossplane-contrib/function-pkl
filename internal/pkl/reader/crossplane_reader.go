@@ -69,20 +69,20 @@ var WithCrossplane = func(req *fnv1beta1.RunFunctionRequest, scheme string) func
 	}
 }
 
-// Expects an URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file
-func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
+func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	path := strings.TrimSuffix(strings.TrimPrefix(url.Path, "/"), "/")
 	pathElements := strings.Split(path, "/")
 
 	var state *fnv1beta1.State
 	switch pathElements[0] {
+	case "context":
+		return nil, fmt.Errorf("context is not yet implemented")
 	case "observed":
 		state = f.request.GetObserved()
 	case "desired":
 		state = f.request.GetDesired()
 	default:
-		// ERR
-		return "", fmt.Errorf("unexpected state type: %s", pathElements[0])
+		return nil, fmt.Errorf("unexpected state type: %s", pathElements[0])
 	}
 
 	pathElements = pathElements[1:]
@@ -98,7 +98,7 @@ func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
 		pathElements = pathElements[1:]
 	default:
 		// ERR
-		return "", fmt.Errorf("unexpected resource type: %s", pathElements[0])
+		return nil, fmt.Errorf("unexpected resource type: %s", pathElements[0])
 	}
 
 	pathElements = pathElements[1:]
@@ -110,40 +110,47 @@ func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
 		yaml, err := yaml.Marshal(subResource)
 		if err != nil {
 			fmt.Println(err)
-			return "", err
+			return nil, err
 		}
 		yamlString := string(yaml)
 		out, err := NewYamlManifestToPklFile(yamlString, nil).SillyHack()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		fmt.Println(out)
 
 		// Eval the pkl file
 		evaluator, err := pkl.NewEvaluator(context.TODO(), pkl.PreconfiguredOptions)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		outy, err := evaluator.EvaluateOutputText(context.TODO(), pkl.TextSource(out))
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		fmt.Println(outy)
 
-		return outy, nil
-
-		// resource.GetResource() // convert using
+		return []byte(outy), nil
 	case "connectionDetails":
 		// resource.GetConnectionDetails()
-		return "", fmt.Errorf("not implemented")
+		return nil, fmt.Errorf("not implemented")
 	case "ready":
 		// resource.GetReady()
-		return "", fmt.Errorf("not implemented")
+		return nil, fmt.Errorf("not implemented")
 	default:
-		return "", fmt.Errorf("unexpected resource type: %s", pathElements[0])
+		return nil, fmt.Errorf("unexpected resource type: %s", pathElements[0])
 	}
+}
+
+// Expects an URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file
+func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
+	out, err := f.BaseRead(url)
+	if err != nil {
+		return "", err
+	}
+	return string(out), nil
 }
 
 var _ pkl.ModuleReader = (*crossplaneModuleReader)(nil)
@@ -154,7 +161,11 @@ type crossplaneResourceReader struct {
 
 // TODO Implement
 func (f crossplaneResourceReader) Read(url url.URL) ([]byte, error) {
-	return nil, fmt.Errorf("not implemented")
+	out, err := f.BaseRead(url)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 var _ pkl.ResourceReader = (*crossplaneResourceReader)(nil)
