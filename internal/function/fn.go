@@ -78,11 +78,11 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	for name, source := range sources {
 		resource, err := parseFile(ctx, evaluator, source)
-		if err != nil {
-			fmt.Print(err)
-			response.Fatal(rsp, errors.Wrap(err, "error during parsing of file"))
+		if err == nil {
+			outResources[name] = resource
+		} else {
+			f.Log.Debug("Could not parse file \"" + name + "\": " + err.Error())
 		}
-		outResources[name] = resource
 	}
 
 	rsp.Desired.Resources = outResources

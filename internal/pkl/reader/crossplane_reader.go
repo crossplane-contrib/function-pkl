@@ -97,7 +97,6 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		resource = state.GetResources()[pathElements[1]]
 		pathElements = pathElements[1:]
 	default:
-		// ERR
 		return nil, fmt.Errorf("unexpected resource type: %s", pathElements[0])
 	}
 
@@ -112,14 +111,13 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 			fmt.Println(err)
 			return nil, err
 		}
-		yamlString := string(yaml)
-		out, err := NewYamlManifestToPklFile(yamlString, nil).SillyHack()
+		out, err := NewYamlManifestToPklFile(string(yaml), nil).SillyHack()
 		if err != nil {
 			return nil, err
 		}
 		fmt.Println(out)
 
-		// Eval the pkl file
+		// Eval the pkl file // TODO use NewEvalutorManager
 		evaluator, err := pkl.NewEvaluator(context.TODO(), pkl.PreconfiguredOptions)
 		if err != nil {
 			return nil, err
