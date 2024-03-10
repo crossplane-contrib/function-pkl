@@ -2,8 +2,6 @@ package function
 
 import (
 	"context"
-	"fmt"
-	"os"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
@@ -54,26 +52,17 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	var sources map[string]*pkl.ModuleSource = make(map[string]*pkl.ModuleSource)
 
-	for fileName, fileContent := range in.Spec.Files {
-		sources[fileName] = pkl.TextSource(fileContent)
-	}
-
-	for i, uri := range in.Spec.Uris {
-		sources[fmt.Sprintf("uri-%d", i+1)] = pkl.UriSource(uri)
-	}
-
-	// TODO configMap
-
-	tempDir, err := os.MkdirTemp("", "pkl-run-")
-	if err != nil {
-		response.Fatal(rsp, errors.Wrap(err, "error creating temporary directory"))
-		return rsp, err
-	}
-	defer os.RemoveAll(tempDir)
-	err = os.Mkdir(fmt.Sprintf("%s/%s", tempDir, "observed"), 0777)
-	if err != nil {
-		response.Fatal(rsp, errors.Wrap(err, "error creating observed directory"))
-		return rsp, err
+	for _, pklFileRef := range in.Spec.PklManifests {
+		if pklFileRef.Type == "uri" {
+			sources[pklFileRef.Name] = pkl.UriSource(pklFileRef.Uri)
+		} else if pklFileRef.Type == "inline" {
+			sources[pklFileRef.Name] = pkl.TextSource(pklFileRef.Inline)
+		} else if pklFileRef.Type == "configMap" {
+			// TODO configMap
+		} else {
+			response.Fatal(rsp, errors.New("unknown PklFileRef type"))
+			return rsp, nil
+		}
 	}
 
 	for name, source := range sources {

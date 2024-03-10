@@ -24,23 +24,33 @@ type Pkl struct {
 }
 
 type PklSpec struct {
-	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
-	XrdTemplate string `json:"xrdTemplate,omitempty"`
+	// +kubebuilder:validation:Required
+	PklManifests []PklFileRef `json:"pklManifests"`
 
-	// Contains a stringified Pkl file
-	Files map[string]string `json:"files,omitempty"`
+	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
+	PklCrds []PklFileRef `json:"pklCRDs,omitempty"`
+}
+
+type PklFileRef struct {
+	// +kubebuilder:validation:Required
+	Name string `json:"name"`
+
+	// +kubebuilder:validation:Enum=uri;inline;configMap
+	Type string `json:"type,omitempty"`
 
 	// Use URI Scheme to load Project/Package
-	Uris []string `json:"uris,omitempty"`
-
+	Uri string `json:"uri,omitempty"`
+	// Contains a stringified Pkl file
+	Inline string `json:"inline,omitempty"`
 	// Load Project/Package from ConfigMap. Will evaluate PklProject and *.pkl files within the ConfigMap.
-	ConfigMapRef string `json:"configMapRef,omitempty"`
+	ConfigMapRef ConfigMapRef `json:"configMapRef,omitempty"`
 }
 
 type ConfigMapRef struct {
 	// +kubebuilder:validation:Required
+	// The name of the ConfigMap
 	Name string `json:"name"`
-
 	// +kubebuilder:validation:Required
+	// The namespace of the ConfigMap
 	Namespace string `json:"namespace"`
 }

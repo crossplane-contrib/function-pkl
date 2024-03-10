@@ -40,24 +40,80 @@ spec:
             type: object
           spec:
             properties:
-              configMapRef:
-                description: Load Project/Package from ConfigMap. Will evaluate PklProject
-                  and *.pkl files within the ConfigMap.
-                type: string
-              files:
-                additionalProperties:
-                  type: string
-                description: Contains a stringified Pkl file
-                type: object
-              uris:
-                description: Use URI Scheme to load Project/Package
-                items:
-                  type: string
-                type: array
-              xrdTemplate:
+              pklCRDs:
                 description: Pkl Template of the CompositeResourceDefinition (XRD),
                   which will be amended by the CompositeResource (XR)
-                type: string
+                items:
+                  properties:
+                    configMapRef:
+                      description: Load Project/Package from ConfigMap. Will evaluate
+                        PklProject and *.pkl files within the ConfigMap.
+                      properties:
+                        name:
+                          description: The name of the ConfigMap
+                          type: string
+                        namespace:
+                          description: The namespace of the ConfigMap
+                          type: string
+                      required:
+                      - name
+                      - namespace
+                      type: object
+                    inline:
+                      description: Contains a stringified Pkl file
+                      type: string
+                    name:
+                      type: string
+                    type:
+                      enum:
+                      - uri
+                      - inline
+                      - configMap
+                      type: string
+                    uri:
+                      description: Use URI Scheme to load Project/Package
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+              pklManifests:
+                items:
+                  properties:
+                    configMapRef:
+                      description: Load Project/Package from ConfigMap. Will evaluate
+                        PklProject and *.pkl files within the ConfigMap.
+                      properties:
+                        name:
+                          description: The name of the ConfigMap
+                          type: string
+                        namespace:
+                          description: The namespace of the ConfigMap
+                          type: string
+                      required:
+                      - name
+                      - namespace
+                      type: object
+                    inline:
+                      description: Contains a stringified Pkl file
+                      type: string
+                    name:
+                      type: string
+                    type:
+                      enum:
+                      - uri
+                      - inline
+                      - configMap
+                      type: string
+                    uri:
+                      description: Use URI Scheme to load Project/Package
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+            required:
+            - pklManifests
             type: object
         type: object
     served: true

@@ -15,26 +15,30 @@ spec:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
-        files:
-          foo.pkl: |
-            amends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
+        pklManifests:
+          - name: foo
+            type: inline
+            inline: |
+              amends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
-            metadata {
-                name = "foo"
-            }
+              metadata {
+                  name = "foo"
+              }
 
-            data {
-                ["foo"] = "bar"
-            }
-          bar.pkl: |
-            amends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
+              data {
+                  ["foo"] = "bar"
+              }
+          - name: bar
+            type: inline
+            inline: |
+              amends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
-            local foo = import("crossplane:/observed/resources/foo/resource")
+              local foo = import("crossplane:/observed/resources/foo/resource")
 
-            metadata {
-                name = "bar"
-            }
+              metadata {
+                  name = "bar"
+              }
 
-            data {
-                ["bar"] = foo.resources[0].data["foo"]
-            }
+              data {
+                  ["bar"] = foo.resources[0].data["foo"]
+              }
