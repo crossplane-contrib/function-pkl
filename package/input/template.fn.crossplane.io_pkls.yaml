@@ -45,33 +45,15 @@ spec:
                   which will be amended by the CompositeResource (XR)
                 items:
                   properties:
-                    configMapRef:
-                      description: Load Project/Package from ConfigMap. Will evaluate
-                        PklProject and *.pkl files within the ConfigMap.
-                      properties:
-                        name:
-                          description: The name of the ConfigMap
-                          type: string
-                        namespace:
-                          description: The namespace of the ConfigMap
-                          type: string
-                      required:
-                      - name
-                      - namespace
-                      type: object
                     inline:
-                      description: Contains a stringified Pkl file
+                      description: Contains a Pkl Template of a CRD
                       type: string
                     name:
                       type: string
                     type:
+                      default: myDefaultValue
                       enum:
-                      - uri
                       - inline
-                      - configMap
-                      type: string
-                    uri:
-                      description: Use URI Scheme to load Project/Package
                       type: string
                   required:
                   - name

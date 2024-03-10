@@ -30,25 +30,87 @@ func (f *crossplaneReader) HasHierarchicalUris() bool {
 }
 
 // e.g. crossplane:/observed/composition/
-// TODO
 func (f *crossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
-	/*
-		path := strings.TrimSuffix(strings.TrimPrefix(url.Path, "/"), "/")
+	path := strings.TrimSuffix(strings.TrimPrefix(url.Path, "/"), "/")
+	pathElements := strings.Split(path, "/")
 
-		entries, err := fs.ReadDir(f.fs, path)
-		if err != nil {
-			return nil, err
+	var state *fnv1beta1.State
+	if len(pathElements) > 0 {
+		switch pathElements[0] {
+		case "context":
+			return nil, fmt.Errorf("context is not yet implemented")
+		case "observed":
+			state = f.request.GetObserved()
+		case "desired":
+			state = f.request.GetDesired()
+		default:
+			return nil, fmt.Errorf("unexpected state type: %s", pathElements[0])
 		}
-		var ret []pkl.PathElement
-		for _, entry := range entries {
-			// copy Pkl's built-in `file` ModuleKey and don't follow symlinks.
-			if entry.Type()&fs.ModeSymlink != 0 {
-				continue
+	} else {
+		return []pkl.PathElement{
+			pkl.NewPathElement("context", true),
+			pkl.NewPathElement("observed", true),
+			pkl.NewPathElement("desired", true),
+		}, nil
+	}
+
+	pathElements = pathElements[1:]
+
+	var resource *fnv1beta1.Resource
+	// var isComposition = false
+	if len(pathElements) > 0 {
+		switch pathElements[0] {
+		case "composition":
+			//isComposition = true
+			resource = state.GetComposite()
+		case "resources":
+			if len(pathElements) > 1 {
+				resource = state.GetResources()[pathElements[1]]
+				pathElements = pathElements[1:]
+			} else {
+				var out []pkl.PathElement
+				for name, _ := range state.GetResources() {
+					out = append(out, pkl.NewPathElement(name, true))
+				}
+				return out, nil
 			}
-			ret = append(ret, pkl.NewPathElement(entry.Name(), entry.IsDir()))
+		default:
+			return nil, fmt.Errorf("unexpected resource type: %s", pathElements[0])
 		}
-		return ret, nil*/
-	return nil, fmt.Errorf("not implemented")
+	} else {
+		return []pkl.PathElement{
+			pkl.NewPathElement("composition", true),
+			pkl.NewPathElement("resources", true),
+		}, nil
+	}
+
+	pathElements = pathElements[1:]
+
+	if len(pathElements) > 0 {
+		switch pathElements[0] {
+		case "resource":
+			return nil, fmt.Errorf("resource is not a directory")
+		case "connectionDetails":
+			return nil, fmt.Errorf("connectionDetails is not a directory")
+		case "ready":
+			return nil, fmt.Errorf("ready is not a directory")
+		default:
+			return nil, fmt.Errorf("unexpected resource type: %s", pathElements[0])
+		}
+	} else {
+		out := []pkl.PathElement{}
+
+		if resource.GetResource() != nil {
+			out = append(out, pkl.NewPathElement("resource", false))
+		}
+		if resource.GetConnectionDetails() != nil {
+			out = append(out, pkl.NewPathElement("connectionDetails", false))
+		}
+		if resource.GetReady() != fnv1beta1.Ready_READY_UNSPECIFIED {
+			out = append(out, pkl.NewPathElement("ready", false))
+		}
+		return out, nil
+	}
 }
 
 var _ pkl.Reader = (*crossplaneReader)(nil)

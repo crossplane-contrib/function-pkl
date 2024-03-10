@@ -39,8 +39,10 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	*/
 	evaluatorManager := pkl.NewEvaluatorManager()
 	defer evaluatorManager.Close()
-	evaluator, err := evaluatorManager.NewEvaluator(ctx, pkl.PreconfiguredOptions,
+	evaluator, err := evaluatorManager.NewEvaluator(ctx,
+		pkl.PreconfiguredOptions,
 		reader.WithCrossplane(req, "crossplane"),
+		reader.WithCrd(req, "crd"),
 	) // TODO disallow FS access
 	if err != nil {
 		evaluator.Close()

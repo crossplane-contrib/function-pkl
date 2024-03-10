@@ -28,9 +28,21 @@ type PklSpec struct {
 	PklManifests []PklFileRef `json:"pklManifests"`
 
 	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
-	PklCrds []PklFileRef `json:"pklCRDs,omitempty"`
+	PklCrds []PklCrdRef `json:"pklCRDs,omitempty"`
 }
 
+type PklCrdRef struct {
+
+	// +kubebuilder:validation:Required
+	Name string `json:"name"`
+
+	// +kubebuilder:default="myDefaultValue"
+	// +kubebuilder:validation:Enum=inline
+	Type string `json:"type,omitempty"`
+
+	// Contains a Pkl Template of a CRD
+	Inline string `json:"inline,omitempty"`
+}
 type PklFileRef struct {
 	// +kubebuilder:validation:Required
 	Name string `json:"name"`
