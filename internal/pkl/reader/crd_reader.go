@@ -37,7 +37,7 @@ func (f *crdReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
 
 	// create list of pathElement
 	var ret []pkl.PathElement
-	for _, pklCrdRef := range in.Spec.PklCrds {
+	for _, pklCrdRef := range in.Spec.PklCRDs {
 		ret = append(ret, pkl.NewPathElement(pklCrdRef.Name, false))
 	}
 	return ret, nil
@@ -68,17 +68,13 @@ func (f crdReader) BaseRead(url url.URL) (string, error) {
 		return "", err
 	}
 
-	for _, pklCrdRef := range in.Spec.PklCrds {
-		if pklCrdRef.Name != url.Path {
+	for _, pklCrdRef := range in.Spec.PklCRDs {
+		if pklCrdRef.Name != url.Host {
 			continue
 		}
 
-		switch pklCrdRef.Type {
-		case "inline":
-			return pklCrdRef.Inline, nil
-		default:
-			return "", fmt.Errorf("unknown PklCrdRef type")
-		}
+		return pklCrdRef.Inline, nil
+
 	}
 	return "", fmt.Errorf("PklCrdRef not found")
 }

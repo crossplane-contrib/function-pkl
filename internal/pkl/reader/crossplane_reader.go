@@ -69,7 +69,7 @@ func (f *crossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) 
 				pathElements = pathElements[1:]
 			} else {
 				var out []pkl.PathElement
-				for name, _ := range state.GetResources() {
+				for name := range state.GetResources() {
 					out = append(out, pkl.NewPathElement(name, true))
 				}
 				return out, nil

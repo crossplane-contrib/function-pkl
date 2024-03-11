@@ -1,0 +1,53 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: function-pkl
+spec:
+  compositeTypeRef:
+    apiVersion: example.crossplane.io/v1
+    kind: XR
+  mode: Pipeline
+  pipeline:
+  - step: run-the-template
+    functionRef:
+      name: function-pkl
+    input:
+      apiVersion: template.fn.crossplane.io/v1beta1
+      kind: Pkl
+      spec:
+        pklCRDs:
+          - name: exampleresource
+            inline: |
+              module com.example.mygroup.v1.ExampleResource
+
+              extends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
+
+              import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+
+              fixed apiVersion: "mygroup.example.com/v1"
+
+              fixed kind: "ExampleResource"
+
+              /// Standard object's metadata.
+              ///
+              /// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>.
+              metadata: ObjectMeta?
+
+              spec: Spec?
+
+              class Spec {
+                exampleString: String?
+              }
+        pklManifests:
+          - name: foo
+            type: inline
+            inline: |
+              amends "crd://exampleresource"
+
+              metadata {
+                  name = "foo"
+              }
+
+              spec {
+                  exampleString = "bar"
+              }

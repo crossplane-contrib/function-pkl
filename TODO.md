@@ -12,9 +12,9 @@
         - [ ] Create connectionDetails Pkl Template
         - [ ] Create Ready Pkl Template
         - [ ] Allow Custom Resource Definition Pkl Templates in v1beta1/PklSpec
-            - [ ] From Uri
+            - [x] From Uri
             - [ ] From ConfigMap
-            - [ ] From Inline?
+            - [x] From Inline?
         - [ ] Use these Pkl Templates to Convert the requested Input to Pkl Files
             - [ ] Create k8s-contrib/Convert.pkl equivalent for connectionDetails
             - [ ] Create k8s-contrib/Convert.pkl equivalent for Ready

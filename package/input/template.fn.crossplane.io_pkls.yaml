@@ -50,11 +50,6 @@ spec:
                       type: string
                     name:
                       type: string
-                    type:
-                      default: myDefaultValue
-                      enum:
-                      - inline
-                      type: string
                   required:
                   - name
                   type: object
