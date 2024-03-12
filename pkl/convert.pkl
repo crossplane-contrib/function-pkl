@@ -1,0 +1,7 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+open module crossplane.convert
+
+import "@k8s/K8sResource.pkl"
+local x = import ("@k8s.contrib/convert.pkl")
+
+local function doGetFunctionInputTemplate(): K8sResource?

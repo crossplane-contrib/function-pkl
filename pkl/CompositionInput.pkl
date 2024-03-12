@@ -1,0 +1,22 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+module CompositionInput
+
+import "@k8s/K8sResource.pkl"
+
+context: Mapping<String, Any>
+
+desired: State
+
+observed: State
+
+
+class State {
+  composite: Resource
+  resources: Mapping<String, Resource>
+}
+
+class Resource {
+  resource: K8sResource
+  connectionDetails: Mapping<String, String>?
+  ready: Boolean?
+}
