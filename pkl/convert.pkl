@@ -2,6 +2,43 @@
 open module crossplane.convert
 
 import "@k8s/K8sResource.pkl"
+import "pkl:yaml"
 local x = import ("@k8s.contrib/convert.pkl")
 
-local function doGetFunctionInputTemplate(): K8sResource?
+foo = (x) {
+  resourcesToConvert = new yaml.Parser{ useMapping = true }
+    .parseAll("""
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: foo
+      namespace: bar
+    data:
+      foo: bar
+    """)
+    .filterNonNull() as List<Mapping>
+}
+bar = (x) {
+  resourcesToConvert = new yaml.Parser{ useMapping = true }
+    .parseAll("""
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: faz
+        namespace: bar
+      data:
+        faz: bar
+    """)
+    .filterNonNull() as List<Mapping>
+  input = "foo"
+}
+
+
+output {
+  local textBuffer: Listing<String> = new {
+    "\(foo.output.text)\n"
+    "\n"
+    "\(bar.output.text)\n"
+  }
+  text = textBuffer.toList().join("")
+}
