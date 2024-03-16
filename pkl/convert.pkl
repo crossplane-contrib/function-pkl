@@ -2,8 +2,9 @@
 open module crossplane.convert
 
 import "@k8s/K8sResource.pkl"
+import "pkl:reflect"
 import "pkl:yaml"
-local x = import ("@k8s.contrib/convert.pkl")
+local x = import ("k8sconvert.pkl")
 
 foo = (x) {
   resourcesToConvert = new yaml.Parser{ useMapping = true }
@@ -33,12 +34,43 @@ bar = (x) {
   input = "foo"
 }
 
+local importInfos = foo.importsByKindAndVersion.values
+  .flatMap((it) -> it.values)
+  .sortWith((info1, info2) -> info1.uri < info2.uri)
+local textBuffer: Listing<String> = new {
+  "import \"\(reflect.Module(K8sResource).uri)\"\n"
+  for (importInfo in importInfos) {
+    if (importInfo.isAliased)
+      "import \"\(importInfo.uri)\" as \(importInfo.name)\n"
+    else
+      "import \"\(importInfo.uri)\"\n"
+  }
+  "\n"
+  "resources: Listing<K8sResource> = new {"
+  for (resource in foo.resourcesToConvert) {
+    "\n"
+    "  new \(foo.importsByKindAndVersion[resource["kind"]][resource["apiVersion"]].name) "
+    // would be good to be able to set base indent
+    for (lineIdx, line in foo.renderConvertedValue(foo.resourceConverterFn(resource)).split("\n")) {
+      when (lineIdx != 0) {
+        "  "
+      }
+      line
+      "\n"
+    }
+  }
+  "}\n\n"
+    """
+    output {
+      value = resources
+      renderer = (K8sResource.output.renderer as YamlRenderer) {
+        isStream = true
+      }
+    }
+    """
+}
 
 output {
-  local textBuffer: Listing<String> = new {
-    "\(foo.output.text)\n"
-    "\n"
-    "\(bar.output.text)\n"
-  }
+
   text = textBuffer.toList().join("")
 }
