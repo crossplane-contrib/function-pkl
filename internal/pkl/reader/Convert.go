@@ -40,7 +40,7 @@ yamlManifests = """
 {{ if .CustomResourceTemplates }}
 customResourceTemplates {
 {{- range $kind, $apiVersionCRD := .CustomResourceTemplates }}
-	["AppProject"] {
+	["{{ $kind }}"] {
 		{{- range $apiVersion, $crd := $apiVersionCRD }}
 		["{{ $apiVersion }}"] = import("{{ $crd }}")
 		{{- end }}

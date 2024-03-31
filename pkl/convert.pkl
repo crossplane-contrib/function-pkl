@@ -1,44 +1,55 @@
-@ModuleInfo { minPklVersion = "0.25.1" }
-open module crossplane.convert
-
-import "@k8s/K8sResource.pkl"
-import "pkl:reflect"
 import "pkl:yaml"
-local x = import ("k8sconvert.pkl")
+import "@k8s.contrib/convert.pkl"
+import "@k8s/K8sResource.pkl"
 
-foo = (x) {
-  resourcesToConvert = new yaml.Parser{ useMapping = true }
-    .parseAll("""
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: foo
-      namespace: bar
-    data:
-      foo: bar
-    """)
-    .filterNonNull() as List<Mapping>
-}
-bar = (x) {
-  resourcesToConvert = new yaml.Parser{ useMapping = true }
-    .parseAll("""
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: faz
-        namespace: bar
-      data:
-        faz: bar
-    """)
-    .filterNonNull() as List<Mapping>
-  input = "foo"
+local input = """
+  context:
+    this:
+      could:
+        be:
+          - anything
+          - or something else
+    welcome: 3
+  observed:
+    composite:
+      resource:
+        apiVersion: example.crossplane.io/v1
+        kind: XR
+        metadata:
+          name: example-xr
+        spec: {}
+    resources:
+      example:
+        resource:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: example
+            namespace: default
+          data:
+            some: configuration
+        connectionDetails:
+          foo: bar
+        ready: false
+  """
+
+local xr = import("XR.pkl") // TODO find way, with which no more inport is necessary... or maybe use special reader?
+local crds = new Mapping<String, Mapping<String, K8sResource>> {
+  [xr.kind] = new Mapping<String, K8sResource> {
+    [xr.apiVersion] = xr
+  }
 }
 
-local importInfos = foo.importsByKindAndVersion.values
+local parsedInput: Mapping = new yaml.Parser { useMapping = true }
+    .parse(input) as Mapping
+
+local importInfos = importsByKindAndVersion.values
   .flatMap((it) -> it.values)
   .sortWith((info1, info2) -> info1.uri < info2.uri)
-local textBuffer: Listing<String> = new {
-  "import \"\(reflect.Module(K8sResource).uri)\"\n"
+
+local o: Listing = new {
+  "amends \"./CompositionInput.pkl\"\n"
+  //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)
       "import \"\(importInfo.uri)\" as \(importInfo.name)\n"
@@ -46,31 +57,165 @@ local textBuffer: Listing<String> = new {
       "import \"\(importInfo.uri)\"\n"
   }
   "\n"
-  "resources: Listing<K8sResource> = new {"
-  for (resource in foo.resourcesToConvert) {
-    "\n"
-    "  new \(foo.importsByKindAndVersion[resource["kind"]][resource["apiVersion"]].name) "
-    // would be good to be able to set base indent
-    for (lineIdx, line in foo.renderConvertedValue(foo.resourceConverterFn(resource)).split("\n")) {
-      when (lineIdx != 0) {
-        "  "
-      }
-      line
-      "\n"
-    }
-  }
-  "}\n\n"
+  // TODO add imports for all CRDs used
+
+  if (parsedInput.containsKey("context"))
+    "context = \(parsedInput.getOrNull("context"))\n"
+  else ""
+
+  if (parsedInput.containsKey("observed"))
     """
-    output {
-      value = resources
-      renderer = (K8sResource.output.renderer as YamlRenderer) {
-        isStream = true
-      }
-    }
+    observed {
+    \(parsedInput.getOrNull("observed").ifNonNull((state) -> indent(getState(state), 2)))
+    }\n
     """
+  else ""
+
+  if (parsedInput.containsKey("desired"))
+    """
+    desired {
+    \(parsedInput.getOrNull("desired").ifNonNull((state) -> indent(getState(state), 2)))
+    }\n
+    """
+  else ""
 }
 
-output {
+local function indent(text: String, i: Int): String =
+  let (spaces: String = " ".repeat(i))
+    spaces + text.split("\n").join("\n" + spaces)
 
-  text = textBuffer.toList().join("")
+function getState(i: Mapping): String = new Listing {
+  "composite {\n"
+  indent(getResource(i["composite"]), 2) + "\n"
+  "}\n"
+  "resources {\n"
+  for (k, v in i["resources"]) {
+    indent("""
+      ["\(k)"] {
+      \(indent(getResource(v), 2))
+      }
+      """, 2) + "\n"
+  }
+  "}\n"
+}.join("")
+
+function getResource(i: Mapping): String = new Listing<String> {
+  let (resource = i.getOrNull("resource"))
+    if (resource != null)
+      /*"""
+      resource = new ConfigMap {
+        // TODO add k8s.contrib/convert.pkl here
+        metadata {
+          name = "foo"
+        }
+      }\n
+      """*/
+      """
+      resource = new \(resource["kind"])
+      \(indent(getK8sResource(resource), 2))
+      \n
+      """
+    else ""
+
+  let (connectionDetails = i.getOrNull("connectionDetails"))
+    if (connectionDetails != null)
+      """
+      connectionDetails {
+      \(indent(getConnectionDetails(connectionDetails), 2))
+      }\n
+      """
+    else ""
+
+  let (ready = i.getOrNull("ready"))
+    if (ready != null)
+      "ready = \(i["ready"])\n"
+    else ""
+}.toList().join("")
+
+// copied from k8s.contrib@1.0.1/convert.pkl as it is local there.
+local function renderConvertedValue(value: Any) =
+  new PcfRenderer {}.renderValue(value).replaceAll("_____default_____", "default")
+
+local k8sConverter = new convert {
+  customResourceTemplates = crds
+}
+
+function getK8sResource(i: Mapping): String =
+  renderConvertedValue(k8sConverter.resourceConverterFn(i))
+
+local states: List<String> = new Listing<String> {
+  "observed"
+  "desired"
+}.fold(List(), (res, item) ->
+  let (state = parsedInput.getOrNull(item))
+    if (state != null)
+      res.add(item)
+    else res
+) as List<String>
+
+
+local k8sResources: Listing<Mapping> = new Listing<Mapping> {
+  for (state in states) {
+    parsedInput[state]["composite"]["resource"]
+    for (resource in parsedInput[state]["resources"]) {
+      resource["resource"]
+    }
+  }
+}
+
+// copied/adapted from k8s.contrib@1.0.1/convert.pkl as it is local there.
+local importsByKindAndVersion: Map<String, Map<String, ImportInfo>> =
+  k8sResources.fold(Map(), (imports, res) ->
+    let (importsByVersion = imports.getOrNull(res["kind"]))
+      if (importsByVersion == null)
+        imports.put(
+          res["kind"],
+          Map(
+            res["apiVersion"],
+            new ImportInfo {
+              resource = res
+              name = res["kind"]
+              uri = k8sConverter.getResourceTemplateUri(res)
+              isAliased = false
+            }))
+      else if (importsByVersion.containsKey(res["apiVersion"]))
+        imports
+      else if (importsByVersion.length == 1)
+        let (first = importsByVersion.values.single.resource)
+          imports.put(
+            res["kind"],
+            Map(
+              // for consistency, also used aliased name for first import of this kind
+              first["apiVersion"], createAliasedInfo(first),
+              res["apiVersion"], createAliasedInfo(res)))
+      else
+        imports.put(
+          res["kind"],
+          importsByVersion
+            .put(res["apiVersion"], createAliasedInfo(res))))
+
+// copied/adapted from k8s.contrib@1.0.1/convert.pkl as it is local there.
+local function createAliasedInfo(res: Mapping): ImportInfo = new {
+  resource = res
+  name = "\(res["kind"])\(res["apiVersion"].split("/").last.capitalize())"
+  uri = k8sConverter.getResourceTemplateUri(res)
+  isAliased = true
+}
+
+// copied from k8s.contrib@1.0.1/convert.pkl as it is local there.
+local class ImportInfo {
+  resource: Mapping
+  name: String
+  uri: String
+  isAliased: Boolean
+}
+
+function getConnectionDetails(i: Mapping<String, String>): String = new Listing {
+  for (k, v in i) {
+    "[\"\(k)\"] = \"\(v)\"\n"
+  }
+}.join("")
+
+output {
+  text = o.join("")
 }

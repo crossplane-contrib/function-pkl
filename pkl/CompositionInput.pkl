@@ -3,11 +3,11 @@ module CompositionInput
 
 import "@k8s/K8sResource.pkl"
 
-context: Mapping<String, Any>
+context: Mapping<String, Any>?
 
-desired: State
+desired: State?
 
-observed: State
+observed: State?
 
 
 class State {
