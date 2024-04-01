@@ -1,0 +1,14 @@
+amends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
+
+import "../CompositionInput.pkl"
+import "../crds/XR.pkl"
+
+local state = import("crossplane:state") as CompositionInput
+local observedCompositeResource: XR = state.observed.composite.resource as XR
+metadata {
+  name = "foo"
+}
+
+data {
+  ["bar"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
+}

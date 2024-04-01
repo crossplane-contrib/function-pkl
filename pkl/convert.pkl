@@ -32,7 +32,8 @@ input = """
           foo: bar
         ready: false
   """
-
+  // input = read("crossplane:input")
+  // crdsImport = import*("crossplane")
 crdsImport = import*("./crds/*")
 
 crds: Mapping<String, Mapping<String, K8sResource>> =
