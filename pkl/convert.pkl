@@ -2,7 +2,7 @@ import "pkl:yaml"
 import "@k8s.contrib/convert.pkl"
 import "@k8s/K8sResource.pkl"
 
-local input = """
+input = """
   context:
     this:
       could:
@@ -33,12 +33,30 @@ local input = """
         ready: false
   """
 
-local xr = import("XR.pkl") // TODO find way, with which no more inport is necessary... or maybe use special reader?
-local crds = new Mapping<String, Mapping<String, K8sResource>> {
-  [xr.kind] = new Mapping<String, K8sResource> {
-    [xr.apiVersion] = xr
-  }
-}
+crdsImport = import*("./crds/*")
+
+crds: Mapping<String, Mapping<String, K8sResource>> =
+  crdsImport.fold(Map(), (crds, _, crd: K8sResource) ->
+    let (crdsByVersion = crds.getOrNull(crd.kind))
+      if (crdsByVersion == null)
+        crds.put(
+          crd.kind,
+          Map(
+            crd.apiVersion,
+            crd
+          ).toMapping()
+        )
+      else if (crdsByVersion.containsKey(crd.apiVersion))
+        crds
+      else
+        crds.put(
+          crd.kind,
+          crdsByVersion
+            .toMap()
+            .put(crd.apiVersion, crd)
+            .toMapping()
+        )
+  ).toMapping()
 
 local parsedInput: Mapping = new yaml.Parser { useMapping = true }
     .parse(input) as Mapping
