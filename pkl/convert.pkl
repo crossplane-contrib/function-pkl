@@ -68,7 +68,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"https://github.com/Avarei/function-pkl/blob/main/pkl/CompositionInput.pkl\"\n" // TODO find better solution
+  "amends \"https://raw.githubusercontent.com/Avarei/function-pkl/test/full-functioninput-parse/pkl/CompositionInput.pkl\"\n" // TODO find better solution
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)
