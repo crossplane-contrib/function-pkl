@@ -1,16 +1,11 @@
 import "pkl:yaml"
 import "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl"
 import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
-
+import "crossplane:crds"
 /*
 input = """
   context:
-    this:
-      could:
-        be:
-          - anything
-          - or something else
-    welcome: 3
+    foo: bar
   observed:
     composite:
       resource:
@@ -34,31 +29,6 @@ input = """
         ready: false
   """*/
 input: String = read("crossplane:input").text
-crdsImport = import*("crossplane:crds/*")
-// crdsImport = import*("./crds/*")
-
-crds: Mapping<String, Mapping<String, K8sResource>> =
-  crdsImport.fold(Map(), (crds, _, crd: K8sResource) ->
-    let (crdsByVersion = crds.getOrNull(crd.kind))
-      if (crdsByVersion == null)
-        crds.put(
-          crd.kind,
-          Map(
-            crd.apiVersion,
-            crd
-          ).toMapping()
-        )
-      else if (crdsByVersion.containsKey(crd.apiVersion))
-        crds
-      else
-        crds.put(
-          crd.kind,
-          crdsByVersion
-            .toMap()
-            .put(crd.apiVersion, crd)
-            .toMapping()
-        )
-  ).toMapping()
 
 local parsedInput: Mapping = new yaml.Parser { useMapping = true }
     .parse(input) as Mapping
@@ -157,7 +127,7 @@ local function renderConvertedValue(value: Any) =
   new PcfRenderer {}.renderValue(value).replaceAll("_____default_____", "default")
 
 local k8sConverter = new convert {
-  customResourceTemplates = crds
+  customResourceTemplates = crds.resourceTemplates
 }
 
 function getK8sResource(i: Mapping): String =

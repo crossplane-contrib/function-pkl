@@ -45,13 +45,13 @@ spec:
                   which will be amended by the CompositeResource (XR)
                 items:
                   properties:
-                    inline:
-                      description: Contains a Pkl Template of a CRD
+                    apiVersion:
                       type: string
-                    name:
+                    kind:
                       type: string
-                  required:
-                  - name
+                    uri:
+                      description: Use URI Scheme to load CRD Template
+                      type: string
                   type: object
                 type: array
               pklManifests:

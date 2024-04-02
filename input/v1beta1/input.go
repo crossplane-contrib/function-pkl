@@ -32,12 +32,14 @@ type PklSpec struct {
 }
 
 type PklCrdRef struct {
+	// Use URI Scheme to load CRD Template
+	Uri string `json:"uri,omitempty"`
 
 	// +kubebuilder:validation:Required
-	Name string `json:"name"`
+	Kind string `json:"kind,omitempty"`
 
-	// Contains a Pkl Template of a CRD
-	Inline string `json:"inline,omitempty"`
+	// +kubebuilder:validation:Required
+	ApiVersion string `json:"apiVersion,omitempty"`
 }
 type PklFileRef struct {
 	// +kubebuilder:validation:Required

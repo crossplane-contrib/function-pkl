@@ -2,7 +2,6 @@ package reader
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -24,7 +23,7 @@ func (f *crossplaneReader) Scheme() string {
 }
 
 func (f *crossplaneReader) IsGlobbable() bool {
-	return true
+	return false
 }
 
 func (f *crossplaneReader) HasHierarchicalUris() bool {
@@ -37,30 +36,10 @@ func (f *crossplaneReader) HasHierarchicalUris() bool {
 //
 // This method is only called if it is hierarchical and local, or if it is globbable.
 func (f *crossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
-	out := []pkl.PathElement{}
-
-	if strings.HasPrefix(url.Opaque, "crds/") {
-		selector := strings.TrimPrefix(url.Opaque, "crds/")
-		in := &v1beta1.Pkl{}
-		if err := request.GetInput(f.request, in); err != nil {
-			return nil, err
-		}
-
-		if selector != "*" {
-			return nil, errors.New("only crds/* is implemented as of now. please open an Issue of you need additional implementation")
-		}
-
-		for _, crd := range in.Spec.PklCRDs {
-			out = append(out, pkl.NewPathElement(fmt.Sprintf("crds/%s", crd.Name), false))
-		}
-
-		return out, nil
-	}
-
-	out = []pkl.PathElement{
+	out := []pkl.PathElement{
 		pkl.NewPathElement("state", false),
 		pkl.NewPathElement("input", false),
-		pkl.NewPathElement("crds", true),
+		pkl.NewPathElement("crds", false),
 	}
 	return out, nil
 }
@@ -93,6 +72,7 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		evaluator, err := evaluatorManager.NewEvaluator(
 			context.TODO(),
 			pkl.PreconfiguredOptions,
+
 			WithCrossplane(f.request, "crossplane"),
 		)
 		if err != nil {
@@ -100,7 +80,10 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		}
 
 		out, err := evaluator.EvaluateOutputText(context.TODO(), pkl.UriSource("https://raw.githubusercontent.com/Avarei/function-pkl/test/full-functioninput-parse/pkl/convert.pkl")) // TODO find better solution
-		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
 		return []byte(out), err
 	case "input":
 		requestYaml, err := yaml.Marshal(f.request)
@@ -110,19 +93,30 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		fmt.Println(string(requestYaml))
 		return requestYaml, nil
 	case "crds":
-		if len(pathElements) != 2 {
-			return nil, fmt.Errorf("expected exactly one CRD name")
-		}
-		crdName := pathElements[1]
 		in := &v1beta1.Pkl{}
 		if err := request.GetInput(f.request, in); err != nil {
 			return nil, err
 		}
+		resourceTemplates := make(map[string]map[string]string)
 		for _, crd := range in.Spec.PklCRDs {
-			if crd.Name == crdName {
-				return []byte(crd.Inline), nil
+			if resourceTemplates[crd.Kind] == nil {
+				resourceTemplates[crd.Kind] = map[string]string{
+					crd.ApiVersion: crd.Uri,
+				}
+			} else {
+				resourceTemplates[crd.Kind][crd.ApiVersion] = crd.Uri
 			}
 		}
+		message := "resourceTemplates: Mapping<String, Mapping<String, unknown>> = new {\n"
+		for kind, versionUris := range resourceTemplates {
+			message += fmt.Sprintf("  [\"%s\"] {\n", kind)
+			for version, uri := range versionUris {
+				message += fmt.Sprintf("    [\"%s\"] = import(\"%s\")\n", version, uri)
+			}
+			message += "  }\n"
+		}
+		message += "}\n"
+		return []byte(message), nil
 	}
 	return nil, fmt.Errorf("path not found")
 }
