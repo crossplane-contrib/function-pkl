@@ -18,9 +18,9 @@
 @ModuleInfo { minPklVersion = "0.25.0" }
 open module example.crossplane.io.XR
 
-extends "@k8s/K8sResource.pkl"
+extends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
 
-import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
 
 fixed apiVersion: "example.crossplane.io/v1"
 

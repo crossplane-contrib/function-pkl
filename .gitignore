@@ -22,3 +22,6 @@ go.work
 
 .vscode/
 .idea/
+
+# Temporary Debug Binaries
+__debug_bin*

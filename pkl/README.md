@@ -20,3 +20,25 @@ convert
 
 
 the pkl/convert can convert a yaml file to Pkl and provides converters to get it back to yaml
+
+This composition-function implements the [Reader interface](https://github.com/apple/pkl-go/blob/main/pkl/reader.go)
+
+The following methods are currently implemented:
+
+### State
+gives a CompositionInput in pkl format. To be used in functions.
+```pkl
+import "../CompositionInput.pkl"
+local state = import("crossplane:state") as CompositionInput
+```
+
+### Input
+gives the CompositionInput as a Yaml String
+```pkl
+read("crossplane:input")
+```
+### CRDs
+returns all required CRDs as Pkl Templates.
+```pkl
+import*("crossplane:crds")
+```

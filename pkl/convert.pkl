@@ -1,7 +1,8 @@
 import "pkl:yaml"
-import "@k8s.contrib/convert.pkl"
-import "@k8s/K8sResource.pkl"
+import "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl"
+import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
 
+/*
 input = """
   context:
     this:
@@ -31,10 +32,10 @@ input = """
         connectionDetails:
           foo: bar
         ready: false
-  """
-  // input = read("crossplane:input")
-  // crdsImport = import*("crossplane")
-crdsImport = import*("./crds/*")
+  """*/
+input: String = read("crossplane:input").text
+crdsImport = import*("crossplane:crds/*")
+// crdsImport = import*("./crds/*")
 
 crds: Mapping<String, Mapping<String, K8sResource>> =
   crdsImport.fold(Map(), (crds, _, crd: K8sResource) ->
@@ -67,7 +68,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"./CompositionInput.pkl\"\n"
+  "amends \"https://github.com/Avarei/function-pkl/blob/main/pkl/CompositionInput.pkl\"\n" // TODO find better solution
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)
@@ -82,7 +83,7 @@ local o: Listing = new {
     "context = \(parsedInput.getOrNull("context"))\n"
   else ""
 
-  if (parsedInput.containsKey("observed"))
+  if (parsedInput.containsKey("observed") && !parsedInput["observed"].isEmpty)
     """
     observed {
     \(parsedInput.getOrNull("observed").ifNonNull((state) -> indent(getState(state), 2)))
@@ -90,7 +91,7 @@ local o: Listing = new {
     """
   else ""
 
-  if (parsedInput.containsKey("desired"))
+  if (parsedInput.containsKey("desired") && !parsedInput["desired"].isEmpty)
     """
     desired {
     \(parsedInput.getOrNull("desired").ifNonNull((state) -> indent(getState(state), 2)))
@@ -162,21 +163,17 @@ local k8sConverter = new convert {
 function getK8sResource(i: Mapping): String =
   renderConvertedValue(k8sConverter.resourceConverterFn(i))
 
-local states: List<String> = new Listing<String> {
-  "observed"
-  "desired"
-}.fold(List(), (res, item) ->
-  let (state = parsedInput.getOrNull(item))
-    if (state != null)
-      res.add(item)
-    else res
-) as List<String>
-
+local states: List<Mapping> = parsedInput.fold(List(), (res, key, value) ->
+  if ((key == "observed" || key == "desired") && !value.isEmpty)
+    res.add(value)
+  else
+    res
+) as List<Mapping>
 
 local k8sResources: Listing<Mapping> = new Listing<Mapping> {
   for (state in states) {
-    parsedInput[state]["composite"]["resource"]
-    for (resource in parsedInput[state]["resources"]) {
+    state["composite"]["resource"]
+    for (_, resource in state["resources"]) {
       resource["resource"]
     }
   }

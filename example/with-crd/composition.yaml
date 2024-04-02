@@ -38,16 +38,72 @@ spec:
               class Spec {
                 exampleString: String?
               }
+          - name: XR
+            inline: |
+              //===----------------------------------------------------------------------===//
+              // Copyright © 2024 Apple Inc. and the Pkl project authors. All rights reserved.
+              //
+              // Licensed under the Apache License, Version 2.0 (the "License");
+              // you may not use this file except in compliance with the License.
+              // You may obtain a copy of the License at
+              //
+              //     https://www.apache.org/licenses/LICENSE-2.0
+              //
+              // Unless required by applicable law or agreed to in writing, software
+              // distributed under the License is distributed on an "AS IS" BASIS,
+              // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+              // See the License for the specific language governing permissions and
+              // limitations under the License.
+              //===----------------------------------------------------------------------===//
+
+              /// ConfigMap holds configuration data for pods to consume.
+              @ModuleInfo { minPklVersion = "0.25.0" }
+              open module example.crossplane.io.XR
+
+              extends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
+
+              import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+
+              fixed apiVersion: "example.crossplane.io/v1"
+
+              fixed kind: "XR"
+
+              /*
+              apiVersion: example.crossplane.io/v1
+                      kind: XR
+                      metadata:
+                        name: example-xr
+                      spec: {}
+              */
+
+              /// Immutable, if set to true, ensures that data stored in the ConfigMap cannot be updated (only object metadata can be modified).
+              ///
+              /// If not set to true, the field can be modified at any time.
+              /// Defaulted to nil.
+              immutable: Boolean?
+
+              /// Standard object's metadata.
+              ///
+              /// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>
+              metadata: ObjectMeta?
+
+              spec: Mapping<String, Any>
+
         pklManifests:
           - name: foo
             type: inline
             inline: |
-              amends "crd://exampleresource"
+              amends "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
+              import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CompositionInput.pkl" // TODO replace with package reference
+              import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl" // TODO replace with package reference
+
+              local state = import("crossplane:state") as CompositionInput
+              local observedCompositeResource: XR = state.observed.composite.resource as XR
               metadata {
-                  name = "foo"
+                name = "foo"
               }
 
-              spec {
-                  exampleString = "bar"
+              data {
+                ["bar"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
               }
