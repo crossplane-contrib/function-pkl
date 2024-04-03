@@ -81,22 +81,22 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 func parseFile(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*fnv1beta1.Resource, error) {
 	// TODO request a new Function to EvaluateOutputValue which does not require a Struct Tag
-	out, err := evaluator.EvaluateOutputText(ctx, source)
+	renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not evaluate Pkl file")
 	}
-	var x map[string]any
-	if err := yaml.Unmarshal([]byte(out), &x); err != nil {
+	var renderedStruct map[string]any
+	if err := yaml.Unmarshal([]byte(renderedManifest), &renderedStruct); err != nil {
 		return nil, errors.Wrap(err, "could not parse yaml to map[string]any")
 	}
 
-	st, err := structpb.NewStruct(x)
+	resource, err := structpb.NewStruct(renderedStruct)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not evaluate Pkl output as map with keys and values")
 	}
 
 	return &fnv1beta1.Resource{
-		Resource: st,
+		Resource: resource,
+		Ready:    fnv1beta1.Ready_READY_FALSE, // TODO add ready and connectionDetails implementation.
 	}, nil
-
 }

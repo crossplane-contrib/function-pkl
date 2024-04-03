@@ -15,6 +15,7 @@
         - [x] Use these Pkl Templates to Convert the requested Input to Pkl Files
 - [x] Render all Pkl Files
 - [ ] Use PklProject with references instead of static links in code and Pkl Templates.
+- [ ] Allow Ready Status and Connection Details to be Set in the Pkl Manifests
 - [ ] Attempt to Remove ApiVersion and Kind fields from Function input
 - [ ] Cleanup
   - [ ] Remove Brainstorming files
