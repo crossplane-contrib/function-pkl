@@ -16,10 +16,10 @@ spec:
       kind: Pkl
       spec:
         pklCRDs:
-          - name: XR
-            uri: https://raw.githubusercontent.com/Avarei/function-pkl/test/full-functioninput-parse/pkl/crds/XR.pkl
+          - apiVersion: example.crossplane.io/v1
             kind: XR
-            apiVersion: example.crossplane.io/v1
+            uri: https://raw.githubusercontent.com/Avarei/function-pkl/test/full-functioninput-parse/pkl/crds/XR.pkl
+
         pklManifests:
           - name: foo
             type: inline
@@ -33,6 +33,7 @@ spec:
               local observedCompositeResource: XR = state.observed.composite.resource as XR
               metadata {
                 name = "foo"
+                namespace = "crossplane-system"
               }
 
               data {

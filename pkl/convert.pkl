@@ -78,15 +78,17 @@ function getState(i: Mapping): String = new Listing {
   "composite {\n"
   indent(getResource(i["composite"]), 2) + "\n"
   "}\n"
-  "resources {\n"
-  for (k, v in i["resources"]) {
-    indent("""
-      ["\(k)"] {
-      \(indent(getResource(v), 2))
-      }
-      """, 2) + "\n"
+  when (i.containsKey("resources")) {
+    "resources {\n"
+    for (k, v in i["resources"]) {
+      indent("""
+        ["\(k)"] {
+        \(indent(getResource(v), 2))
+        }
+        """, 2) + "\n"
+    }
+    "}\n"
   }
-  "}\n"
 }.join("")
 
 function getResource(i: Mapping): String = new Listing<String> {
@@ -143,8 +145,10 @@ local states: List<Mapping> = parsedInput.fold(List(), (res, key, value) ->
 local k8sResources: Listing<Mapping> = new Listing<Mapping> {
   for (state in states) {
     state["composite"]["resource"]
-    for (_, resource in state["resources"]) {
-      resource["resource"]
+    when (state.containsKey("resources") == true) {
+      for (_, resource in state.getOrNull("resources")) {
+        resource["resource"]
+      }
     }
   }
 }
