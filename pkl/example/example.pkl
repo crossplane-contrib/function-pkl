@@ -15,3 +15,5 @@ resource = (ConfigMap) {
     ["bar"] = "foo?.metadata?.name" ?? "alternative"
   }
 }
+
+ready = Ready_READY_FALSE

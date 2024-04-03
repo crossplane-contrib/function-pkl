@@ -42,7 +42,7 @@ spec:
                   ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
                 }
               }
-              ready = false
+              ready = Ready_READY_FALSE
           - name: cm-two
             type: inline
             inline: |
@@ -63,4 +63,4 @@ spec:
                   ["bar"] = "foo?.metadata?.name" ?? "alternative"
                 }
               }
-              ready = false
+              ready = Ready_READY_FALSE

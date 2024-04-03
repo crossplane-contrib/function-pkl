@@ -4,7 +4,13 @@ import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
 
 resource: K8sResource?
 
-ready: Boolean?
+hidden const Ready_READY_UNSPECIFIED: Ready = 0
+hidden const Ready_READY_TRUE: Ready = 1
+hidden const Ready_READY_FALSE: Ready = 2
+
+typealias Ready = Int(isBetween(0,2))
+
+ready: Ready?
 
 connectionDetails: Mapping<String, String>?
 
