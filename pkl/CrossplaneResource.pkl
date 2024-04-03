@@ -7,3 +7,7 @@ resource: K8sResource?
 ready: Boolean?
 
 connectionDetails: Mapping<String, String>?
+
+output {
+  renderer = (K8sResource.output.renderer as YamlRenderer) {}
+}
