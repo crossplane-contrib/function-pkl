@@ -11,7 +11,6 @@ import (
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
-	"google.golang.org/protobuf/types/known/structpb"
 	"sigs.k8s.io/yaml"
 )
 
@@ -85,18 +84,11 @@ func parseFile(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleS
 	if err != nil {
 		return nil, errors.Wrap(err, "could not evaluate Pkl file")
 	}
-	var renderedStruct map[string]any
-	if err := yaml.Unmarshal([]byte(renderedManifest), &renderedStruct); err != nil {
-		return nil, errors.Wrap(err, "could not parse yaml to map[string]any")
+
+	resource := &fnv1beta1.Resource{}
+	if err := yaml.Unmarshal([]byte(renderedManifest), resource); err != nil {
+		return nil, errors.Wrap(err, "could not parse yaml to Resource")
 	}
 
-	resource, err := structpb.NewStruct(renderedStruct)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not evaluate Pkl output as map with keys and values")
-	}
-
-	return &fnv1beta1.Resource{
-		Resource: resource,
-		Ready:    fnv1beta1.Ready_READY_FALSE, // TODO add ready and connectionDetails implementation.
-	}, nil
+	return resource, nil
 }

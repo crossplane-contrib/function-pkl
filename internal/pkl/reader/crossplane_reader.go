@@ -78,8 +78,7 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		out, err := evaluator.EvaluateOutputText(context.TODO(), pkl.UriSource("https://raw.githubusercontent.com/Avarei/function-pkl/test/full-functioninput-parse/pkl/convert.pkl")) // TODO find better solution
+		out, err := evaluator.EvaluateOutputText(context.TODO(), pkl.UriSource("https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/convert.pkl")) // TODO find better solution
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
