@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
@@ -63,26 +62,25 @@ var WithCrossplane = func(req *fnv1beta1.RunFunctionRequest, scheme string) func
 }
 
 func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
-	path := strings.TrimSuffix(strings.TrimPrefix(url.Opaque, "/"), "/")
-	pathElements := strings.Split(path, "/")
-	switch pathElements[0] {
+	switch url.Opaque {
 	case "state":
 		evaluatorManager := pkl.NewEvaluatorManager()
 		defer evaluatorManager.Close()
 		evaluator, err := evaluatorManager.NewEvaluator(
 			context.TODO(),
 			pkl.PreconfiguredOptions,
-
 			WithCrossplane(f.request, "crossplane"),
 		)
 		if err != nil {
 			return nil, err
 		}
+
 		out, err := evaluator.EvaluateOutputText(context.TODO(), pkl.UriSource("https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/convert.pkl")) // TODO find better solution
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
+
 		return []byte(out), err
 	case "input":
 		requestYaml, err := yaml.Marshal(f.request)
@@ -90,12 +88,14 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 			return nil, err
 		}
 		fmt.Println(string(requestYaml))
+
 		return requestYaml, nil
 	case "crds":
 		in := &v1beta1.Pkl{}
 		if err := request.GetInput(f.request, in); err != nil {
 			return nil, err
 		}
+
 		resourceTemplates := make(map[string]map[string]string)
 		for _, crd := range in.Spec.PklCRDs {
 			if resourceTemplates[crd.Kind] == nil {
@@ -106,18 +106,27 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 				resourceTemplates[crd.Kind][crd.ApiVersion] = crd.Uri
 			}
 		}
-		message := "resourceTemplates: Mapping<String, Mapping<String, unknown>> = new {\n"
-		for kind, versionUris := range resourceTemplates {
-			message += fmt.Sprintf("  [\"%s\"] {\n", kind)
-			for version, uri := range versionUris {
-				message += fmt.Sprintf("    [\"%s\"] = import(\"%s\")\n", version, uri)
-			}
-			message += "  }\n"
-		}
-		message += "}\n"
+
+		message := buildResourceTemplatesModule(resourceTemplates)
+
 		return []byte(message), nil
+	default:
+		return nil, fmt.Errorf("unsupported path")
 	}
-	return nil, fmt.Errorf("path not found")
+}
+
+// generates a resourceTemplate similar to https://github.com/apple/pkl-k8s/blob/main/generated-package/k8sSchema.pkl but for the custom Resources
+func buildResourceTemplatesModule(resourceTemplates map[string]map[string]string) string {
+	message := "resourceTemplates: Mapping<String, Mapping<String, unknown>> = new {\n"
+	for kind, versionUris := range resourceTemplates {
+		message += fmt.Sprintf("  [\"%s\"] {\n", kind)
+		for version, uri := range versionUris {
+			message += fmt.Sprintf("    [\"%s\"] = import(\"%s\")\n", version, uri)
+		}
+		message += "  }\n"
+	}
+	message += "}\n"
+	return message
 }
 
 // Expects an URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file

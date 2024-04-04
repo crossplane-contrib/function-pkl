@@ -32,10 +32,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
 		return rsp, nil
 	}
-	/*
-		xr, err := request.GetObservedCompositeResource(req)
-		myxr := req.Observed.GetComposite()
-	*/
+
 	evaluatorManager := pkl.NewEvaluatorManager()
 	defer evaluatorManager.Close()
 	evaluator, err := evaluatorManager.NewEvaluator(ctx,
@@ -53,42 +50,31 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	var sources map[string]*pkl.ModuleSource = make(map[string]*pkl.ModuleSource)
 
 	for _, pklFileRef := range in.Spec.PklManifests {
-		if pklFileRef.Type == "uri" {
+		switch pklFileRef.Type {
+		case "uri":
 			sources[pklFileRef.Name] = pkl.UriSource(pklFileRef.Uri)
-		} else if pklFileRef.Type == "inline" {
+		case "inline":
 			sources[pklFileRef.Name] = pkl.TextSource(pklFileRef.Inline)
-		} else if pklFileRef.Type == "configMap" {
-			// TODO configMap
-		} else {
+		default:
 			response.Fatal(rsp, errors.New("unknown PklFileRef type"))
 			return rsp, nil
 		}
 	}
 
 	for name, source := range sources {
-		resource, err := parseFile(ctx, evaluator, source)
-		if err == nil {
-			outResources[name] = resource
-		} else {
-			f.Log.Debug("Could not parse file \"" + name + "\": " + err.Error())
+		renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", name)
 		}
+
+		resource := &fnv1beta1.Resource{}
+		if err := yaml.Unmarshal([]byte(renderedManifest), resource); err != nil {
+			return nil, errors.Wrap(err, "could not parse yaml to Resource")
+		}
+
+		outResources[name] = resource
 	}
 
 	rsp.Desired.Resources = outResources
 	return rsp, nil
-}
-
-func parseFile(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*fnv1beta1.Resource, error) {
-	// TODO request a new Function to EvaluateOutputValue which does not require a Struct Tag
-	renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not evaluate Pkl file")
-	}
-
-	resource := &fnv1beta1.Resource{}
-	if err := yaml.Unmarshal([]byte(renderedManifest), resource); err != nil {
-		return nil, errors.Wrap(err, "could not parse yaml to Resource")
-	}
-
-	return resource, nil
 }
