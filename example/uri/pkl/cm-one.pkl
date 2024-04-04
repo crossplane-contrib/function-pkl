@@ -1,0 +1,19 @@
+amends "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CrossplaneResource.pkl"
+import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CompositionInput.pkl" // TODO replace with package reference
+import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl" // TODO replace with package reference
+import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
+
+local state = import("crossplane:state") as CompositionInput
+local observedCompositeResource: XR = state.observed.composite.resource as XR
+
+resource = (ConfigMap) {
+metadata {
+    name = "cm-one"
+    namespace = "crossplane-system"
+}
+
+data {
+    ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
+}
+}
+ready = Ready_READY_FALSE

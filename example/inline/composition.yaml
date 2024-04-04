@@ -60,7 +60,7 @@ spec:
                 }
 
                 data {
-                  ["bar"] = "foo?.metadata?.name" ?? "alternative"
+                  ["bar"] = foo?.metadata?.name ?? "alternative"
                 }
               }
               ready = Ready_READY_FALSE

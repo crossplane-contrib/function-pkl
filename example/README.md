@@ -10,21 +10,5 @@ $ go run . --insecure --debug
 
 ```shell
 # Then, in another terminal, call it with these example manifests
-$ crossplane beta render xr.yaml composition.yaml functions.yaml -r
----
-apiVersion: example.crossplane.io/v1
-kind: XR
-metadata:
-  name: example-xr
----
-apiVersion: render.crossplane.io/v1beta1
-kind: Result
-message: I was run with input "Hello world"!
-severity: SEVERITY_NORMAL
-step: run-the-template
-```
-
-Run the function with simulated observed state
-```shell
 $ crossplane beta render xr.yaml composition.yaml functions.yaml --observed-resources=observed.yaml
 ```
