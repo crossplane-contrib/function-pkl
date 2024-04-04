@@ -57,20 +57,6 @@ spec:
               pklManifests:
                 items:
                   properties:
-                    configMapRef:
-                      description: Load Project/Package from ConfigMap. Will evaluate
-                        PklProject and *.pkl files within the ConfigMap.
-                      properties:
-                        name:
-                          description: The name of the ConfigMap
-                          type: string
-                        namespace:
-                          description: The namespace of the ConfigMap
-                          type: string
-                      required:
-                      - name
-                      - namespace
-                      type: object
                     inline:
                       description: Contains a stringified Pkl file
                       type: string
@@ -80,7 +66,6 @@ spec:
                       enum:
                       - uri
                       - inline
-                      - configMap
                       type: string
                     uri:
                       description: Use URI Scheme to load Project/Package

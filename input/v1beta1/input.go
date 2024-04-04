@@ -41,26 +41,16 @@ type PklCrdRef struct {
 	// +kubebuilder:validation:Required
 	ApiVersion string `json:"apiVersion,omitempty"`
 }
+
 type PklFileRef struct {
 	// +kubebuilder:validation:Required
 	Name string `json:"name"`
 
-	// +kubebuilder:validation:Enum=uri;inline;configMap
+	// +kubebuilder:validation:Enum=uri;inline
 	Type string `json:"type,omitempty"`
 
 	// Use URI Scheme to load Project/Package
 	Uri string `json:"uri,omitempty"`
 	// Contains a stringified Pkl file
 	Inline string `json:"inline,omitempty"`
-	// Load Project/Package from ConfigMap. Will evaluate PklProject and *.pkl files within the ConfigMap.
-	ConfigMapRef ConfigMapRef `json:"configMapRef,omitempty"`
-}
-
-type ConfigMapRef struct {
-	// +kubebuilder:validation:Required
-	// The name of the ConfigMap
-	Name string `json:"name"`
-	// +kubebuilder:validation:Required
-	// The namespace of the ConfigMap
-	Namespace string `json:"namespace"`
 }
