@@ -76,5 +76,6 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	}
 
 	rsp.Desired.Resources = outResources
+	// TODO add rsp.Results
 	return rsp, nil
 }

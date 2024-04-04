@@ -17,6 +17,7 @@
 - [ ] Use PklProject with references instead of static links in code and Pkl Templates.
 - [ ] Allow Ready Status and Connection Details to be Set in the Pkl Manifests
 - [ ] Attempt to Remove ApiVersion and Kind fields from Function input
+- [ ] Add Results to fn.go
 - [ ] Cleanup
   - [ ] Remove Brainstorming files
   - [ ] Improve Variables in pkl/convert.pkl
