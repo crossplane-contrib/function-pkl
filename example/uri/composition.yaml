@@ -22,7 +22,7 @@ spec:
         pklManifests:
           - name: cm-one
             type: inline
-            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uris/pkl/cm-one.pkl
+            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/cm-one.pkl
           - name: cm-two
             type: uri
-            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uris/pkl/cm-two.pkl
+            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/cm-two.pkl
