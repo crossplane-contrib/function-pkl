@@ -1,27 +1,41 @@
 # TODO List
 
+## Open/WiP
+### Prototype
 - [ ] Use one pkl.EvaluatorManager per invocation or globally
 - [ ] Disallow Filesystem Access for pkl Modules as that is not needed
-- [ ] Allow Composition Resources to be loaded from:
+- [ ] Support Composition Status Updates
+- [ ] Use PklProject with references instead of static links in code and Pkl Templates.
+  - [ ] They are used for each invocation and maybe should therefore be local
+- [ ] Add Results to fn.go
+- [ ] Attempt to Remove ApiVersion and Kind fields from Function input
+
+- [ ] Cleanup
+  - [x] Remove Brainstorming files
+  - [ ] Improve Variables in pkl/convert.pkl
+
+- [ ] Documentation
+  - [x] Update examples
+  - [ ] Update README.md
+
+### Road to v1
+- [ ] Migrate to github.com/crossplane-contrib
+- [ ] Evaluate GitHub Workflows from Template
+- [ ] Create and Push Container Image
+- [ ] Publish in Upbound MarketPlace
+
+## Completed
+### Proof of Concept
+- [x] Allow Composition Resources to be loaded from:
     - [x] Uri
     - [x] InlineFile
-    - [ ] ConfigMap
-- [ ] Turn Function Input into Pkl Files
+    ~~- [ ] ConfigMap~~
+- [x] Turn Function Input into Pkl Files
     - [x] Implement pkl.Reader Interface.
-- [ ] Allow Custom Resource Definition Pkl Templates in v1beta1/PklSpec
+- [x] Allow Custom Resource Definition Pkl Templates in v1beta1/PklSpec
     - [x] From Uri
     - [ ] ~~From ConfigMap~~
     - [ ] ~~From Inline?~~
         - [x] Use these Pkl Templates to Convert the requested Input to Pkl Files
 - [x] Render all Pkl Files
-- [ ] Use PklProject with references instead of static links in code and Pkl Templates.
-- [ ] Allow Ready Status and Connection Details to be Set in the Pkl Manifests
-- [ ] Attempt to Remove ApiVersion and Kind fields from Function input
-- [ ] Add Results to fn.go
-- [ ] Cleanup
-  - [ ] Remove Brainstorming files
-  - [ ] Improve Variables in pkl/convert.pkl
-
-- [ ] Documentation
-  - [ ] Update examples
-  - [ ] Update README.md
+- [x] Allow Ready Status and Connection Details to be Set in the Pkl Manifests
