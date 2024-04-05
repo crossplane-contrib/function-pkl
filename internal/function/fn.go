@@ -2,6 +2,7 @@ package function
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
@@ -52,8 +53,14 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	for _, pklFileRef := range in.Spec.PklManifests {
 		switch pklFileRef.Type {
 		case "uri":
+			if pklFileRef.Uri == "" {
+				return nil, fmt.Errorf("manifest type of \"%s\" is uri but uri is empty", pklFileRef.Name)
+			}
 			sources[pklFileRef.Name] = pkl.UriSource(pklFileRef.Uri)
 		case "inline":
+			if pklFileRef.Inline == "" {
+				return nil, fmt.Errorf("manifest type of \"%s\" is inline but inline is empty", pklFileRef.Name)
+			}
 			sources[pklFileRef.Name] = pkl.TextSource(pklFileRef.Inline)
 		default:
 			response.Fatal(rsp, errors.New("unknown PklFileRef type"))

@@ -21,7 +21,7 @@ spec:
             uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl
         pklManifests:
           - name: cm-one
-            type: inline
+            type: uri
             uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/cm-one.pkl
           - name: cm-two
             type: uri
