@@ -31,4 +31,10 @@ fixed kind: "XR"
 /// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>
 metadata: ObjectMeta?
 
-spec: Mapping<String, Any>
+spec: Mapping<String, Any>?
+
+status: Status?
+
+class Status {
+  SomeStatus: String?
+}
