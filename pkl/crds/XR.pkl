@@ -36,5 +36,5 @@ spec: Mapping<String, Any>?
 status: Status?
 
 class Status {
-  SomeStatus: String?
+  someStatus: String?
 }

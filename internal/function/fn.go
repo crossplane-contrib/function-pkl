@@ -48,41 +48,67 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	var outResources map[string]*fnv1beta1.Resource = make(map[string]*fnv1beta1.Resource)
 
-	var sources map[string]*pkl.ModuleSource = make(map[string]*pkl.ModuleSource)
-
 	for _, pklFileRef := range in.Spec.PklManifests {
-		switch pklFileRef.Type {
-		case "uri":
-			if pklFileRef.Uri == "" {
-				return nil, fmt.Errorf("manifest type of \"%s\" is uri but uri is empty", pklFileRef.Name)
-			}
-			sources[pklFileRef.Name] = pkl.UriSource(pklFileRef.Uri)
-		case "inline":
-			if pklFileRef.Inline == "" {
-				return nil, fmt.Errorf("manifest type of \"%s\" is inline but inline is empty", pklFileRef.Name)
-			}
-			sources[pklFileRef.Name] = pkl.TextSource(pklFileRef.Inline)
-		default:
-			response.Fatal(rsp, errors.New("unknown PklFileRef type"))
-			return rsp, nil
-		}
-	}
 
-	for name, source := range sources {
-		renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
+		fileName, moduleSource, err := evalFileRef(pklFileRef)
 		if err != nil {
-			return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", name)
+			return nil, err
+		}
+		resource, err := evalPklFile(ctx, fileName, moduleSource, evaluator)
+		if err != nil {
+			return nil, err
 		}
 
-		resource := &fnv1beta1.Resource{}
-		if err := yaml.Unmarshal([]byte(renderedManifest), resource); err != nil {
-			return nil, errors.Wrap(err, "could not parse yaml to Resource")
+		outResources[fileName] = resource
+
+	}
+	rsp.Desired.Resources = outResources
+
+	if in.Spec.PklComposition != nil {
+		fileName, moduleSource, err := evalFileRef(*in.Spec.PklComposition)
+		if err != nil {
+			return nil, err
+		}
+		resource, err := evalPklFile(ctx, fileName, moduleSource, evaluator)
+		if err != nil {
+			return nil, err
 		}
 
-		outResources[name] = resource
+		rsp.Desired.Composite = resource
 	}
 
-	rsp.Desired.Resources = outResources
 	// TODO add rsp.Results
 	return rsp, nil
+}
+
+func evalFileRef(pklFileRef v1beta1.PklFileRef) (string, *pkl.ModuleSource, error) {
+	switch pklFileRef.Type {
+	case "uri":
+		if pklFileRef.Uri == "" {
+			return "", nil, fmt.Errorf("manifest type of \"%s\" is uri but uri is empty", pklFileRef.Name)
+		}
+		return pklFileRef.Name, pkl.UriSource(pklFileRef.Uri), nil
+
+	case "inline":
+		if pklFileRef.Inline == "" {
+			return "", nil, fmt.Errorf("manifest type of \"%s\" is inline but inline is empty", pklFileRef.Name)
+		}
+		return pklFileRef.Name, pkl.TextSource(pklFileRef.Inline), nil
+	default:
+		return "", nil, errors.New("unknown PklFileRef type")
+	}
+}
+
+func evalPklFile(ctx context.Context, name string, source *pkl.ModuleSource, evaluator pkl.Evaluator) (*fnv1beta1.Resource, error) {
+	renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", name)
+	}
+
+	resource := &fnv1beta1.Resource{}
+	if err := yaml.Unmarshal([]byte(renderedManifest), resource); err != nil {
+		return nil, errors.Wrap(err, "could not parse yaml to Resource")
+	}
+
+	return resource, nil
 }

@@ -54,6 +54,24 @@ spec:
                       type: string
                   type: object
                 type: array
+              pklComposition:
+                properties:
+                  inline:
+                    description: Contains a stringified Pkl file
+                    type: string
+                  name:
+                    type: string
+                  type:
+                    enum:
+                    - uri
+                    - inline
+                    type: string
+                  uri:
+                    description: Use URI Scheme to load Project/Package
+                    type: string
+                required:
+                - name
+                type: object
               pklManifests:
                 items:
                   properties:

@@ -24,6 +24,8 @@ type Pkl struct {
 }
 
 type PklSpec struct {
+	PklComposition *PklFileRef `json:"pklComposition,omitempty"`
+
 	// +kubebuilder:validation:Required
 	PklManifests []PklFileRef `json:"pklManifests"`
 

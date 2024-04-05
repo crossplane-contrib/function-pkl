@@ -19,6 +19,30 @@ spec:
           - apiVersion: example.crossplane.io/v1
             kind: XR
             uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl
+        pklComposition:
+          name: XR
+          type: inline
+          inline: |
+            amends "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CrossplaneResource.pkl" // TODO replace with package reference
+            import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CompositionInput.pkl" // TODO replace with package reference
+
+            import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl"
+            import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
+
+            local state = import("crossplane:state") as CompositionInput
+            local observedCompositeResource: XR = state.observed.composite.resource as XR
+            local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
+
+            resource = (observedCompositeResource) {
+              status {
+                when (cmOne?.metadata?.namespace != null) {
+                  someStatus = "I observed cm-one's namespace. it is \(cmOne.metadata.namespace)"
+                }
+              }
+            }
+            connectionDetails {
+              ["test"] = "bar"
+            }
 
         pklManifests:
           - name: cm-one

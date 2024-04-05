@@ -19,6 +19,10 @@ spec:
           - apiVersion: example.crossplane.io/v1
             kind: XR
             uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl
+        pklComposition:
+          name: XR
+          type: uri
+          uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/xr.pkl
         pklManifests:
           - name: cm-one
             type: uri
