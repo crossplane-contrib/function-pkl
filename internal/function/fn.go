@@ -19,7 +19,8 @@ import (
 type Function struct {
 	fnv1beta1.UnimplementedFunctionRunnerServiceServer
 
-	Log logging.Logger
+	Log              logging.Logger
+	EvaluatorManager pkl.EvaluatorManager
 }
 
 // RunFunction runs the Function.
@@ -33,15 +34,17 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
 		return rsp, nil
 	}
-
-	evaluatorManager := pkl.NewEvaluatorManager()
-	defer evaluatorManager.Close()
-	evaluator, err := evaluatorManager.NewEvaluator(ctx,
+	evaluator, err := f.EvaluatorManager.NewEvaluator(ctx,
 		pkl.PreconfiguredOptions,
-		reader.WithCrossplane(req, "crossplane"),
-	) // TODO disallow FS access
+		reader.WithCrossplane(&reader.CrossplaneReader{
+			ReaderScheme: "crossplane",
+			Request:      req,
+			Log:          f.Log,
+			Ctx:          ctx,
+		}),
+	)
+
 	if err != nil {
-		evaluator.Close()
 		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluater"))
 	}
 	defer evaluator.Close()
@@ -77,6 +80,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		rsp.Desired.Composite = resource
 	}
 
+	//response.Fatal(rsp, err)
 	// TODO add rsp.Results
 	return rsp, nil
 }

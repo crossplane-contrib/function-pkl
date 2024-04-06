@@ -4,10 +4,10 @@
 ### Prototype
 - [ ] Use one pkl.EvaluatorManager per invocation or globally
 - [ ] Disallow Filesystem Access for pkl Modules as that is not needed
-- [ ] Support Composition Status Updates
+- [x] Support Composition Status Updates
 - [ ] Use PklProject with references instead of static links in code and Pkl Templates.
   - [ ] They are used for each invocation and maybe should therefore be local
-- [ ] Add Results to fn.go
+- [ ] Switch from Errors to Results in fn.go
 - [ ] Attempt to Remove ApiVersion and Kind fields from Function input
 
 - [ ] Cleanup
@@ -17,6 +17,7 @@
 - [ ] Documentation
   - [x] Update examples
   - [ ] Update README.md
+  - [ ] Create Specialized convert.pkl for Migrating XRDs to Pkl
 
 ### Road to v1
 - [ ] Migrate to github.com/crossplane-contrib

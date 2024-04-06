@@ -7,25 +7,28 @@ import (
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/crossplane/function-sdk-go/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"sigs.k8s.io/yaml"
 )
 
-type crossplaneReader struct {
-	request *fnv1beta1.RunFunctionRequest
-	scheme  string
+type CrossplaneReader struct {
+	Request      *fnv1beta1.RunFunctionRequest
+	ReaderScheme string
+	Log          logging.Logger
+	Ctx          context.Context
 }
 
-func (f *crossplaneReader) Scheme() string {
-	return f.scheme
+func (f *CrossplaneReader) Scheme() string {
+	return f.ReaderScheme
 }
 
-func (f *crossplaneReader) IsGlobbable() bool {
+func (f *CrossplaneReader) IsGlobbable() bool {
 	return false
 }
 
-func (f *crossplaneReader) HasHierarchicalUris() bool {
+func (f *CrossplaneReader) HasHierarchicalUris() bool {
 	return false
 }
 
@@ -34,7 +37,7 @@ func (f *crossplaneReader) HasHierarchicalUris() bool {
 // available values.
 //
 // This method is only called if it is hierarchical and local, or if it is globbable.
-func (f *crossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
+func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
 	out := []pkl.PathElement{
 		pkl.NewPathElement("state", false),
 		pkl.NewPathElement("input", false),
@@ -43,39 +46,49 @@ func (f *crossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) 
 	return out, nil
 }
 
-var _ pkl.Reader = (*crossplaneReader)(nil)
+var _ pkl.Reader = (*CrossplaneReader)(nil)
 
 type crossplaneModuleReader struct {
-	*crossplaneReader
+	*CrossplaneReader
 }
 
 func (f crossplaneModuleReader) IsLocal() bool {
 	return true
 }
 
-var WithCrossplane = func(req *fnv1beta1.RunFunctionRequest, scheme string) func(opts *pkl.EvaluatorOptions) {
+var evaluatorManager pkl.EvaluatorManager = pkl.NewEvaluatorManager()
+
+// TODO find better solution
+func Close() error {
+	return evaluatorManager.Close()
+}
+
+var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.EvaluatorOptions) {
 	return func(opts *pkl.EvaluatorOptions) {
-		reader := &crossplaneReader{request: req, scheme: scheme}
+		reader := crossplaneReader
 		pkl.WithModuleReader(&crossplaneModuleReader{reader})(opts)
 		pkl.WithResourceReader(&crossplaneResourceReader{reader})(opts)
 	}
 }
 
-func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
+func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
 	case "state":
-		evaluatorManager := pkl.NewEvaluatorManager()
-		defer evaluatorManager.Close()
 		evaluator, err := evaluatorManager.NewEvaluator(
-			context.TODO(),
+			f.Ctx,
 			pkl.PreconfiguredOptions,
-			WithCrossplane(f.request, "crossplane"),
+			WithCrossplane(&CrossplaneReader{
+				Request:      f.Request,
+				ReaderScheme: "crossplane",
+				Log:          nil,
+			}), // TODO: This should be a seperate reader Implementation, as calling crossplane:state within crossplane:state would softlock and should not be allowed
 		)
 		if err != nil {
 			return nil, err
 		}
+		defer evaluator.Close()
 
-		out, err := evaluator.EvaluateOutputText(context.TODO(), pkl.UriSource("https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/convert.pkl")) // TODO find better solution
+		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource("https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/convert.pkl")) // TODO find better solution
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -83,7 +96,7 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 
 		return []byte(out), err
 	case "input":
-		requestYaml, err := yaml.Marshal(f.request)
+		requestYaml, err := yaml.Marshal(f.Request)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +105,7 @@ func (f crossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		return requestYaml, nil
 	case "crds":
 		in := &v1beta1.Pkl{}
-		if err := request.GetInput(f.request, in); err != nil {
+		if err := request.GetInput(f.Request, in); err != nil {
 			return nil, err
 		}
 
@@ -141,7 +154,7 @@ func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
 var _ pkl.ModuleReader = (*crossplaneModuleReader)(nil)
 
 type crossplaneResourceReader struct {
-	*crossplaneReader
+	*CrossplaneReader
 }
 
 func (f crossplaneResourceReader) Read(url url.URL) ([]byte, error) {
