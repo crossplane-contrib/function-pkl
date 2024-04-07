@@ -24,17 +24,13 @@ package {
   }
   version = "0.0.1"
   baseUri = "package://pkg.pkl-lang.org/pkl-k8s/k8s"
-  packageZipUrl = "https://github.com/apple/pkl-k8s/releases/download/\(name)@\(version)/\(name)@\(version).zip"
+  packageZipUrl = "https://github.com/Avarei/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
   sourceCode = "https://github.com/Avarei/function-pkl"
   license = "Apache-2.0"
   description = """
     Templates for reading and configuring [Composition Functions](https://docs.crossplane.io/latest/concepts/composition-functions/).
-
-    These templates encompass multiple versions of Kubernetes.
-    Properties and classes that are introduced or removed in certain versions get annotated with `@K8sVersion`,
-    indicating the Kubernetes version that it was either introduced or removed in.
+    
     """
-
 }
 dependencies {
   ["k8s"] {

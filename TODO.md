@@ -2,9 +2,7 @@
 
 ## Open/WiP
 ### Prototype
-- [ ] Use one pkl.EvaluatorManager per invocation or globally
-- [ ] Disallow Filesystem Access for pkl Modules as that is not needed
-- [x] Support Composition Status Updates
+
 - [ ] Use PklProject with references instead of static links in code and Pkl Templates.
   - [ ] They are used for each invocation and maybe should therefore be local
 - [ ] Switch from Errors to Results in fn.go
@@ -26,6 +24,11 @@
 - [ ] Publish in Upbound MarketPlace
 
 ## Completed
+### Prototype
+- [x] Use one pkl.EvaluatorManager per invocation or globally
+- [x] Support Composition Status Updates
+- [ ] ~~Disallow Filesystem Access for pkl Modules as that is not needed~~
+
 ### Proof of Concept
 - [x] Allow Composition Resources to be loaded from:
     - [x] Uri

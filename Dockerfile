@@ -41,6 +41,7 @@ RUN --mount=target=. \
 FROM gcr.io/distroless/base-debian11 AS image
 WORKDIR /
 COPY --from=build /function /function
+COPY pkl/ /pkl
 EXPOSE 9443
 USER nonroot:nonroot
 ENTRYPOINT ["/function"]
