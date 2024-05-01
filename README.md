@@ -2,7 +2,27 @@
 [![CI](https://github.com/Avarei/function-pkl/actions/workflows/ci.yml/badge.svg)](https://github.com/Avarei/function-pkl/actions/workflows/ci.yml)
 
 > [!CAUTION]
-> This is only a Proof of Concept! Never use in Prod.
+> This is only a Proof of Concept! This is not yet ready for Prod.
+
+## Pkl Function Call Order
+The Composition function is triggered by the Pkl files referenced within the composition pipeline step.
+Each Pkl file will be parsed individually. (TODO: add paralellisation?)
+* Pkl file within composition
+    * The file will amend `CrossplaneResource.pkl`
+    * `convert.pkl` is usually called by `import crossplane:state` as a new process.
+        * this loads other pkl files defined in Composition CRDs `import crossplane:crds`
+        * it also imports pkl-pantry/k8s.contrib/convert.pkl
+        * imports pkl-k8s/k8s/k8sResource.pkl
+    * `CompositionInput.pkl` is used by the result of `local state = (import crossplane:state) as CompositionInput`
+
+### Basic Pkl File
+The bare pkl file we expect is
+```pkl
+amends "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CrossplaneResource.pkl" // TODO replace with package reference
+import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CompositionInput.pkl" // TODO replace with package reference
+
+local state = import("crossplane:state") as CompositionInput
+```
 
 ## What does it do?
 This Composition function for [Crossplane][crossplane] allows the usage of the [Pkl][pkl] Configuration Language within Compositions.
