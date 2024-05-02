@@ -18,15 +18,18 @@ spec:
         pklCRDs:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.2#/crds/XR.pkl
+          - apiVersion: kubernetes.crossplane.io/v1alpha2
+            kind: Object
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.2#/crds/Object.pkl
         pklComposition:
           name: XR
           type: uri
-          uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/xr.pkl
+          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.2#/crds/XR.pkl
         pklManifests:
-          - name: cm-one
+          - name: object-one
             type: uri
-            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/cm-one.pkl
-          - name: cm-two
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.2#/object-one.pkl
+          - name: object-two
             type: uri
-            uri: https://raw.githubusercontent.com/Avarei/function-pkl/main/example/uri/pkl/cm-two.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.2#/object-two.pkl

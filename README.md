@@ -18,8 +18,8 @@ Each Pkl file will be parsed individually. (TODO: add paralellisation?)
 ### Basic Pkl File
 The bare pkl file we expect is
 ```pkl
-amends "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CrossplaneResource.pkl" // TODO replace with package reference
-import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CompositionInput.pkl" // TODO replace with package reference
+amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.3#/CrossplaneResource.pkl"
+import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.3#/CompositionInput.pkl"
 
 local state = import("crossplane:state") as CompositionInput
 ```
