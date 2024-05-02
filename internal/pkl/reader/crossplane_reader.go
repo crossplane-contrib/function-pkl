@@ -88,7 +88,7 @@ func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		}
 		defer evaluator.Close()
 
-		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.2#/convert.pkl"))
+		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.3#/convert.pkl"))
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
