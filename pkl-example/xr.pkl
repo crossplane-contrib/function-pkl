@@ -1,0 +1,19 @@
+amends "@crossplane/CrossplaneResource.pkl"
+import "@crossplane/CompositionInput.pkl"
+import "crds/XR.pkl"
+import "@k8s/api/core/v1/ConfigMap.pkl"
+
+local state = import("crossplane:state") as CompositionInput
+local observedCompositeResource: XR = state.observed.composite.resource as XR
+local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
+
+resource = (observedCompositeResource) {
+  status {
+    when (cmOne?.metadata?.namespace != null) {
+      someStatus = "I observed cm-one's namespace. it is \(cmOne.metadata.namespace)"
+    }
+  }
+}
+connectionDetails {
+  ["test"] = "bar"
+}
