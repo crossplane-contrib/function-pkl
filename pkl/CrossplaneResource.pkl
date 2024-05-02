@@ -1,6 +1,6 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CrossplaneResource
-import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
+import "@k8s/K8sResource.pkl"
 
 resource: K8sResource?
 

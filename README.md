@@ -58,7 +58,7 @@ pkl eval -p input=example-crd.yaml -o example-crd.pkl package://pkg.pkl-lang.org
 
 Turn Yaml CRD into Pkl template
 ```bash
-pkl eval package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.0#/generate.pkl -m . -p source="https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/crds/appproject-crd.yaml"
+pkl eval "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.4#/generate.pkl" -m . -p source="https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/crds/appproject-crd.yaml"
 ```
 
 comparison:

@@ -1,6 +1,6 @@
 import "pkl:yaml"
-import "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl"
-import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/K8sResource.pkl"
+import "@k8s.contrib/convert.pkl"
+// import "@k8s/K8sResource.pkl"
 import "crossplane:crds"
 /*
 input = """

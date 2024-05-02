@@ -1,5 +1,5 @@
 amends "../CrossplaneResource.pkl"
-import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
+import "@k8s/api/core/v1/ConfigMap.pkl"
 import "https://raw.githubusercontent.com/Avarei/function-pkl/main/pkl/CompositionInput.pkl" // TODO replace with package reference
 
 // local state = import("crossplane:state") as CompositionInput
