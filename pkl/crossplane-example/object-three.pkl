@@ -1,0 +1,29 @@
+amends "@crossplane/CrossplaneResource.pkl"
+import "@crossplane/CompositionInput.pkl"
+
+import "crds/Object.pkl"
+import "@k8s/api/core/v1/ConfigMap.pkl"
+
+local state = import("crossplane:state") as CompositionInput
+local foo: ConfigMap? = state.observed.resources.getOrNull("required")?.resource as ConfigMap?
+
+resource = (Object) {
+  metadata {
+    name = "cm-three"
+  }
+
+  spec {
+    forProvider {
+      manifest = (ConfigMap) {
+        metadata {
+          name = "cm-three"
+          namespace = "crossplane-system"
+        }
+        data {
+          ["bar"] = foo?.metadata?.name ?? "alternative"
+        }
+      }
+    }
+  }
+}
+ready = Ready_READY_FALSE
