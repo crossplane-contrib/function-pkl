@@ -54,7 +54,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	for _, pklFileRef := range in.Spec.PklManifests {
 
-		fileName, moduleSource, err := evalFileRef(pklFileRef)
+		fileName, moduleSource, err := evalFileRef(&pklFileRef)
 		if err != nil {
 			return nil, err
 		}
@@ -70,22 +70,24 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	}
 	rsp.Desired.Resources = outResources
 
-	fileName, moduleSource, err := evalFileRef(in.Spec.Requirements)
-	if err != nil {
-		return nil, err
-	}
-	extraResources, err := evalExtraResources(ctx, fileName, moduleSource, evaluator)
-	if err != nil {
-		return nil, err
-	}
-	if len(extraResources) > 0 {
-		rsp.Requirements = &fnv1beta1.Requirements{
-			ExtraResources: extraResources,
+	if in.Spec.Requirements != nil {
+		fileName, moduleSource, err := evalFileRef(in.Spec.Requirements)
+		if err != nil {
+			return nil, err
+		}
+		extraResources, err := evalExtraResources(ctx, fileName, moduleSource, evaluator)
+		if err != nil {
+			return nil, err
+		}
+		if len(extraResources) > 0 {
+			rsp.Requirements = &fnv1beta1.Requirements{
+				ExtraResources: extraResources,
+			}
 		}
 	}
 
 	if in.Spec.PklComposition != nil {
-		fileName, moduleSource, err := evalFileRef(*in.Spec.PklComposition)
+		fileName, moduleSource, err := evalFileRef(in.Spec.PklComposition)
 		if err != nil {
 			return nil, err
 		}
@@ -102,7 +104,10 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	return rsp, nil
 }
 
-func evalFileRef(pklFileRef v1beta1.PklFileRef) (string, *pkl.ModuleSource, error) {
+func evalFileRef(pklFileRef *v1beta1.PklFileRef) (string, *pkl.ModuleSource, error) {
+	if pklFileRef == nil {
+		return "", nil, errors.New("pklFileRef is nil")
+	}
 	switch pklFileRef.Type {
 	case "uri":
 		if pklFileRef.Uri == "" {
