@@ -6,6 +6,7 @@ import (
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/avarei/function-pkl/internal"
 	"github.com/avarei/function-pkl/internal/pkl/reader"
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
@@ -63,9 +64,25 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		}
 
 		outResources[fileName] = resource
-
+	}
+	if rsp.Desired == nil {
+		rsp.Desired = &fnv1beta1.State{}
 	}
 	rsp.Desired.Resources = outResources
+
+	fileName, moduleSource, err := evalFileRef(in.Spec.Requirements)
+	if err != nil {
+		return nil, err
+	}
+	extraResources, err := evalExtraResources(ctx, fileName, moduleSource, evaluator)
+	if err != nil {
+		return nil, err
+	}
+	if len(extraResources) > 0 {
+		rsp.Requirements = &fnv1beta1.Requirements{
+			ExtraResources: extraResources,
+		}
+	}
 
 	if in.Spec.PklComposition != nil {
 		fileName, moduleSource, err := evalFileRef(*in.Spec.PklComposition)
@@ -115,4 +132,18 @@ func evalPklFile(ctx context.Context, name string, source *pkl.ModuleSource, eva
 	}
 
 	return resource, nil
+}
+
+func evalExtraResources(ctx context.Context, name string, source *pkl.ModuleSource, evaluator pkl.Evaluator) (map[string]*fnv1beta1.ResourceSelector, error) {
+	renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", name)
+	}
+
+	resources := &internal.ExtraResourceSelectors{}
+	if err := yaml.Unmarshal([]byte(renderedManifest), resources); err != nil {
+		return nil, errors.Wrap(err, "could not parse yaml to Resource")
+	}
+
+	return resources.ToResourceSelectors(), nil
 }

@@ -31,6 +31,8 @@ type PklSpec struct {
 
 	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
 	PklCRDs []PklCrdRef `json:"pklCRDs,omitempty"`
+
+	Requirements PklFileRef `json:"requirements,omitempty"`
 }
 
 type PklCrdRef struct {
