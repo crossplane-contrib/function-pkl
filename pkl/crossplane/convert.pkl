@@ -69,7 +69,7 @@ local o: Listing = new {
     """
   else ""
 
-  if (parsedInput.getOrNull("extra_resources"))
+  if (parsedInput.containsKey("extra_resources"))
     """
     extraResources {
       \(parsedInput.getOrNull("extra_resources").ifNonNull((resources) -> getResources(parsedInput.getOrNull("extraResources"))))
