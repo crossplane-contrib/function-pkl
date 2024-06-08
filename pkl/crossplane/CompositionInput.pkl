@@ -9,10 +9,15 @@ desired: State?
 
 observed: State?
 
+extraResources: Mapping<String, Resources?>
 
 class State {
   composite: Resource
   resources: Mapping<String, Resource>
+}
+
+class Resources {
+  items: Listing<Resource?>
 }
 
 class Resource {
