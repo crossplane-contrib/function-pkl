@@ -36,12 +36,23 @@ RUN --mount=target=. \
     --mount=type=cache,target=/root/.cache/go-build \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /function .
 
+
+FROM alpine:latest AS download
+RUN wget https://github.com/apple/pkl/releases/download/0.25.3/pkl-alpine-linux-amd64 \
+    && mv /pkl-alpine-linux-amd64 /pkl \
+    && chmod +x /pkl \
+    && mkdir -p /.pkl/cache \
+    && chmod -R 777 /.pkl
+
 # Produce the Function image. We use a very lightweight 'distroless' image that
 # does not include any of the build tools used in previous stages.
 FROM gcr.io/distroless/base-debian11 AS image
 WORKDIR /
 COPY --from=build /function /function
-COPY pkl/ /pkl
+COPY --from=download /pkl /usr/local/bin/pkl
+COPY --from=download /.pkl /.pkl
+
+# COPY pkl/ /pkl
 EXPOSE 9443
 USER nonroot:nonroot
 ENTRYPOINT ["/function"]

@@ -47,6 +47,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluater"))
+		return rsp, nil
 	}
 	defer evaluator.Close()
 
@@ -56,11 +57,13 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 		fileName, moduleSource, err := evalFileRef(&pklFileRef)
 		if err != nil {
-			return nil, err
+			response.Fatal(rsp, errors.Wrap(err, "could not evaluate fileRef"))
+			return rsp, nil
 		}
 		resource, err := evalPklFile(ctx, fileName, moduleSource, evaluator)
 		if err != nil {
-			return nil, err
+			response.Fatal(rsp, errors.Wrap(err, "could not evaluate Pkl File"))
+			return rsp, nil
 		}
 
 		outResources[fileName] = resource
@@ -99,7 +102,6 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		rsp.Desired.Composite = resource
 	}
 
-	//response.Fatal(rsp, err)
 	// TODO add rsp.Results
 	return rsp, nil
 }
