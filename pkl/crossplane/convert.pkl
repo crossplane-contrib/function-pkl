@@ -38,7 +38,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.6#/CompositionInput.pkl\"\n"
+  "amends \"package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.7#/CompositionInput.pkl\"\n"
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)

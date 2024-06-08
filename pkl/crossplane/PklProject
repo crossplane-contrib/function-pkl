@@ -22,7 +22,7 @@ package {
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
-  version = "0.0.6"
+  version = "0.0.7"
   baseUri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/\(name)"
   packageZipUrl = "https://github.com/Avarei/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
   sourceCode = "https://github.com/Avarei/function-pkl"
@@ -33,7 +33,7 @@ package {
 }
 dependencies {
   ["k8s"] {
-    uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
+    uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.1.0"
   }
   ["k8s.contrib"] {
     uri = "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1"
