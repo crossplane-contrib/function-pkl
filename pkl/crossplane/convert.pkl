@@ -38,7 +38,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.8#/CompositionInput.pkl\"\n"
+  "amends \"package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9#/CompositionInput.pkl\"\n"
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)
@@ -68,12 +68,49 @@ local o: Listing = new {
     }\n
     """
   else ""
+
+  if (parsedInput.getOrNull("extra_resources"))
+    """
+    extraResources {
+      \(parsedInput.getOrNull("extra_resources").ifNonNull((resources) -> getResources(parsedInput.getOrNull("extraResources"))))
+    }\n
+    """
+  else ""
 }
 
 local function indent(text: String, i: Int): String =
   let (spaces: String = " ".repeat(i))
     spaces + text.split("\n").join("\n" + spaces)
 
+function getResources(i: Mapping): String = new Listing {
+  /*
+  ["required"] {
+    items {
+      new {
+        resource = (ConfigMap) {
+          metadata {
+            name = "foo"
+          }
+        }
+      }
+    }
+  }
+  */
+  for (k, v in i) {
+    "[\"\(k)\"] {\n"
+    "  items {"
+
+    indent("""
+      new {
+      \(indent(getResource(v), 2))
+      }
+      """, 4) + "\n"
+
+    "  }"
+    "}\n"
+  }
+  "\n"
+}.join("")
 function getState(i: Mapping): String = new Listing {
   "composite {\n"
   indent(getResource(i["composite"]), 2) + "\n"
