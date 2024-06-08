@@ -5,7 +5,7 @@ import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
 local state = import("crossplane:state") as CompositionInput
-local foo: ConfigMap? = state.observed.resources.getOrNull("required")?.resource as ConfigMap?
+local extraResource = state.getExtraResource("myextras", 0)?.resource
 
 resource = (Object) {
   metadata {
@@ -20,7 +20,7 @@ resource = (Object) {
           namespace = "crossplane-system"
         }
         data {
-          ["bar"] = foo?.metadata?.name ?? "alternative"
+          ["bar"] = extraResource?.metadata?.name ?? "<alternative>"
         }
       }
     }
