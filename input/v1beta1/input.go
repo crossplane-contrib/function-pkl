@@ -30,7 +30,7 @@ type PklSpec struct {
 	PklComposition *PklFileRef `json:"pklComposition,omitempty"`
 
 	// +kubebuilder:validation:Required
-	PklManifests []PklFileRef `json:"pklManifests"`
+	PklManifests []PklFileRef `json:"pklManifests,omitempty"`
 
 	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
 	PklCRDs []PklCrdRef `json:"pklCRDs,omitempty"`
@@ -38,7 +38,7 @@ type PklSpec struct {
 	Requirements *PklFileRef `json:"requirements,omitempty"`
 
 	// Packages is a list of Pkl Packages that can be used as a shorthand for the full package Path. This is similar to PklProject dependencies
-	Packages []Package
+	Packages []Package `json:"packages,omitempty"`
 }
 
 func (p PklSpec) ParseUri(uri string) string {
