@@ -20,7 +20,7 @@ type CrossplaneReader struct {
 	Log          logging.Logger
 	Ctx          context.Context
 
-	Packages helper.Packages
+	Packages *helper.Packages
 }
 
 func (f *CrossplaneReader) Scheme() string {
@@ -75,7 +75,7 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 	}
 }
 
-func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
+func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
 	case "state":
 		evaluator, err := evaluatorManager.NewEvaluator(
@@ -85,6 +85,8 @@ func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 				Request:      f.Request,
 				ReaderScheme: "crossplane",
 				Log:          nil,
+				Ctx:          f.Ctx,
+				Packages:     f.Packages,
 			}), // TODO: This should be a seperate reader Implementation, as calling crossplane:state within crossplane:state would softlock and should not be allowed
 		)
 		if err != nil {
