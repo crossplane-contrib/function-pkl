@@ -11,7 +11,8 @@ const coreDefaultPackage string = "package://pkg.pkl-lang.org/github.com/avarei/
 
 func ParsePackages(packageList []v1beta1.Package) Packages {
 	out := Packages{
-		core: coreDefaultPackage,
+		core:     coreDefaultPackage,
+		packages: make(map[string]string),
 	}
 	for _, p := range packageList {
 		out.packages[p.Name] = p.Uri
