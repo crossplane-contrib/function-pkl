@@ -1,32 +1,35 @@
 REPO := ghcr.io/avarei
 IMAGE := function-pkl
-TAG := v0.0.0-dev13
+TAG := v0.0.0-dev15
 
-PKL_MODULE_VERSION_CROSSPLANE := 0.0.10
-PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE := 0.0.7
+PKL_MODULE_VERSION_CROSSPLANE := 0.0.11
+PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE := 0.0.8
 
 .PHONY: release-pkl-crossplane
 release-pkl-crossplane:
-	MODULE_REF := crossplane@${PKL_MODULE_VERSION_CROSSPLANE}
-	PKL_MODULE_PATH := .out/${MODULE_REF}/${MODULE_REF}
-	pkl project resolve ./pkl/crossplane/
-	pkl project package ./pkl/crossplane/
-
+	MODULE_REF=crossplane@${PKL_MODULE_VERSION_CROSSPLANE} && \
+	PKL_MODULE_PATH=".out/$${MODULE_REF}/$${MODULE_REF}" && \
+	pkl project resolve ./pkl/crossplane/ && \
+	RELEASE_FILES=$$(pkl project package ./pkl/crossplane/) && \
 	gh release create ${PKL_MODULE_VERSION_CROSSPLANE} \
-	-t "${MODULE_REF}" \
+	-t $${MODULE_REF} \
 	-n "" \
-	${PKL_MODULE_PATH} ${PKL_MODULE_PATH}.sha256 ${PKL_MODULE_PATH}.zip ${PKL_MODULE_PATH}.zip.sha256
+	--target feat/extra-resources \
+	--prerelease \
+	$$RELEASE_FILES
 
 .PHONY: build-pkl-crossplane-example
 release-pkl-crossplane-example:
-	MODULE_REF := crossplane-example@${PKL_MODULE_VERSION_CROSSPLANE}
-	PKL_MODULE_PATH := .out/${MODULE_REF}/${MODULE_REF}
-	pkl project resolve ./pkl/crossplane-example/
-	pkl project package ./pkl/crossplane-example/
-	gh release create ${PKL_MODULE_VERSION_CROSSPLANE} \
-	-t "${MODULE_REF}" \
+	MODULE_REF=crossplane-example@${PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE} && \
+	PKL_MODULE_PATH=".out/$${MODULE_REF}/$${MODULE_REF}" && \
+	pkl project resolve ./pkl/crossplane-example/ && \
+	RELEASE_FILES=$$(pkl project package ./pkl/crossplane-example/) && \
+	gh release create ${PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE} \
+	-t $${MODULE_REF} \
 	-n "" \
-	${PKL_MODULE_PATH} ${PKL_MODULE_PATH}.sha256 ${PKL_MODULE_PATH}.zip ${PKL_MODULE_PATH}.zip.sha256
+	--target feat/extra-resources \
+	--prerelease \
+	$$RELEASE_FILES
 
 .PHONY: build-image
 build-image:
