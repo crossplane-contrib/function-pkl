@@ -29,6 +29,7 @@ input = """
         ready: false
   """*/
 input: String = read("crossplane:input").text
+package: String = read("crossplane:package").text
 
 local parsedInput: Mapping = new yaml.Parser { useMapping = true }
     .parse(input) as Mapping
@@ -38,7 +39,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9#/CompositionInput.pkl\"\n"
+  "amends \"\(package)#/CompositionInput.pkl\"\n"
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)
