@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	pklPackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.8"
+	pklPackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.9"
 )
 
 func DefaultCRDs() []v1beta1.PklCrdRef {
