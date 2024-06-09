@@ -25,7 +25,7 @@ type CrossplaneReader struct {
 }
 
 const (
-	corePackage     string = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9"
+	corePackage     string = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.10"
 	coreConvertPath string = "/convert.pkl"
 )
 
