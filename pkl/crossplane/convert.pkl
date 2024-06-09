@@ -99,7 +99,7 @@ function getResources(i: Mapping): String = new Listing {
   */
   for (k, v in i) {
     "[\"\(k)\"] {\n"
-    let (items = i.getOrNull("items"))
+    let (items = v.getOrNull("items"))
       if (items != null )
         indent("""
         items {
