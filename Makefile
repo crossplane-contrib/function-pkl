@@ -11,7 +11,7 @@ release-pkl-crossplane:
 	PKL_MODULE_PATH=".out/$${MODULE_REF}/$${MODULE_REF}" && \
 	pkl project resolve ./pkl/crossplane/ && \
 	RELEASE_FILES=$$(pkl project package ./pkl/crossplane/) && \
-	gh release create ${PKL_MODULE_VERSION_CROSSPLANE} \
+	gh release create $${MODULE_REF} \
 	-t $${MODULE_REF} \
 	-n "" \
 	--target feat/extra-resources \
@@ -24,7 +24,7 @@ release-pkl-crossplane-example:
 	PKL_MODULE_PATH=".out/$${MODULE_REF}/$${MODULE_REF}" && \
 	pkl project resolve ./pkl/crossplane-example/ && \
 	RELEASE_FILES=$$(pkl project package ./pkl/crossplane-example/) && \
-	gh release create ${PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE} \
+	gh release create $${MODULE_REF} \
 	-t $${MODULE_REF} \
 	-n "" \
 	--target feat/extra-resources \
