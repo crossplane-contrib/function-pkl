@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/crossplane/function-sdk-go/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
@@ -18,7 +20,14 @@ type CrossplaneReader struct {
 	ReaderScheme string
 	Log          logging.Logger
 	Ctx          context.Context
+
+	Packages []v1beta1.Package
 }
+
+const (
+	corePackage     string = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9"
+	coreConvertPath string = "/convert.pkl"
+)
 
 func (f *CrossplaneReader) Scheme() string {
 	return f.ReaderScheme
@@ -42,6 +51,7 @@ func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) 
 		pkl.NewPathElement("state", false),
 		pkl.NewPathElement("input", false),
 		pkl.NewPathElement("crds", false),
+		pkl.NewPathElement("package", false),
 	}
 	return out, nil
 }
@@ -71,6 +81,37 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 	}
 }
 
+func (f CrossplaneReader) GetCorePackage() *v1beta1.Package {
+	for _, v := range f.Packages {
+		if v.Core {
+			return &v
+		}
+	}
+	return &v1beta1.Package{
+		Name: "",
+		Core: true,
+		Uri:  corePackage,
+	}
+}
+
+func (f CrossplaneReader) GetCoreUri(name string) string {
+	return fmt.Sprintf("%s#%s", f.GetCorePackage().Uri, name)
+}
+
+func (f CrossplaneReader) ParseUri(uri string) string {
+	if !strings.Contains(uri, "@") {
+		return uri
+	}
+	for _, v := range f.Packages {
+		if filePath, found := strings.CutPrefix(uri, "@"+v.Name); found {
+			return fmt.Sprintf("%s#%s", v.Uri, filePath)
+		}
+	}
+
+	// If no match was found try the full path
+	return uri
+}
+
 func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
 	case "state":
@@ -88,7 +129,7 @@ func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		}
 		defer evaluator.Close()
 
-		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9#/convert.pkl"))
+		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource(f.GetCoreUri(coreConvertPath)))
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -110,20 +151,28 @@ func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 			return nil, err
 		}
 
+		packages := helper.ParsePackages(f.Packages)
+
 		resourceTemplates := make(map[string]map[string]string)
 		for _, crd := range in.Spec.PklCRDs {
+			uri := packages.ParseUri(crd.Uri)
 			if resourceTemplates[crd.Kind] == nil {
 				resourceTemplates[crd.Kind] = map[string]string{
-					crd.ApiVersion: crd.Uri,
+					crd.ApiVersion: uri,
 				}
 			} else {
-				resourceTemplates[crd.Kind][crd.ApiVersion] = crd.Uri
+				resourceTemplates[crd.Kind][crd.ApiVersion] = uri
 			}
 		}
 
 		message := buildResourceTemplatesModule(resourceTemplates)
 		fmt.Println(message)
 		return []byte(message), nil
+	case "package":
+		{
+			corePackageUri := f.GetCorePackage().Uri
+			return []byte(corePackageUri), nil
+		}
 	default:
 		return nil, fmt.Errorf("unsupported path")
 	}

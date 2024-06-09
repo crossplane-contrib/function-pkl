@@ -7,6 +7,7 @@ import (
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
 	"github.com/avarei/function-pkl/internal"
+	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/avarei/function-pkl/internal/pkl/reader"
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
@@ -42,6 +43,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 			Request:      req,
 			Log:          f.Log,
 			Ctx:          ctx,
+			Packages:     in.Spec.Packages,
 		}),
 	)
 
@@ -51,11 +53,13 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	}
 	defer evaluator.Close()
 
+	packages := helper.ParsePackages(in.Spec.Packages)
+
 	var outResources map[string]*fnv1beta1.Resource = make(map[string]*fnv1beta1.Resource)
 
 	for _, pklFileRef := range in.Spec.PklManifests {
 
-		fileName, moduleSource, err := evalFileRef(&pklFileRef)
+		fileName, moduleSource, err := evalFileRef(&pklFileRef, packages)
 		if err != nil {
 			response.Fatal(rsp, errors.Wrap(err, "could not evaluate fileRef"))
 			return rsp, nil
@@ -74,7 +78,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	rsp.Desired.Resources = outResources
 
 	if in.Spec.Requirements != nil {
-		fileName, moduleSource, err := evalFileRef(in.Spec.Requirements)
+		fileName, moduleSource, err := evalFileRef(in.Spec.Requirements, packages)
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +94,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	}
 
 	if in.Spec.PklComposition != nil {
-		fileName, moduleSource, err := evalFileRef(in.Spec.PklComposition)
+		fileName, moduleSource, err := evalFileRef(in.Spec.PklComposition, packages)
 		if err != nil {
 			return nil, err
 		}
@@ -106,7 +110,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	return rsp, nil
 }
 
-func evalFileRef(pklFileRef *v1beta1.PklFileRef) (string, *pkl.ModuleSource, error) {
+func evalFileRef(pklFileRef *v1beta1.PklFileRef, packages helper.Packages) (string, *pkl.ModuleSource, error) {
 	if pklFileRef == nil {
 		return "", nil, errors.New("pklFileRef is nil")
 	}
@@ -115,12 +119,13 @@ func evalFileRef(pklFileRef *v1beta1.PklFileRef) (string, *pkl.ModuleSource, err
 		if pklFileRef.Uri == "" {
 			return "", nil, fmt.Errorf("manifest type of \"%s\" is uri but uri is empty", pklFileRef.Name)
 		}
-		return pklFileRef.Name, pkl.UriSource(pklFileRef.Uri), nil
+		return pklFileRef.Name, pkl.UriSource(packages.ParseUri(pklFileRef.Uri)), nil
 
 	case "inline":
 		if pklFileRef.Inline == "" {
 			return "", nil, fmt.Errorf("manifest type of \"%s\" is inline but inline is empty", pklFileRef.Name)
 		}
+		// TODO implement packages support @example -> uri
 		return pklFileRef.Name, pkl.TextSource(pklFileRef.Inline), nil
 	default:
 		return "", nil, errors.New("unknown PklFileRef type")
