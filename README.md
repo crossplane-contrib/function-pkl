@@ -52,8 +52,8 @@ A Pkl Package can be built in the following steps:
     * Make sure that `\(baseUri)@\(version)` is the url where the package metadata can be downloaded from
     * Likewise `\(baseUri)@\(version).zip` is the path where the content will be expected.
     * The PklProjects in this repository use pkg.pkl-lang.org, as they redirect to the download
-        * the path https://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9
-        * redirects to https://github.com/avarei/function-pkl/releases/download/crossplane@0.0.9/crossplane@0.0.9
+        * the path https://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.10
+        * redirects to https://github.com/avarei/function-pkl/releases/download/crossplane@0.0.10/crossplane@0.0.10
 1. Run `pkl project resolve` to resolve the dependencies of the PklProject
 1. Run `pkl project package` to resolve the dependencies of PklProject
 1. Publish the Package
@@ -63,8 +63,8 @@ A Pkl Package can be built in the following steps:
 ## Basic Pkl File
 The bare pkl file we expect is
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9#/CrossplaneResource.pkl"
-import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.9#/CompositionInput.pkl"
+amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.10#/CrossplaneResource.pkl"
+import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.10#/CompositionInput.pkl"
 
 local state = import("crossplane:state") as CompositionInput
 ```
