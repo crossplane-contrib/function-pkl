@@ -23,8 +23,8 @@ spec:
           name: XR
           type: inline
           inline: |
-            amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.16#/CrossplaneResource.pkl"
-            import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.16#/CompositionInput.pkl"
+            amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CrossplaneResource.pkl"
+            import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CompositionInput.pkl"
 
             import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.14#/crds/XR.pkl"
             import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
@@ -48,8 +48,8 @@ spec:
           - name: cm-one
             type: inline
             inline: |
-              amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.16#/CrossplaneResource.pkl"
-              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.16#/CompositionInput.pkl"
+              amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CrossplaneResource.pkl"
+              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CompositionInput.pkl"
 
               import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.14#/crds/XR.pkl"
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
@@ -71,8 +71,8 @@ spec:
           - name: cm-two
             type: inline
             inline: |
-              amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.16#/CrossplaneResource.pkl"
-              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.16#/CompositionInput.pkl"
+              amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CrossplaneResource.pkl"
+              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CompositionInput.pkl"
 
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 

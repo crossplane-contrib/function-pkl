@@ -197,7 +197,7 @@ local states: List<Mapping> = parsedInput.fold(List(), (res, key, value) ->
     res
 ) as List<Mapping>
 
-local extraResources: Mapping = parsedInput.getOrNull("extra_resources")
+local extraResources: Mapping? = parsedInput.getOrNull("extra_resources")
 
 local k8sResources: Listing<Mapping> = new Listing<Mapping> {
   for (state in states) {

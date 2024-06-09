@@ -2,7 +2,7 @@ REPO := ghcr.io/avarei
 IMAGE := function-pkl
 TAG := v0.0.0-dev16
 
-PKL_MODULE_VERSION_CROSSPLANE := 0.0.16
+PKL_MODULE_VERSION_CROSSPLANE := 0.0.17
 PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE := 0.0.14
 
 .PHONY: release-pkl-crossplane
