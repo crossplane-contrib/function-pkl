@@ -18,7 +18,7 @@ spec:
         pklCRDs:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.10#/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/crds/XR.pkl
         pklComposition:
           name: XR
           type: inline
@@ -26,7 +26,7 @@ spec:
             amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.13#/CrossplaneResource.pkl"
             import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.13#/CompositionInput.pkl"
 
-            import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.10#/crds/XR.pkl"
+            import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/crds/XR.pkl"
             import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
             local state = import("crossplane:state") as CompositionInput
@@ -51,7 +51,7 @@ spec:
               amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.13#/CrossplaneResource.pkl"
               import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.13#/CompositionInput.pkl"
 
-              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.10#/crds/XR.pkl"
+              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/crds/XR.pkl"
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
               local state = import("crossplane:state") as CompositionInput
