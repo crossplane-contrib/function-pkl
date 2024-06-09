@@ -37,14 +37,18 @@ func (p Packages) ParseCoreUri(uri string) string {
 }
 
 func (p Packages) ParseUri(uri string) string {
-	i := strings.Index(uri, "@")
-	if i < 0 {
+	if !strings.HasPrefix(uri, "@") {
 		return uri
 	}
-	packageUri, ok := p.packages[uri[:i]]
+	i := strings.Index(uri, "/")
+	if i < 0 {
+		// NOTE: this maybe should even error?
+		return uri
+	}
+	packageUri, ok := p.packages[uri[1:i]]
 	if !ok {
 		// If no match was found try the full path
 		return uri
 	}
-	return fmt.Sprintf("%s#%s", packageUri, uri[i+1:])
+	return fmt.Sprintf("%s#%s", packageUri, uri[i:])
 }

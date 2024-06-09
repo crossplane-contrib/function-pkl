@@ -53,8 +53,9 @@ func TestRunFunction(t *testing.T) {
 		args   args
 		want   want
 	}{
+
 		"SingleResource-Minimal": {
-			reason: "The function should return that it needs extra resources",
+			reason: "The Function should parse one pkl file",
 			args: args{
 				ctx: context.TODO(),
 				req: &fnv1beta1.RunFunctionRequest{
@@ -72,6 +73,202 @@ func TestRunFunction(t *testing.T) {
 									Name: "object-one",
 									Type: "uri",
 									Uri:  pklPackage + "#/object-one.pkl",
+								},
+							},
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+									"apiVersion": "example.crossplane.io/v1",
+									"kind": "XR",
+									"metadata": {
+										"name": "example-xr"
+									},
+									"spec": {}
+								}`),
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{},
+						Resources: map[string]*fnv1beta1.Resource{
+							"object-one": {
+								Resource: resource.MustStructJSON(`{
+										"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+										"kind": "Object",
+										"metadata": {
+											"name": "cm-one"
+										},
+										"spec": {
+											"forProvider": {
+												"manifest": {
+													"apiVersion": "v1",
+													"kind": "ConfigMap",
+													"metadata": {
+														"name": "cm-one",
+														"namespace": "crossplane-system"
+													},
+													"data": {
+														"foo": "example-xr"
+													}
+												}
+											}
+										}
+									}`),
+								Ready: fnv1beta1.Ready_READY_FALSE,
+							},
+						},
+					},
+				},
+			},
+		},
+
+		"ExtraResource": {
+			reason: "The Function should parse a requested and given ExtraResource",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							PklCRDs: DefaultCRDs(),
+							PklComposition: &v1beta1.PklFileRef{
+								Name: "XR",
+								Type: "uri",
+								Uri:  pklPackage + "#/crds/XR.pkl",
+							},
+							PklManifests: []v1beta1.PklFileRef{
+								{
+									Name: "object-needs-extra-resource",
+									Type: "uri",
+									Uri:  pklPackage + "#/object-needs-extra-resource.pkl",
+								},
+							},
+							Requirements: &v1beta1.PklFileRef{
+								Name: "extra-resource",
+								Type: "uri",
+								Uri:  pklPackage + "#/extra-resource.pkl",
+							},
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+									"apiVersion": "example.crossplane.io/v1",
+									"kind": "XR",
+									"metadata": {
+										"name": "example-xr"
+									},
+									"spec": {}
+								}`),
+						},
+					},
+					ExtraResources: map[string]*fnv1beta1.Resources{
+						"myextras": {
+							Items: []*fnv1beta1.Resource{
+								{
+									Resource: resource.MustStructJSON(`{
+											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+											"kind": "Object",
+											"metadata": {
+												"name": "iamspecial"
+											}
+										}`),
+								},
+							},
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{},
+						Resources: map[string]*fnv1beta1.Resource{
+							"object-needs-extra-resource": {
+								Resource: resource.MustStructJSON(`{
+										"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+										"kind": "Object",
+										"metadata": {
+											"name": "cm-three"
+										},
+										"spec": {
+											"forProvider": {
+												"manifest": {
+													"apiVersion": "v1",
+													"kind": "ConfigMap",
+													"metadata": {
+														"name": "cm-three",
+														"namespace": "crossplane-system"
+													},
+													"data": {
+														"bar": "iamspecial"
+													}
+												}
+											}
+										}
+									}`),
+								Ready: fnv1beta1.Ready_READY_FALSE,
+							},
+						},
+					},
+					Requirements: &fnv1beta1.Requirements{
+						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
+							"required": {
+								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
+								Kind:       "Object",
+								Match: &fnv1beta1.ResourceSelector_MatchName{
+									MatchName: "required",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"Packages": {
+			reason: "The function should correctly replace Package references in it's input",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							PklCRDs: DefaultCRDs(),
+							PklComposition: &v1beta1.PklFileRef{
+								Name: "XR",
+								Type: "uri",
+								Uri:  "@example/crds/XR.pkl",
+							},
+							PklManifests: []v1beta1.PklFileRef{
+								{
+									Name: "object-one",
+									Type: "uri",
+									Uri:  "@example/object-one.pkl",
+								},
+							},
+							Requirements: &v1beta1.PklFileRef{
+								Name: "extra-resource",
+								Type: "uri",
+								Uri:  "@example/extra-resource.pkl",
+							},
+							Packages: []v1beta1.Package{
+								{
+									Name: "example",
+									Core: false,
+									Uri:  pklPackage,
 								},
 							},
 						},
@@ -126,105 +323,9 @@ func TestRunFunction(t *testing.T) {
 							},
 						},
 					},
-				},
-			},
-		},
-		"ExtraResource": {
-			reason: "The function should return that it needs extra resources",
-			args: args{
-				ctx: context.TODO(),
-				req: &fnv1beta1.RunFunctionRequest{
-					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
-					Input: resource.MustStructObject(&v1beta1.Pkl{
-						Spec: v1beta1.PklSpec{
-							PklCRDs: DefaultCRDs(),
-							PklComposition: &v1beta1.PklFileRef{
-								Name: "XR",
-								Type: "uri",
-								Uri:  pklPackage + "#/crds/XR.pkl",
-							},
-							PklManifests: []v1beta1.PklFileRef{
-								{
-									Name: "object-needs-extra-resource",
-									Type: "uri",
-									Uri:  pklPackage + "#/object-needs-extra-resource.pkl",
-								},
-							},
-							Requirements: &v1beta1.PklFileRef{
-								Name: "extra-resource",
-								Type: "uri",
-								Uri:  pklPackage + "#/extra-resource.pkl",
-							},
-						},
-					}),
-					Observed: &fnv1beta1.State{
-						Composite: &fnv1beta1.Resource{
-							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1",
-								"kind": "XR",
-								"metadata": {
-									"name": "example-xr"
-								},
-								"spec": {}
-							}`),
-						},
-					},
-					ExtraResources: map[string]*fnv1beta1.Resources{
-						"myextras": {
-							Items: []*fnv1beta1.Resource{
-								{
-									Resource: resource.MustStructJSON(`{
-										"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-										"kind": "Object",
-										"metadata": {
-											"name": "iamspecial"
-										}
-									}`),
-								},
-							},
-						},
-					},
-				},
-			},
-			want: want{
-				rsp: &fnv1beta1.RunFunctionResponse{
-					Meta: &fnv1beta1.ResponseMeta{
-						Tag: "extra",
-						Ttl: durationpb.New(time.Second * 60),
-					},
-					Desired: &fnv1beta1.State{
-						Composite: &fnv1beta1.Resource{},
-						Resources: map[string]*fnv1beta1.Resource{
-							"object-needs-extra-resource": {
-								Resource: resource.MustStructJSON(`{
-									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-									"kind": "Object",
-									"metadata": {
-										"name": "cm-three"
-									},
-									"spec": {
-										"forProvider": {
-											"manifest": {
-												"apiVersion": "v1",
-												"kind": "ConfigMap",
-												"metadata": {
-													"name": "cm-three",
-													"namespace": "crossplane-system"
-												},
-												"data": {
-													"bar": "iamspecial"
-												}
-											}
-										}
-									}
-								}`),
-								Ready: fnv1beta1.Ready_READY_FALSE,
-							},
-						},
-					},
 					Requirements: &fnv1beta1.Requirements{
 						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
-							"required": {
+							"myextras": {
 								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
 								Kind:       "Object",
 								Match: &fnv1beta1.ResourceSelector_MatchName{
