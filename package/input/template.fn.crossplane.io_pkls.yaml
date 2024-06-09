@@ -40,6 +40,23 @@ spec:
             type: object
           spec:
             properties:
+              packages:
+                description: Packages is a list of Pkl Packages that can be used as
+                  a shorthand for the full package Path. This is similar to PklProject
+                  dependencies
+                items:
+                  properties:
+                    core:
+                      description: |-
+                        Core specifies this packages as the one
+                        providing essential capabilities for this function
+                      type: boolean
+                    name:
+                      type: string
+                    uri:
+                      type: string
+                  type: object
+                type: array
               pklCRDs:
                 description: Pkl Template of the CompositeResourceDefinition (XRD),
                   which will be amended by the CompositeResource (XR)
@@ -110,8 +127,6 @@ spec:
                 required:
                 - name
                 type: object
-            required:
-            - pklManifests
             type: object
         type: object
     served: true

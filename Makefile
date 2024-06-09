@@ -1,6 +1,6 @@
 REPO := ghcr.io/avarei
 IMAGE := function-pkl
-TAG := v0.0.0-dev16
+TAG := v0.0.0-dev17
 
 PKL_MODULE_VERSION_CROSSPLANE := 0.0.17
 PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE := 0.0.15
