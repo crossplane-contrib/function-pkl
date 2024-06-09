@@ -36,6 +36,8 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
 		return rsp, nil
 	}
+	packages := helper.ParsePackages(in.Spec.Packages)
+
 	evaluator, err := f.EvaluatorManager.NewEvaluator(ctx,
 		pkl.PreconfiguredOptions,
 		reader.WithCrossplane(&reader.CrossplaneReader{
@@ -43,7 +45,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 			Request:      req,
 			Log:          f.Log,
 			Ctx:          ctx,
-			Packages:     in.Spec.Packages,
+			Packages:     packages,
 		}),
 	)
 
@@ -52,8 +54,6 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, nil
 	}
 	defer evaluator.Close()
-
-	packages := helper.ParsePackages(in.Spec.Packages)
 
 	var outResources map[string]*fnv1beta1.Resource = make(map[string]*fnv1beta1.Resource)
 
