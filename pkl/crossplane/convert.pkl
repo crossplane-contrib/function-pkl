@@ -98,18 +98,37 @@ function getResources(i: Mapping): String = new Listing {
   }
   */
   for (k, v in i) {
-    """
-    [\"\(k)\"] {
-    \(indent("""
-      items {
-      \(indent(getResources2(v.items), 2))
-      }
-      """, 2))
-    }
-    """
+    "[\"\(k)\"] {\n"
+    let (items = i.getOrNull("items"))
+      if (items != null )
+        indent("""
+        items {
+        \(indent(getResources2(items), 2))
+        }
+        """, 2)
+      else ""
+    "}\n"
   }
   "\n"
 }.join("")
+
+local function getResources2(i: Mapping): String = new Listing<String> {
+  /*
+  new {
+    resource = (ConfigMap) {
+      metadata {
+        name = "foo"
+      }
+    }
+  }
+  */
+  for (resource in i) {
+    "new {\n"
+    indent(getResource(resource), 2)
+    "}\n"
+  }
+}.join("")
+
 function getState(i: Mapping): String = new Listing {
   "composite {\n"
   indent(getResource(i["composite"]), 2) + "\n"
@@ -123,23 +142,6 @@ function getState(i: Mapping): String = new Listing {
         }
         """, 2) + "\n"
     }
-    "}\n"
-  }
-}.join("")
-
-local function getResources2(i: Mapping): String = new Listing<String> {
-  /*
-  new {
-    resource = (ConfigMap) {
-      metadata {
-        name = "foo"
-      }
-    }
-  }
-  */
-  for (resource in i["items"]) {
-    "new {\n"
-    indent(getResource(resource), 2)
     "}\n"
   }
 }.join("")
