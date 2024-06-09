@@ -4,6 +4,10 @@
 # The GitHub Actions CI job sets this argument for a consistent Go version.
 ARG GO_VERSION=1
 
+# We add the core package at build time.
+ARG PKL_CORE_PACKAGE
+ARG GO_HELPER_PACKAGE=github.com/avarei/function-pkl/internal/helper
+
 # Setup the base environment. The BUILDPLATFORM is set automatically by Docker.
 # The --platform=${BUILDPLATFORM} flag tells Docker to build the function using
 # the OS and architecture of the host running the build, not the OS and
@@ -28,20 +32,36 @@ RUN --mount=target=. --mount=type=cache,target=/go/pkg/mod go mod download
 ARG TARGETOS
 ARG TARGETARCH
 
+ARG PKL_CORE_PACKAGE
+ARG GO_HELPER_PACKAGE
+
 # Build the function binary. The type=target mount tells Docker to mount the
 # current directory read-only in the WORKDIR. The type=cache mount tells Docker
 # to cache the Go modules cache across builds.
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /function .
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
+    -ldflags "-X ${GO_HELPER_PACKAGE}.CoreDefaultPackage=${PKL_CORE_PACKAGE}" \
+    -o /function .
+
+
+FROM alpine:latest AS download
+RUN wget https://github.com/apple/pkl/releases/download/0.25.3/pkl-alpine-linux-amd64 \
+    && mv /pkl-alpine-linux-amd64 /pkl \
+    && chmod +x /pkl \
+    && mkdir -p /.pkl/cache \
+    && chmod -R 777 /.pkl
 
 # Produce the Function image. We use a very lightweight 'distroless' image that
 # does not include any of the build tools used in previous stages.
 FROM gcr.io/distroless/base-debian11 AS image
 WORKDIR /
 COPY --from=build /function /function
-COPY pkl/ /pkl
+COPY --from=download /pkl /usr/local/bin/pkl
+COPY --from=download /.pkl /.pkl
+
+# COPY pkl/ /pkl
 EXPOSE 9443
 USER nonroot:nonroot
 ENTRYPOINT ["/function"]

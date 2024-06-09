@@ -1,7 +1,7 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionInput
 
-import "@k8s/K8sResource.pkl"
+import "CrossplaneResource.pkl"
 
 context: Mapping<String, Any>?
 
@@ -9,14 +9,19 @@ desired: State?
 
 observed: State?
 
+extraResources: Mapping<String, Resources?>
 
 class State {
-  composite: Resource
-  resources: Mapping<String, Resource>
+  composite: CrossplaneResource
+  resources: Mapping<String, CrossplaneResource>
 }
 
-class Resource {
-  resource: K8sResource
-  connectionDetails: Mapping<String, String>?
-  ready: Boolean?
+class Resources {
+  items: Listing<CrossplaneResource?>
 }
+
+function getExtraResources(name: String): Listing<CrossplaneResource?> =
+  extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<CrossplaneResource?> {}
+
+function getExtraResource(name: String, index: Int):CrossplaneResource? =
+    getExtraResources(name).toList().getOrNull(index)

@@ -5,6 +5,9 @@
 package v1beta1
 
 import (
+	"fmt"
+	"strings"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -27,10 +30,39 @@ type PklSpec struct {
 	PklComposition *PklFileRef `json:"pklComposition,omitempty"`
 
 	// +kubebuilder:validation:Required
-	PklManifests []PklFileRef `json:"pklManifests"`
+	PklManifests []PklFileRef `json:"pklManifests,omitempty"`
 
 	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
 	PklCRDs []PklCrdRef `json:"pklCRDs,omitempty"`
+
+	Requirements *PklFileRef `json:"requirements,omitempty"`
+
+	// Packages is a list of Pkl Packages that can be used as a shorthand for the full package Path. This is similar to PklProject dependencies
+	Packages []Package `json:"packages,omitempty"`
+}
+
+func (p PklSpec) ParseUri(uri string) string {
+	if !strings.Contains(uri, "@") {
+		return uri
+	}
+	for _, v := range p.Packages {
+		if filePath, found := strings.CutPrefix(uri, "@"+v.Name); found {
+			return fmt.Sprintf("%s#%s", v.Uri, filePath)
+		}
+	}
+
+	// If no match was found try the full path
+	return uri
+}
+
+type Package struct {
+	Name string `json:"name,omitempty"`
+
+	// Core specifies this packages as the one
+	// providing essential capabilities for this function
+	Core bool `json:"core,omitempty"`
+
+	Uri string `json:"uri,omitempty"`
 }
 
 type PklCrdRef struct {

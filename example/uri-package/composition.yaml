@@ -1,0 +1,48 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: function-pkl
+spec:
+  compositeTypeRef:
+    apiVersion: example.crossplane.io/v1
+    kind: XR
+  mode: Pipeline
+  pipeline:
+  - step: run-the-template
+    functionRef:
+      name: function-pkl
+    input:
+      apiVersion: template.fn.crossplane.io/v1beta1
+      kind: Pkl
+      spec:
+        pklCRDs:
+          - apiVersion: example.crossplane.io/v1
+            kind: XR
+            uri: "@example/crds/XR.pkl"
+          - apiVersion: kubernetes.crossplane.io/v1alpha2
+            kind: Object
+            uri: "@example/crds/Object.pkl"
+        pklComposition:
+          name: XR
+          type: uri
+          uri: "@example/crds/XR.pkl"
+        pklManifests:
+          - name: object-one
+            type: uri
+            uri: "@example/object-one.pkl"
+          - name: object-two
+            type: uri
+            uri: "@example/object-two.pkl"
+          - name: object-needs-extra-resource
+            type: uri
+            uri: "@example/object-needs-extra-resource.pkl"
+        requirements:
+          name: extra-resource
+          type: uri
+          uri: "@example/extra-resource.pkl"
+        packages:
+          - name: core
+            core: true
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17
+          - name: example
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.15

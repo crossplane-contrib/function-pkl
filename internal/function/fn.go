@@ -6,6 +6,8 @@ import (
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/avarei/function-pkl/internal"
+	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/avarei/function-pkl/internal/pkl/reader"
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
@@ -34,6 +36,8 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
 		return rsp, nil
 	}
+	packages := helper.ParsePackages(in.Spec.Packages)
+
 	evaluator, err := f.EvaluatorManager.NewEvaluator(ctx,
 		pkl.PreconfiguredOptions,
 		reader.WithCrossplane(&reader.CrossplaneReader{
@@ -41,11 +45,13 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 			Request:      req,
 			Log:          f.Log,
 			Ctx:          ctx,
+			Packages:     packages,
 		}),
 	)
 
 	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluater"))
+		return rsp, nil
 	}
 	defer evaluator.Close()
 
@@ -53,22 +59,42 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	for _, pklFileRef := range in.Spec.PklManifests {
 
-		fileName, moduleSource, err := evalFileRef(pklFileRef)
+		fileName, moduleSource, err := evalFileRef(&pklFileRef, packages)
 		if err != nil {
-			return nil, err
+			response.Fatal(rsp, errors.Wrap(err, "could not evaluate fileRef"))
+			return rsp, nil
 		}
 		resource, err := evalPklFile(ctx, fileName, moduleSource, evaluator)
 		if err != nil {
-			return nil, err
+			response.Fatal(rsp, errors.Wrap(err, "could not evaluate Pkl File"))
+			return rsp, nil
 		}
 
 		outResources[fileName] = resource
-
+	}
+	if rsp.Desired == nil {
+		rsp.Desired = &fnv1beta1.State{}
 	}
 	rsp.Desired.Resources = outResources
 
+	if in.Spec.Requirements != nil {
+		fileName, moduleSource, err := evalFileRef(in.Spec.Requirements, packages)
+		if err != nil {
+			return nil, err
+		}
+		extraResources, err := evalExtraResources(ctx, fileName, moduleSource, evaluator)
+		if err != nil {
+			return nil, err
+		}
+		if len(extraResources) > 0 {
+			rsp.Requirements = &fnv1beta1.Requirements{
+				ExtraResources: extraResources,
+			}
+		}
+	}
+
 	if in.Spec.PklComposition != nil {
-		fileName, moduleSource, err := evalFileRef(*in.Spec.PklComposition)
+		fileName, moduleSource, err := evalFileRef(in.Spec.PklComposition, packages)
 		if err != nil {
 			return nil, err
 		}
@@ -80,23 +106,26 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		rsp.Desired.Composite = resource
 	}
 
-	//response.Fatal(rsp, err)
 	// TODO add rsp.Results
 	return rsp, nil
 }
 
-func evalFileRef(pklFileRef v1beta1.PklFileRef) (string, *pkl.ModuleSource, error) {
+func evalFileRef(pklFileRef *v1beta1.PklFileRef, packages *helper.Packages) (string, *pkl.ModuleSource, error) {
+	if pklFileRef == nil {
+		return "", nil, errors.New("pklFileRef is nil")
+	}
 	switch pklFileRef.Type {
 	case "uri":
 		if pklFileRef.Uri == "" {
 			return "", nil, fmt.Errorf("manifest type of \"%s\" is uri but uri is empty", pklFileRef.Name)
 		}
-		return pklFileRef.Name, pkl.UriSource(pklFileRef.Uri), nil
+		return pklFileRef.Name, pkl.UriSource(packages.ParseUri(pklFileRef.Uri)), nil
 
 	case "inline":
 		if pklFileRef.Inline == "" {
 			return "", nil, fmt.Errorf("manifest type of \"%s\" is inline but inline is empty", pklFileRef.Name)
 		}
+		// TODO implement packages support @example -> uri
 		return pklFileRef.Name, pkl.TextSource(pklFileRef.Inline), nil
 	default:
 		return "", nil, errors.New("unknown PklFileRef type")
@@ -115,4 +144,18 @@ func evalPklFile(ctx context.Context, name string, source *pkl.ModuleSource, eva
 	}
 
 	return resource, nil
+}
+
+func evalExtraResources(ctx context.Context, name string, source *pkl.ModuleSource, evaluator pkl.Evaluator) (map[string]*fnv1beta1.ResourceSelector, error) {
+	renderedManifest, err := evaluator.EvaluateOutputText(ctx, source)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", name)
+	}
+
+	resources := &internal.ExtraResourceSelectors{}
+	if err := yaml.Unmarshal([]byte(renderedManifest), resources); err != nil {
+		return nil, errors.Wrap(err, "could not parse yaml to Resource")
+	}
+
+	return resources.ToResourceSelectors(), nil
 }

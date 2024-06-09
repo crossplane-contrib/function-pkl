@@ -7,6 +7,7 @@ import (
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/crossplane/function-sdk-go/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
@@ -18,6 +19,8 @@ type CrossplaneReader struct {
 	ReaderScheme string
 	Log          logging.Logger
 	Ctx          context.Context
+
+	Packages *helper.Packages
 }
 
 func (f *CrossplaneReader) Scheme() string {
@@ -42,6 +45,7 @@ func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) 
 		pkl.NewPathElement("state", false),
 		pkl.NewPathElement("input", false),
 		pkl.NewPathElement("crds", false),
+		pkl.NewPathElement("package", false),
 	}
 	return out, nil
 }
@@ -71,7 +75,7 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 	}
 }
 
-func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
+func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
 	case "state":
 		evaluator, err := evaluatorManager.NewEvaluator(
@@ -81,14 +85,16 @@ func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 				Request:      f.Request,
 				ReaderScheme: "crossplane",
 				Log:          nil,
+				Ctx:          f.Ctx,
+				Packages:     f.Packages,
 			}), // TODO: This should be a seperate reader Implementation, as calling crossplane:state within crossplane:state would softlock and should not be allowed
 		)
 		if err != nil {
 			return nil, err
 		}
 		defer evaluator.Close()
-
-		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.3#/convert.pkl"))
+		uri := f.Packages.ParseCoreUri("/convert.pkl")
+		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource(uri))
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
@@ -112,18 +118,23 @@ func (f CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 
 		resourceTemplates := make(map[string]map[string]string)
 		for _, crd := range in.Spec.PklCRDs {
+			uri := f.Packages.ParseUri(crd.Uri)
 			if resourceTemplates[crd.Kind] == nil {
 				resourceTemplates[crd.Kind] = map[string]string{
-					crd.ApiVersion: crd.Uri,
+					crd.ApiVersion: uri,
 				}
 			} else {
-				resourceTemplates[crd.Kind][crd.ApiVersion] = crd.Uri
+				resourceTemplates[crd.Kind][crd.ApiVersion] = uri
 			}
 		}
 
 		message := buildResourceTemplatesModule(resourceTemplates)
 		fmt.Println(message)
 		return []byte(message), nil
+	case "package":
+		{
+			return []byte(f.Packages.GetCoreUri()), nil
+		}
 	default:
 		return nil, fmt.Errorf("unsupported path")
 	}

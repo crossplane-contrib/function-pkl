@@ -1,0 +1,17 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+module Requirements
+
+import "@k8s/K8sResource.pkl"
+
+extraResourceSelectors: Mapping<String, ResourceSelector?>?
+
+class ResourceSelector {
+  apiVersion: String
+  kind: String
+  name: String
+  matchLabels: Mapping<String, String>
+}
+
+output {
+  renderer = (K8sResource.output.renderer as YamlRenderer) {}
+}

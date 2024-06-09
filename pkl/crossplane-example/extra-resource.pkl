@@ -1,0 +1,11 @@
+amends "@crossplane/Requirements.pkl"
+
+import "crds/Object.pkl"
+
+extraResourceSelectors {
+  ["myextras"] {
+    apiVersion = Object.apiVersion
+    kind = Object.kind
+    name = "required"
+  }
+}
