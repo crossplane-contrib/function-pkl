@@ -110,7 +110,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	return rsp, nil
 }
 
-func evalFileRef(pklFileRef *v1beta1.PklFileRef, packages helper.Packages) (string, *pkl.ModuleSource, error) {
+func evalFileRef(pklFileRef *v1beta1.PklFileRef, packages *helper.Packages) (string, *pkl.ModuleSource, error) {
 	if pklFileRef == nil {
 		return "", nil, errors.New("pklFileRef is nil")
 	}

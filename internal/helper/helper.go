@@ -9,8 +9,8 @@ import (
 
 const coreDefaultPackage string = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.12"
 
-func ParsePackages(packageList []v1beta1.Package) Packages {
-	out := Packages{
+func ParsePackages(packageList []v1beta1.Package) *Packages {
+	out := &Packages{
 		core:     coreDefaultPackage,
 		packages: make(map[string]string),
 	}
