@@ -18,25 +18,25 @@ spec:
         pklCRDs:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/crds/XR.pkl
           - apiVersion: kubernetes.crossplane.io/v1alpha2
             kind: Object
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/crds/Object.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/crds/Object.pkl
         pklComposition:
           name: XR
           type: uri
-          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/crds/XR.pkl
+          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/crds/XR.pkl
         pklManifests:
           - name: object-one
             type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/object-one.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/object-one.pkl
           - name: object-two
             type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/object-two.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/object-two.pkl
 #          - name: object-needs-extra-resource
 #            type: uri
-#            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/object-needs-extra-resource.pkl
+#            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/object-needs-extra-resource.pkl
 #        requirements:
 #          name: extra-resource
 #          type: uri
-#          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11#/extra-resource.pkl
+#          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12#/extra-resource.pkl

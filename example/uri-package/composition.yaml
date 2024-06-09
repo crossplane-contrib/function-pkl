@@ -46,4 +46,4 @@ spec:
             uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.14
           - name: example
             core: true
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.11
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.12
