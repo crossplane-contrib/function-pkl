@@ -1,42 +1,75 @@
-REPO := ghcr.io/avarei
-IMAGE := function-pkl
-TAG := v0.0.0-dev17
+REPO := github.com/avarei/function-pkl
+CONTAINER_IMAGE := ghcr.io/avarei/function-pkl
+TAG := v0.0.1
 
-PKL_MODULE_VERSION_CROSSPLANE := 0.0.17
-PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE := 0.0.15
+# Branch used for Pkl Package Releases
+BRANCH := main
+
+PKL_BASE_URI := package://pkg.pkl-lang.org
+
+PKL_CORE_NAME := crossplane
+PKL_CORE_VERSION := 0.0.17
+PKL_CORE_REF := ${PKL_CORE_NAME}@${PKL_CORE_VERSION}
+PKL_CORE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
+
+PKL_EXAMPLE_NAME := crossplane-example
+PKL_EXAMPLE_VERSION := 0.0.15
+PKL_EXAMPLE_REF := ${PKL_EXAMPLE_NAME}@${PKL_EXAMPLE_VERSION}
+PKL_EXAMPLE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
+
+SED_MAC = sed -i '' -E "s|($(PKL_BASE_URI)/${REPO}/$(PACKAGE_NAME)@)([0-9]+\.[0-9]+\.[0-9]+)|\1$(PKL_CORE_VERSION)|g"
+SED_LINUX = sed -i -E "s|($(PKL_BASE_URI)/${REPO}/$(PACKAGE_NAME)@)([0-9]+\.[0-9]+\.[0-9]+)|\1$(PKL_CORE_VERSION)|g"
+SED_TARGETS := example/ README.md pkl/${PKL_CORE_NAME}/PklProject pkl/${PKL_EXAMPLE_NAME}/PklProject
+
+.PHONY: build-core-package
+build-core-package: PACKAGE_NAME := $(PKL_CORE_NAME)
+build-core-package:
+	pkl project resolve ./pkl/${PACKAGE_NAME}/
+ifeq ($(shell uname), Darwin)
+	find $(SED_TARGETS) -type f -exec $(SED_MAC) {} +
+else
+	find $(SED_TARGETS) -type f -exec $(SED_LINUX) {} +
+endif
+
 
 .PHONY: release-pkl-crossplane
 release-pkl-crossplane:
-	MODULE_REF=crossplane@${PKL_MODULE_VERSION_CROSSPLANE} && \
-	PKL_MODULE_PATH=".out/$${MODULE_REF}/$${MODULE_REF}" && \
-	pkl project resolve ./pkl/crossplane/ && \
-	RELEASE_FILES=$$(pkl project package ./pkl/crossplane/) && \
-	gh release create $${MODULE_REF} \
-	-t $${MODULE_REF} \
+	pkl project resolve ./pkl/${PKL_CORE_NAME}/ && \
+	RELEASE_FILES=$$(pkl project package ./pkl/${PKL_CORE_NAME}/) && \
+	gh release create ${PKL_CORE_REF} \
+	-t ${PKL_CORE_REF} \
 	-n "" \
-	--target feat/extra-resources \
+	--target ${BRANCH} \
 	--prerelease \
 	$$RELEASE_FILES
 
+.PHONY: build-example-package
+build-example-package: PACKAGE_NAME := $(PKL_EXAMPLE_NAME)
+build-example-package:
+	pkl project resolve ./pkl/${PACKAGE_NAME}/
+ifeq ($(shell uname), Darwin)
+	find $(SED_TARGETS) -type f -exec $(SED_MAC) {} +
+else
+	find $(SED_TARGETS) -type f -exec $(SED_LINUX) {} +
+endif
+
 .PHONY: build-pkl-crossplane-example
 release-pkl-crossplane-example:
-	MODULE_REF=crossplane-example@${PKL_MODULE_VERSION_CROSSPLANE_EXAMPLE} && \
-	PKL_MODULE_PATH=".out/$${MODULE_REF}/$${MODULE_REF}" && \
-	pkl project resolve ./pkl/crossplane-example/ && \
-	RELEASE_FILES=$$(pkl project package ./pkl/crossplane-example/) && \
-	gh release create $${MODULE_REF} \
-	-t $${MODULE_REF} \
+	pkl project resolve ./pkl/${PKL_EXAMPLE_NAME}/ && \
+	RELEASE_FILES=$$(pkl project package ./pkl/${PKL_EXAMPLE_NAME}/) && \
+	gh release create ${PKL_EXAMPLE_REF} \
+	-t ${PKL_EXAMPLE_REF} \
 	-n "" \
-	--target feat/extra-resources \
+	--target ${BRANCH} \
 	--prerelease \
 	$$RELEASE_FILES
 
 .PHONY: build-image
 build-image:
-	docker build -t runtime .
+	docker build --build-arg PKL_CORE_PACKAGE=${PKL_CORE_URI} -t runtime .
 	crossplane xpkg build -f package --embed-runtime-image=runtime -o .out/function-pkl.xpkg
 
 
 .PHONY: push-image
 push-image:
-	crossplane xpkg push -f .out/function-pkl.xpkg ${REPO}/${IMAGE}:${TAG}
+	crossplane xpkg push -f .out/function-pkl.xpkg ${CONTAINER_IMAGE}:${TAG}

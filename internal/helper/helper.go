@@ -7,11 +7,11 @@ import (
 	"github.com/avarei/function-pkl/input/v1beta1"
 )
 
-const coreDefaultPackage string = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17"
+var CoreDefaultPackage string
 
 func ParsePackages(packageList []v1beta1.Package) *Packages {
 	out := &Packages{
-		core:     coreDefaultPackage,
+		core:     CoreDefaultPackage,
 		packages: make(map[string]string),
 	}
 	for _, p := range packageList {

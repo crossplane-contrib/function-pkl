@@ -4,6 +4,10 @@
 # The GitHub Actions CI job sets this argument for a consistent Go version.
 ARG GO_VERSION=1
 
+# We add the core package at build time.
+ARG PKL_CORE_PACKAGE
+ARG GO_HELPER_PACKAGE=github.com/avarei/function-pkl/internal/helper
+
 # Setup the base environment. The BUILDPLATFORM is set automatically by Docker.
 # The --platform=${BUILDPLATFORM} flag tells Docker to build the function using
 # the OS and architecture of the host running the build, not the OS and
@@ -28,13 +32,18 @@ RUN --mount=target=. --mount=type=cache,target=/go/pkg/mod go mod download
 ARG TARGETOS
 ARG TARGETARCH
 
+ARG PKL_CORE_PACKAGE
+ARG GO_HELPER_PACKAGE
+
 # Build the function binary. The type=target mount tells Docker to mount the
 # current directory read-only in the WORKDIR. The type=cache mount tells Docker
 # to cache the Go modules cache across builds.
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /function .
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
+    -ldflags "-X ${GO_HELPER_PACKAGE}.CoreDefaultPackage=${PKL_CORE_PACKAGE}" \
+    -o /function .
 
 
 FROM alpine:latest AS download
