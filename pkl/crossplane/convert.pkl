@@ -112,7 +112,7 @@ function getResources(i: Mapping): String = new Listing {
   "\n"
 }.join("")
 
-local function getResources2(i: Mapping): String = new Listing<String> {
+local function getResources2(i: Listing): String = new Listing<String> {
   /*
   new {
     resource = (ConfigMap) {
