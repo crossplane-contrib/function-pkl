@@ -80,6 +80,21 @@ Each Pkl file will be parsed individually. (TODO: add paralellisation?)
         * imports pkl-k8s/k8s/k8sResource.pkl
     * `CompositionInput.pkl` is used by the result of `local state = (import crossplane:state) as CompositionInput`
 
+> Not complete
+```mermaid
+sequenceDiagram
+    Caller->>Function Pkl: gRPC Request
+
+    Function Pkl->>Pkl: Parse Pkl File
+    Pkl->>Function Pkl: Request gRPC input
+    Function Pkl->>Function Pkl: Convert struct to yaml
+    Function Pkl->>Pkl: Send Input
+    Pkl->>Pkl: Finish rendering
+    Pkl->>Function Pkl: Output as Yaml string
+    Function Pkl->>Function Pkl: Convert to Struct
+    Function Pkl->>Caller: Send Response in gRPC
+```
+
 ### Generating Pkl Files and Modules from Manifests
 There are some package to make it easier to convert existing CRDs or Manifests into the Pkl format.
 > [!NOTE]
