@@ -25,18 +25,18 @@ spec:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
-        pklCRDs:
+        crds:
           - apiVersion: example.crossplane.io/v1
             kind: XR
             uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl
           - apiVersion: kubernetes.crossplane.io/v1alpha2
             kind: Object
             uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/Object.pkl
-        pklComposition:
+        composition:
           name: XR
           type: uri
           uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl
-        pklManifests:
+        resources:
           - name: object-one
             type: uri
             uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/object-one.pkl

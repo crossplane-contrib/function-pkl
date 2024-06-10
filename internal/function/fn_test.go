@@ -64,8 +64,8 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
-							PklCRDs: DefaultCRDs(),
-							PklManifests: []v1beta1.PklFileRef{
+							CRDs: DefaultCRDs(),
+							Resources: []v1beta1.PklFileRef{
 								{
 									Name: "object-one",
 									Type: "uri",
@@ -134,8 +134,8 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
-							PklCRDs: DefaultCRDs(),
-							PklComposition: &v1beta1.PklFileRef{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
 								Name: "xr",
 								Type: "uri",
 								Uri:  pklPackage + "#/xr.pkl",
@@ -231,13 +231,13 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
-							PklCRDs: DefaultCRDs(),
-							PklComposition: &v1beta1.PklFileRef{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
 								Name: "XR",
 								Type: "uri",
 								Uri:  pklPackage + "#/crds/XR.pkl",
 							},
-							PklManifests: []v1beta1.PklFileRef{
+							Resources: []v1beta1.PklFileRef{
 								{
 									Name: "object-needs-extra-resource",
 									Type: "uri",
@@ -339,13 +339,13 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
-							PklCRDs: DefaultCRDs(),
-							PklComposition: &v1beta1.PklFileRef{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
 								Name: "XR",
 								Type: "uri",
 								Uri:  "@example/crds/XR.pkl",
 							},
-							PklManifests: []v1beta1.PklFileRef{
+							Resources: []v1beta1.PklFileRef{
 								{
 									Name: "object-one",
 									Type: "uri",
@@ -439,8 +439,8 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
-							PklCRDs: DefaultCRDs(),
-							PklComposition: &v1beta1.PklFileRef{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
 								Name: "XR",
 								Type: "inline",
 								Inline: fmt.Sprintf(`
@@ -466,7 +466,7 @@ func TestRunFunction(t *testing.T) {
 		   }
 		   `, pklCorePackage, pklPackage, pklK8sPackage),
 							},
-							PklManifests: []v1beta1.PklFileRef{
+							Resources: []v1beta1.PklFileRef{
 								{
 									Name: "object-one",
 									Type: "inline",

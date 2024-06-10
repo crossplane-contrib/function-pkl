@@ -15,18 +15,18 @@ spec:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
-        pklCRDs:
+        crds:
           - apiVersion: example.crossplane.io/v1
             kind: XR
             uri: "@example/crds/XR.pkl"
           - apiVersion: kubernetes.crossplane.io/v1alpha2
             kind: Object
             uri: "@example/crds/Object.pkl"
-        pklComposition:
+        composition:
           name: XR
           type: uri
           uri: "@example/xr.pkl"
-        pklManifests:
+        resources:
           - name: object-one
             type: uri
             uri: "@example/object-one.pkl"

@@ -14,6 +14,7 @@ import (
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
+	"go.starlark.net/lib/proto"
 	"sigs.k8s.io/yaml"
 )
 
@@ -55,9 +56,27 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	}
 	defer evaluator.Close()
 
+	if fullRef := in.Spec.Full; fullRef != nil {
+		fileName, moduleSource, err := evalFileRef(fullRef, packages)
+		if err != nil {
+			response.Fatal(rsp, errors.Wrap(err, "could not evaluate fileRef"))
+			return rsp, nil
+		}
+
+		renderedManifest, err := evaluator.EvaluateOutputText(ctx, moduleSource)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", fileName)
+		}
+
+		out := &fnv1beta1.RunFunctionResponse{}
+		err = proto.UnmarshalText(renderedManifest, out)
+
+		return out, nil
+	}
+
 	var outResources map[string]*fnv1beta1.Resource = make(map[string]*fnv1beta1.Resource)
 
-	for _, pklFileRef := range in.Spec.PklManifests {
+	for _, pklFileRef := range in.Spec.Resources {
 
 		fileName, moduleSource, err := evalFileRef(&pklFileRef, packages)
 		if err != nil {
@@ -93,8 +112,8 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		}
 	}
 
-	if in.Spec.PklComposition != nil {
-		fileName, moduleSource, err := evalFileRef(in.Spec.PklComposition, packages)
+	if in.Spec.Composition != nil {
+		fileName, moduleSource, err := evalFileRef(in.Spec.Composition, packages)
 		if err != nil {
 			return nil, err
 		}

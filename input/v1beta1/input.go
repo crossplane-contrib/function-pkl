@@ -27,13 +27,15 @@ type Pkl struct {
 }
 
 type PklSpec struct {
-	PklComposition *PklFileRef `json:"pklComposition,omitempty"`
+	Composition *PklFileRef `json:"composition,omitempty"`
 
 	// +kubebuilder:validation:Required
-	PklManifests []PklFileRef `json:"pklManifests,omitempty"`
+	Resources []PklFileRef `json:"resources,omitempty"`
+
+	Full *PklFileRef `json:"full,omitempty"`
 
 	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
-	PklCRDs []PklCrdRef `json:"pklCRDs,omitempty"`
+	CRDs []PklCrdRef `json:"crds,omitempty"`
 
 	Requirements *PklFileRef `json:"requirements,omitempty"`
 

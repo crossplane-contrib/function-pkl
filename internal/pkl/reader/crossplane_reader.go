@@ -117,7 +117,7 @@ func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		}
 
 		resourceTemplates := make(map[string]map[string]string)
-		for _, crd := range in.Spec.PklCRDs {
+		for _, crd := range in.Spec.CRDs {
 			uri := f.Packages.ParseUri(crd.Uri)
 			if resourceTemplates[crd.Kind] == nil {
 				resourceTemplates[crd.Kind] = map[string]string{
