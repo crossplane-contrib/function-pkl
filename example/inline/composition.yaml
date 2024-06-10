@@ -18,21 +18,23 @@ spec:
         pklCRDs:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.15#/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl
         pklComposition:
-          name: XR
+          name: xr
           type: inline
           inline: |
-            amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CrossplaneResource.pkl"
-            import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CompositionInput.pkl"
-
-            import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.15#/crds/XR.pkl"
-            import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
-
+            amends "@crossplane/CrossplaneResource.pkl"
+            import "@crossplane/CompositionInput.pkl"
+            import "crds/XR.pkl"
+            import "crds/Object.pkl"
+            import "@k8s/api/core/v1/ConfigMap.pkl"
+              
             local state = import("crossplane:state") as CompositionInput
             local observedCompositeResource: XR = state.observed.composite.resource as XR
-            local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
-
+            
+            local obj: Object? = state.observed.resources.getOrNull("cm-one")?.resource as Object?
+            local cmOne: ConfigMap? = obj?.status?.atProvider?.manifest as ConfigMap?
+              
             resource = (observedCompositeResource) {
               status {
                 when (cmOne?.metadata?.namespace != null) {
@@ -44,14 +46,14 @@ spec:
               ["test"] = "bar"
             }
 
-        pklManifests:
+pklManifests:
           - name: cm-one
             type: inline
             inline: |
               amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CrossplaneResource.pkl"
               import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17#/CompositionInput.pkl"
 
-              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.15#/crds/XR.pkl"
+              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl"
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
               local state = import("crossplane:state") as CompositionInput

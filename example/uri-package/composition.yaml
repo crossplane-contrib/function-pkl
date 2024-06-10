@@ -25,7 +25,7 @@ spec:
         pklComposition:
           name: XR
           type: uri
-          uri: "@example/crds/XR.pkl"
+          uri: "@example/xr.pkl"
         pklManifests:
           - name: object-one
             type: uri
@@ -45,4 +45,4 @@ spec:
             core: true
             uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17
           - name: example
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.15
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16

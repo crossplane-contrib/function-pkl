@@ -13,16 +13,17 @@ PKL_CORE_REF := ${PKL_CORE_NAME}@${PKL_CORE_VERSION}
 PKL_CORE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
 PKL_EXAMPLE_NAME := crossplane-example
-PKL_EXAMPLE_VERSION := 0.0.15
+PKL_EXAMPLE_VERSION := 0.0.16
 PKL_EXAMPLE_REF := ${PKL_EXAMPLE_NAME}@${PKL_EXAMPLE_VERSION}
 PKL_EXAMPLE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
-SED_MAC = sed -i '' -E "s|($(PKL_BASE_URI)/${REPO}/$(PACKAGE_NAME)@)([0-9]+\.[0-9]+\.[0-9]+)|\1$(PKL_CORE_VERSION)|g"
-SED_LINUX = sed -i -E "s|($(PKL_BASE_URI)/${REPO}/$(PACKAGE_NAME)@)([0-9]+\.[0-9]+\.[0-9]+)|\1$(PKL_CORE_VERSION)|g"
+SED_MAC = sed -i '' -E "s|($(PKL_BASE_URI)/${REPO}/$(PACKAGE_NAME)@)([0-9]+\.[0-9]+\.[0-9]+)|\1$(PACKAGE_VERSION)|g"
+SED_LINUX = sed -i -E "s|($(PKL_BASE_URI)/${REPO}/$(PACKAGE_NAME)@)([0-9]+\.[0-9]+\.[0-9]+)|\1$(PACKAGE_VERSION)|g"
 SED_TARGETS := example/ README.md pkl/${PKL_CORE_NAME}/PklProject pkl/${PKL_EXAMPLE_NAME}/PklProject
 
 .PHONY: build-core-package
 build-core-package: PACKAGE_NAME := $(PKL_CORE_NAME)
+build-example-package: PACKAGE_VERSION := $(PKL_CORE_VERSION)
 build-core-package:
 	pkl project resolve ./pkl/${PACKAGE_NAME}/
 ifeq ($(shell uname), Darwin)
@@ -45,6 +46,7 @@ release-pkl-crossplane:
 
 .PHONY: build-example-package
 build-example-package: PACKAGE_NAME := $(PKL_EXAMPLE_NAME)
+build-example-package: PACKAGE_VERSION := $(PKL_EXAMPLE_VERSION)
 build-example-package:
 	pkl project resolve ./pkl/${PACKAGE_NAME}/
 ifeq ($(shell uname), Darwin)
