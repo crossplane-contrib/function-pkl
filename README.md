@@ -63,8 +63,8 @@ A Pkl Package can be built in the following steps:
 ## Basic Pkl File
 The bare pkl file we expect is
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.15#/CrossplaneResource.pkl"
-import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.15#/CompositionInput.pkl"
+amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CrossplaneResource.pkl"
+import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionInput.pkl"
 
 local state = import("crossplane:state") as CompositionInput
 ```

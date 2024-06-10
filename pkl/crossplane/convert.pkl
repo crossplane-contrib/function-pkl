@@ -1,7 +1,18 @@
 import "pkl:yaml"
 import "@k8s.contrib/convert.pkl"
 // import "@k8s/K8sResource.pkl"
-import "crossplane:crds"
+
+/*
+resourceTemplates: Mapping<String, Mapping<String, unknown>> = new {
+  ["XR"] {
+    ["example.crossplane.io/v1"] = import("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl")
+  }
+  ["Object"] {
+    ["kubernetes.crossplane.io/v1alpha2"] = import("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/Object.pkl")
+  }
+}
+*/
+import "crossplane:crds" // sets resourceTemplates variable
 /*
 input = """
   context:

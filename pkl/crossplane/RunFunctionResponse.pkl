@@ -1,0 +1,59 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+module RunFunctionResponse
+
+import "CrossplaneResource.pkl"
+import "@k8s/K8sResource.pkl"
+import "pkl:protobuf"
+
+meta: ResponseMeta?
+
+desired: State?
+
+results: Listing<Result?>
+
+context: Mapping<String, Any>?
+
+requirements: Requirements?
+
+class ResponseMeta {
+  tag: String
+  ttl: Duration
+}
+
+class Result {
+  severity: Severity
+  message: String
+
+  hidden const Severity_SEVERITY_UNSPECIFIED: Severity = 0
+  hidden const Severity_SEVERITY_FATAL: Severity = 1
+  hidden const Severity_SEVERITY_WARNING: Severity = 2
+  hidden const Severity_SEVERITY_NORMAL: Severity = 3
+}
+typealias Severity = Int(isBetween(0,3))
+
+class State {
+  composite: CrossplaneResource
+  resources: Mapping<String, CrossplaneResource>
+}
+
+class Requirements {
+  extra_resources: Mapping<String, ResourceSelector?>
+}
+class ResourceSelector {
+  apiVersion: String
+  kind: String
+  match: Match
+}
+
+class Match {
+  match_name: String?
+  match_labels: MatchLabels?
+}
+
+class MatchLabels {
+  labels: Mapping<String, String>
+}
+
+output {
+  renderer = new protobuf.Renderer {}
+}
