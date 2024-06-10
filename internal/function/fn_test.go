@@ -65,11 +65,6 @@ func TestRunFunction(t *testing.T) {
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
 							PklCRDs: DefaultCRDs(),
-							PklComposition: &v1beta1.PklFileRef{
-								Name: "XR",
-								Type: "uri",
-								Uri:  pklPackage + "#/crds/XR.pkl",
-							},
 							PklManifests: []v1beta1.PklFileRef{
 								{
 									Name: "object-one",
@@ -82,13 +77,13 @@ func TestRunFunction(t *testing.T) {
 					Observed: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
 							Resource: resource.MustStructJSON(`{
-											"apiVersion": "example.crossplane.io/v1",
-											"kind": "XR",
-											"metadata": {
-												"name": "example-xr"
-											},
-											"spec": {}
-										}`),
+												"apiVersion": "example.crossplane.io/v1",
+												"kind": "XR",
+												"metadata": {
+													"name": "example-xr"
+												},
+												"spec": {}
+											}`),
 						},
 					},
 				},
@@ -100,34 +95,129 @@ func TestRunFunction(t *testing.T) {
 						Ttl: durationpb.New(time.Second * 60),
 					},
 					Desired: &fnv1beta1.State{
-						Composite: &fnv1beta1.Resource{},
 						Resources: map[string]*fnv1beta1.Resource{
 							"object-one": {
 								Resource: resource.MustStructJSON(`{
-												"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-												"kind": "Object",
-												"metadata": {
-													"name": "cm-one"
-												},
-												"spec": {
-													"forProvider": {
-														"manifest": {
-															"apiVersion": "v1",
-															"kind": "ConfigMap",
-															"metadata": {
-																"name": "cm-one",
-																"namespace": "crossplane-system"
-															},
-															"data": {
-																"foo": "example-xr"
+													"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+													"kind": "Object",
+													"metadata": {
+														"name": "cm-one"
+													},
+													"spec": {
+														"forProvider": {
+															"manifest": {
+																"apiVersion": "v1",
+																"kind": "ConfigMap",
+																"metadata": {
+																	"name": "cm-one",
+																	"namespace": "crossplane-system"
+																},
+																"data": {
+																	"foo": "example-xr"
+																}
 															}
 														}
 													}
-												}
-											}`),
+												}`),
 								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
+					},
+				},
+			},
+		},
+		"Composite-Status": {
+			reason: "The Function should update the status of the Composite Resource",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							PklCRDs: DefaultCRDs(),
+							PklComposition: &v1beta1.PklFileRef{
+								Name: "xr",
+								Type: "uri",
+								Uri:  pklPackage + "#/xr.pkl",
+							},
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+								"apiVersion": "example.crossplane.io/v1",
+								"kind": "XR",
+								"metadata": {
+									"name": "example-xr"
+								},
+								"spec": {}
+								}`),
+						},
+						Resources: map[string]*fnv1beta1.Resource{
+							"cm-one": {
+								Resource: resource.MustStructJSON(`{
+									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+									"kind": "Object",
+									"metadata": {
+										"name": "cm-one"
+									},
+									"spec": {
+										"forProvider": {
+											"manifest": {
+												"apiVersion": "v1",
+												"kind": "ConfigMap",
+												"metadata": {
+													"name": "cm-one",
+													"namespace": "crossplane-system"
+												},
+												"data": {
+													"foo": "example-xr"
+												}
+											}
+										}
+									},
+									"status": {
+										"atProvider": {
+											"manifest": {
+												"apiVersion": "v1",
+												"kind": "ConfigMap",
+												"metadata": {
+													"name": "cm-one",
+													"namespace": "crossplane-system"
+												},
+												"data": {
+													"foo": "example-xr"
+												}
+											}
+										}
+									}
+								}`),
+							},
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+							"apiVersion": "example.crossplane.io/v1",
+							"kind": "XR",
+							"metadata": {
+								"name": "example-xr"
+							},
+							"spec": {},
+							"status": {
+								"someStatus": "I observed cm-one's namespace. it is crossplane-system"
+							}
+							}`),
+						},
+						Resources: map[string]*fnv1beta1.Resource{},
 					},
 				},
 			},
@@ -164,13 +254,13 @@ func TestRunFunction(t *testing.T) {
 					Observed: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
 							Resource: resource.MustStructJSON(`{
-										"apiVersion": "example.crossplane.io/v1",
-										"kind": "XR",
-										"metadata": {
-											"name": "example-xr"
-										},
-										"spec": {}
-									}`),
+		   										"apiVersion": "example.crossplane.io/v1",
+		   										"kind": "XR",
+		   										"metadata": {
+		   											"name": "example-xr"
+		   										},
+		   										"spec": {}
+		   									}`),
 						},
 					},
 					ExtraResources: map[string]*fnv1beta1.Resources{
@@ -178,12 +268,12 @@ func TestRunFunction(t *testing.T) {
 							Items: []*fnv1beta1.Resource{
 								{
 									Resource: resource.MustStructJSON(`{
-												"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-												"kind": "Object",
-												"metadata": {
-													"name": "iamspecial"
-												}
-											}`),
+		   												"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+		   												"kind": "Object",
+		   												"metadata": {
+		   													"name": "iamspecial"
+		   												}
+		   											}`),
 								},
 							},
 						},
@@ -201,27 +291,27 @@ func TestRunFunction(t *testing.T) {
 						Resources: map[string]*fnv1beta1.Resource{
 							"object-needs-extra-resource": {
 								Resource: resource.MustStructJSON(`{
-											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-											"kind": "Object",
-											"metadata": {
-												"name": "cm-three"
-											},
-											"spec": {
-												"forProvider": {
-													"manifest": {
-														"apiVersion": "v1",
-														"kind": "ConfigMap",
-														"metadata": {
-															"name": "cm-three",
-															"namespace": "crossplane-system"
-														},
-														"data": {
-															"bar": "iamspecial"
-														}
-													}
-												}
-											}
-										}`),
+		   											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+		   											"kind": "Object",
+		   											"metadata": {
+		   												"name": "cm-three"
+		   											},
+		   											"spec": {
+		   												"forProvider": {
+		   													"manifest": {
+		   														"apiVersion": "v1",
+		   														"kind": "ConfigMap",
+		   														"metadata": {
+		   															"name": "cm-three",
+		   															"namespace": "crossplane-system"
+		   														},
+		   														"data": {
+		   															"bar": "iamspecial"
+		   														}
+		   													}
+		   												}
+		   											}
+		   										}`),
 								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
@@ -279,13 +369,13 @@ func TestRunFunction(t *testing.T) {
 					Observed: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
 							Resource: resource.MustStructJSON(`{
-										"apiVersion": "example.crossplane.io/v1",
-										"kind": "XR",
-										"metadata": {
-											"name": "example-xr"
-										},
-										"spec": {}
-									}`),
+		   										"apiVersion": "example.crossplane.io/v1",
+		   										"kind": "XR",
+		   										"metadata": {
+		   											"name": "example-xr"
+		   										},
+		   										"spec": {}
+		   									}`),
 						},
 					},
 				},
@@ -301,27 +391,27 @@ func TestRunFunction(t *testing.T) {
 						Resources: map[string]*fnv1beta1.Resource{
 							"object-one": {
 								Resource: resource.MustStructJSON(`{
-											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-											"kind": "Object",
-											"metadata": {
-												"name": "cm-one"
-											},
-											"spec": {
-												"forProvider": {
-													"manifest": {
-														"apiVersion": "v1",
-														"kind": "ConfigMap",
-														"metadata": {
-															"name": "cm-one",
-															"namespace": "crossplane-system"
-														},
-														"data": {
-															"foo": "example-xr"
-														}
-													}
-												}
-											}
-										}`),
+		   											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+		   											"kind": "Object",
+		   											"metadata": {
+		   												"name": "cm-one"
+		   											},
+		   											"spec": {
+		   												"forProvider": {
+		   													"manifest": {
+		   														"apiVersion": "v1",
+		   														"kind": "ConfigMap",
+		   														"metadata": {
+		   															"name": "cm-one",
+		   															"namespace": "crossplane-system"
+		   														},
+		   														"data": {
+		   															"foo": "example-xr"
+		   														}
+		   													}
+		   												}
+		   											}
+		   										}`),
 								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
@@ -354,64 +444,64 @@ func TestRunFunction(t *testing.T) {
 								Name: "XR",
 								Type: "inline",
 								Inline: fmt.Sprintf(`
-amends "%[1]s#/CrossplaneResource.pkl"
-import "%[1]s#/CompositionInput.pkl"
+		   amends "%[1]s#/CrossplaneResource.pkl"
+		   import "%[1]s#/CompositionInput.pkl"
 
-import "%[2]s#/crds/XR.pkl"
-import "%[3]s#/api/core/v1/ConfigMap.pkl"
+		   import "%[2]s#/crds/XR.pkl"
+		   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionInput
-local observedCompositeResource: XR = state.observed.composite.resource as XR
-local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
+		   local state = import("crossplane:state") as CompositionInput
+		   local observedCompositeResource: XR = state.observed.composite.resource as XR
+		   local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
 
-resource = (observedCompositeResource) {
-  status {
-    when (cmOne?.metadata?.namespace != null) {
-      someStatus = "I observed cm-one's namespace. it is \(cmOne.metadata.namespace)"
-    }
-  }
-}
-connectionDetails {
-  ["test"] = "bar"
-}
-`, pklCorePackage, pklPackage, pklK8sPackage),
+		   resource = (observedCompositeResource) {
+		     status {
+		       when (cmOne?.metadata?.namespace != null) {
+		         someStatus = "I observed cm-one's namespace. it is \(cmOne.metadata.namespace)"
+		       }
+		     }
+		   }
+		   connectionDetails {
+		     ["test"] = "bar"
+		   }
+		   `, pklCorePackage, pklPackage, pklK8sPackage),
 							},
 							PklManifests: []v1beta1.PklFileRef{
 								{
 									Name: "object-one",
 									Type: "inline",
 									Inline: fmt.Sprintf(`
-amends "%[1]s#/CrossplaneResource.pkl"
-import "%[1]s#/CompositionInput.pkl"
+		   amends "%[1]s#/CrossplaneResource.pkl"
+		   import "%[1]s#/CompositionInput.pkl"
 
-import "%[2]s#/crds/XR.pkl"
-import "%[2]s#/crds/Object.pkl"
-import "%[3]s#/api/core/v1/ConfigMap.pkl"
+		   import "%[2]s#/crds/XR.pkl"
+		   import "%[2]s#/crds/Object.pkl"
+		   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionInput
-local observedCompositeResource: XR = state.observed.composite.resource as XR
+		   local state = import("crossplane:state") as CompositionInput
+		   local observedCompositeResource: XR = state.observed.composite.resource as XR
 
-resource = (Object) {
-  metadata {
-    name = "cm-one"
-  }
+		   resource = (Object) {
+		     metadata {
+		       name = "cm-one"
+		     }
 
-  spec {
-    forProvider {
-      manifest = (ConfigMap) {
-        metadata {
-          name = "cm-one"
-          namespace = "crossplane-system"
-        }
-        data {
-          ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
-        }
-      }
-    }
-  }
-}
-ready = Ready_READY_FALSE
-`, pklCorePackage, pklPackage, pklK8sPackage),
+		     spec {
+		       forProvider {
+		         manifest = (ConfigMap) {
+		           metadata {
+		             name = "cm-one"
+		             namespace = "crossplane-system"
+		           }
+		           data {
+		             ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
+		           }
+		         }
+		       }
+		     }
+		   }
+		   ready = Ready_READY_FALSE
+		   `, pklCorePackage, pklPackage, pklK8sPackage),
 								},
 							},
 						},
@@ -419,13 +509,13 @@ ready = Ready_READY_FALSE
 					Observed: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
 							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1",
-								"kind": "XR",
-								"metadata": {
-									"name": "example-xr"
-								},
-								"spec": {}
-							}`),
+		   								"apiVersion": "example.crossplane.io/v1",
+		   								"kind": "XR",
+		   								"metadata": {
+		   									"name": "example-xr"
+		   								},
+		   								"spec": {}
+		   							}`),
 						},
 					},
 				},
@@ -439,39 +529,39 @@ ready = Ready_READY_FALSE
 					Desired: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
 							Resource: resource.MustStructJSON(`{
-							"apiVersion": "example.crossplane.io/v1",
-							"kind": "XR",
-							"metadata": {
-								"name": "example-xr"
-							},
-							"spec": {},
-							"status": {}
-							}`),
+		   							"apiVersion": "example.crossplane.io/v1",
+		   							"kind": "XR",
+		   							"metadata": {
+		   								"name": "example-xr"
+		   							},
+		   							"spec": {},
+		   							"status": {}
+		   							}`),
 						},
 						Resources: map[string]*fnv1beta1.Resource{
 							"object-one": {
 								Resource: resource.MustStructJSON(`{
-									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-									"kind": "Object",
-									"metadata": {
-										"name": "cm-one"
-									},
-									"spec": {
-										"forProvider": {
-											"manifest": {
-												"apiVersion": "v1",
-												"kind": "ConfigMap",
-												"metadata": {
-													"name": "cm-one",
-													"namespace": "crossplane-system"
-												},
-												"data": {
-													"foo": "example-xr"
-												}
-											}
-										}
-									}
-								}`),
+		   									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+		   									"kind": "Object",
+		   									"metadata": {
+		   										"name": "cm-one"
+		   									},
+		   									"spec": {
+		   										"forProvider": {
+		   											"manifest": {
+		   												"apiVersion": "v1",
+		   												"kind": "ConfigMap",
+		   												"metadata": {
+		   													"name": "cm-one",
+		   													"namespace": "crossplane-system"
+		   												},
+		   												"data": {
+		   													"foo": "example-xr"
+		   												}
+		   											}
+		   										}
+		   									}
+		   								}`),
 								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
