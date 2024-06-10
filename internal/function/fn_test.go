@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	pklPackage     = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.15"
+	pklPackage     = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16"
 	pklCorePackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.17"
 	pklK8sPackage  = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
 )
