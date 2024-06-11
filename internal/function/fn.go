@@ -14,7 +14,7 @@ import (
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
-	"go.starlark.net/lib/proto"
+	"google.golang.org/protobuf/encoding/prototext"
 	"sigs.k8s.io/yaml"
 )
 
@@ -69,8 +69,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		}
 
 		out := &fnv1beta1.RunFunctionResponse{}
-		err = proto.UnmarshalText(renderedManifest, out)
-
+		err = prototext.Unmarshal([]byte(renderedManifest), out)
 		return out, nil
 	}
 
