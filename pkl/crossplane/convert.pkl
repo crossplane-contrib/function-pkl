@@ -63,7 +63,7 @@ local o: Listing = new {
   if (parsedInput.containsKey("meta"))
     """
     meta {
-      tag = \(parsedInput.getOrNull("meta").getOrNull("tag"))
+      tag = "\(parsedInput.getOrNull("meta").getOrNull("tag"))"
     }\n
     """
   else ""
