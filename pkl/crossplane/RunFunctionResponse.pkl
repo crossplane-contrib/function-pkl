@@ -37,7 +37,7 @@ class State {
 }
 
 class Requirements {
-  extra_resources: Mapping<String, ResourceSelector?>
+  extraResources: Mapping<String, ResourceSelector?>
 }
 class ResourceSelector {
   apiVersion: String
@@ -46,8 +46,8 @@ class ResourceSelector {
 }
 
 class Match {
-  match_name: String?
-  match_labels: MatchLabels?
+  matchName: String?
+  matchLabels: MatchLabels?
 }
 
 class MatchLabels {
