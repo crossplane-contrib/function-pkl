@@ -59,7 +59,14 @@ local o: Listing = new {
       "import \"\(importInfo.uri)\"\n"
   }
   "\n"
-  // TODO add imports for all CRDs used
+
+  if (parsedInput.containsKey("meta"))
+    """
+    meta {
+      tag = \(parsedInput.getOrNull("meta").getOrNull("tag"))
+    }\n
+    """
+  else ""
 
   if (parsedInput.containsKey("context"))
     "context = \(parsedInput.getOrNull("context"))\n"

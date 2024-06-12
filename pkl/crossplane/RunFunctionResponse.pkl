@@ -66,6 +66,18 @@ output {
               else if (unit.length == 2) unit[0].toUpperCase()
               else "")
               "\(size.value)\(k8sUnit)"
+      [Duration] = (duration: Duration) ->
+          let (secs = duration.toUnit("s").value.toInt())
+            let (ns: Duration = duration - secs.s)
+              new protobufDuration {
+                seconds = secs
+                nanos = ns.toUnit("ns").value.toInt()
+              }
     }
   }
+}
+
+class protobufDuration {
+  seconds: Int // int64 not available in pkl
+  nanos: Int
 }

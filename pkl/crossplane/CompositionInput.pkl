@@ -3,6 +3,8 @@ module CompositionInput
 
 import "CrossplaneResource.pkl"
 
+meta: RequestMeta?
+
 context: Mapping<String, Any>?
 
 desired: State?
@@ -10,6 +12,10 @@ desired: State?
 observed: State?
 
 extraResources: Mapping<String, Resources?>
+
+class RequestMeta {
+  tag: String
+}
 
 class State {
   composite: CrossplaneResource
