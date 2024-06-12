@@ -18,29 +18,28 @@ desired {
     }
   }
   resources {
-    ["cm-one"] {
-      new CrossplaneResource {
-        resource = new Object {
-          metadata {
-            name = "cm-one"
-          }
-          spec {
-            forProvider {
-              manifest = (ConfigMap) {
-                metadata {
-                  name = "cm-one"
-                  namespace = "crossplane-system"
-                }
-                data {
-                  ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
-                }
+    ["cm-one"] = new CrossplaneResource {
+      resource = new Object {
+        metadata {
+          name = "cm-one"
+        }
+        spec {
+          forProvider {
+            manifest = (ConfigMap) {
+              metadata {
+                name = "cm-one"
+                namespace = "crossplane-system"
+              }
+              data {
+                ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
               }
             }
           }
         }
-        ready = Ready_READY_TRUE
       }
+      ready = Ready_READY_TRUE
     }
+
   }
 }
 results {
