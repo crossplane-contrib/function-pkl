@@ -55,5 +55,17 @@ class MatchLabels {
 }
 
 output {
-  renderer = new protobuf.Renderer {}
+  // renderer = new protobuf.Renderer {}
+
+  renderer = new YamlRenderer {
+    converters {
+      [DataSize] = (size: DataSize) ->
+          let (unit = size.unit)
+            let (k8sUnit =
+              if (unit.length == 3) unit[0].toUpperCase() + unit[1]
+              else if (unit.length == 2) unit[0].toUpperCase()
+              else "")
+              "\(size.value)\(k8sUnit)"
+    }
+  }
 }

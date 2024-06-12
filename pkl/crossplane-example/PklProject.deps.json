@@ -3,7 +3,7 @@
   "resolvedDependencies": {
     "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0": {
       "type": "remote",
-      "uri": "projectpackage://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.18",
+      "uri": "projectpackage://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.19",
       "checksums": {
         "sha256": "c0c1e684a8788d0779f6270bc5abf7745d403a772b27b61494bb2a7987517073"
       }
