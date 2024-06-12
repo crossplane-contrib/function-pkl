@@ -1,0 +1,51 @@
+amends "@crossplane/RunFunctionResponse.pkl"
+import "@crossplane/CrossplaneResource.pkl"
+import "@crossplane/CompositionInput.pkl"
+
+import "crds/XR.pkl"
+import "crds/Object.pkl"
+import "@k8s/api/core/v1/ConfigMap.pkl"
+
+local state = import("crossplane:state") as CompositionInput
+local observedCompositeResource: XR = state.observed.composite.resource as XR
+
+desired {
+  composite {
+    resource = new XR {
+      status {
+        someStatus = "pretty status"
+      }
+    }
+  }
+  resources {
+    ["cm-one"] {
+      new CrossplaneResource {
+        resource = new Object {
+          metadata {
+            name = "cm-one"
+          }
+          spec {
+            forProvider {
+              manifest = (ConfigMap) {
+                metadata {
+                  name = "cm-one"
+                  namespace = "crossplane-system"
+                }
+                data {
+                  ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
+                }
+              }
+            }
+          }
+        }
+        ready = Ready_READY_TRUE
+      }
+    }
+  }
+}
+results {
+  new {
+    severity = Severity_SEVERITY_NORMAL
+    message = "welcome"
+  }
+}
