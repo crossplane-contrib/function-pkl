@@ -102,7 +102,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 				ApiVersion: fixedrs.ApiVersion,
 				Kind:       fixedrs.Kind,
 			}
-			if len(fixedrs.Match.MatchLabels.Labels) > 0 {
+			if fixedrs.Match.MatchLabels != nil && len(fixedrs.Match.MatchLabels.Labels) > 0 {
 				rs.Match = &fnv1beta1.ResourceSelector_MatchLabels{
 					MatchLabels: &fnv1beta1.MatchLabels{
 						Labels: fixedrs.Match.MatchLabels.GetLabels(),
