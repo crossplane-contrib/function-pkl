@@ -5,7 +5,7 @@
       "type": "remote",
       "uri": "projectpackage://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.19",
       "checksums": {
-        "sha256": "c0c1e684a8788d0779f6270bc5abf7745d403a772b27b61494bb2a7987517073"
+        "sha256": "b92b99e77746090a91b38d2cb0fa7ccaaaf569df93399e8a2cc0a039effb9f51"
       }
     },
     "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1": {

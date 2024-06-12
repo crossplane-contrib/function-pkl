@@ -18,7 +18,7 @@ spec:
         crds:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.1#/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.2#/crds/XR.pkl
         composition:
           name: xr
           type: inline
@@ -53,7 +53,7 @@ resources:
               amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CrossplaneResource.pkl"
               import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionInput.pkl"
 
-              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.1#/crds/XR.pkl"
+              import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.2#/crds/XR.pkl"
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
               local state = import("crossplane:state") as CompositionInput
