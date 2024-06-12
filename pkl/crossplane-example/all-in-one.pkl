@@ -8,6 +8,19 @@ import "@k8s/api/core/v1/ConfigMap.pkl"
 
 local state = import("crossplane:state") as CompositionInput
 local observedCompositeResource: XR = state.observed.composite.resource as XR
+local extraResource: Object? = state.getExtraResource("ineed", 0)?.resource
+
+requirements {
+  extraResources {
+    ["ineed"] {
+      apiVersion = Object.apiVersion
+      kind = Object.kind
+      match {
+        matchName = "required"
+      }
+    }
+  }
+}
 
 desired {
   composite {
@@ -31,7 +44,8 @@ desired {
                 namespace = "crossplane-system"
               }
               data {
-                ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
+                ["foo"] = observedCompositeResource?.metadata?.name ?? throw("Composite could not find observed composite name")
+                ["required"] = extraResource?.metadata?.name ?? "i could not find what I needed..."
               }
             }
           }
