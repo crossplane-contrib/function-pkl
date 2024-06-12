@@ -14,7 +14,6 @@ import (
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
-	"google.golang.org/protobuf/encoding/prototext"
 	"sigs.k8s.io/yaml"
 )
 
@@ -24,6 +23,29 @@ type Function struct {
 
 	Log              logging.Logger
 	EvaluatorManager pkl.EvaluatorManager
+}
+
+type RunFunctionResponse struct {
+	fnv1beta1.RunFunctionResponse
+
+	Requirements *Requirements `json:"requirements,omitempty"`
+}
+
+type Requirements struct {
+	//fnv1beta1.Requirements
+
+	ExtraResources map[string]*ResourceSelector `protobuf:"bytes,1,rep,name=extra_resources,json=extraResources,proto3" json:"extraResources,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+}
+
+type ResourceSelector struct {
+	ApiVersion string `protobuf:"bytes,1,opt,name=api_version,json=apiVersion,proto3" json:"apiVersion,omitempty"`
+	Kind       string `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	Match      Match  `json:"match,omitempty"`
+}
+
+type Match struct {
+	MatchName   string                 `protobuf:"bytes,3,opt,name=match_name,json=matchName,proto3,oneof" json:"matchName,omitempty"`
+	MatchLabels *fnv1beta1.MatchLabels `protobuf:"bytes,4,opt,name=match_labels,json=matchLabels,proto3,oneof" json:"matchLabels,omitempty"`
 }
 
 // RunFunction runs the Function.
@@ -68,8 +90,44 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 			return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", fileName)
 		}
 
-		out := &fnv1beta1.RunFunctionResponse{}
-		err = prototext.Unmarshal([]byte(renderedManifest), out)
+		helper := &RunFunctionResponse{}
+		err = yaml.Unmarshal([]byte(renderedManifest), helper)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could unmarshal pkl result")
+		}
+
+		fixedResourceSelectors := make(map[string]*fnv1beta1.ResourceSelector)
+		for name, fixedrs := range helper.Requirements.ExtraResources {
+			rs := &fnv1beta1.ResourceSelector{
+				ApiVersion: fixedrs.ApiVersion,
+				Kind:       fixedrs.Kind,
+			}
+			if len(fixedrs.Match.MatchLabels.Labels) > 0 {
+				rs.Match = &fnv1beta1.ResourceSelector_MatchLabels{
+					MatchLabels: &fnv1beta1.MatchLabels{
+						Labels: fixedrs.Match.MatchLabels.GetLabels(),
+					},
+				}
+			} else {
+				rs.Match = &fnv1beta1.ResourceSelector_MatchName{
+					MatchName: fixedrs.Match.MatchName,
+				}
+			}
+			fixedResourceSelectors[name] = rs
+		}
+
+		fixedRequirements := &fnv1beta1.Requirements{
+			ExtraResources: fixedResourceSelectors,
+		}
+
+		out := &fnv1beta1.RunFunctionResponse{
+			Meta:         helper.Meta,
+			Desired:      helper.Desired,
+			Results:      helper.Results,
+			Context:      helper.Context,
+			Requirements: fixedRequirements,
+		}
+
 		return out, nil
 	}
 
