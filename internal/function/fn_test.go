@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
@@ -584,6 +585,11 @@ func TestRunFunction(t *testing.T) {
 							},
 						},
 					}),
+					Context: resource.MustStructJSON(`{
+						"apiextensions.crossplane.io/environment": {
+							"foo": "bar"
+						}
+					}`),
 					Observed: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
 							Resource: resource.MustStructJSON(`{
@@ -665,6 +671,18 @@ func TestRunFunction(t *testing.T) {
 							},
 						},
 					},
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: &durationpb.Duration{
+							Seconds: 60,
+						},
+					},
+					Context: resource.MustStructJSON(`{
+						"apiextensions.crossplane.io/environment": {
+							"foo": "bar"
+						},
+						"greetings": "with <3 from function-pkl"
+					}`),
 					Results: []*fnv1beta1.Result{
 						{
 							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
