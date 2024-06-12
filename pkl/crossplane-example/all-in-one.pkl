@@ -62,3 +62,14 @@ results {
     message = "welcome"
   }
 }
+context {
+  ["greetings"] = "with <3 from function-pkl"
+  when (state.context.containsKey("apiextensions.crossplane.io/environment")) {
+    ["apiextensions.crossplane.io/environment"] = state.context.getOrNull("apiextensions.crossplane.io/environment")
+  }
+}
+
+meta {
+  tag = state.meta.tag
+  ttl = 60.s
+}

@@ -22,7 +22,7 @@ package {
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
-  version = "0.1.3"
+  version = "0.1.4"
   baseUri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/\(name)"
   packageZipUrl = "https://github.com/Avarei/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
   sourceCode = "https://github.com/Avarei/function-pkl"
@@ -36,6 +36,6 @@ dependencies {
     uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
   }
   ["crossplane"] {
-    uri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.21"
+    uri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.22"
   }
 }
