@@ -2,7 +2,9 @@ package function
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
@@ -54,28 +56,28 @@ func TestRunFunction(t *testing.T) {
 		args   args
 		want   want
 	}{
-		/*
-			"SingleResource-Uri": {
-				reason: "The Function should parse one pkl file",
-				args: args{
-					ctx: context.TODO(),
-					req: &fnv1beta1.RunFunctionRequest{
-						Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
-						Input: resource.MustStructObject(&v1beta1.Pkl{
-							Spec: v1beta1.PklSpec{
-								CRDs: DefaultCRDs(),
-								Resources: []v1beta1.PklFileRef{
-									{
-										Name: "object-one",
-										Type: "uri",
-										Uri:  pklPackage + "#/object-one.pkl",
-									},
+
+		"SingleResource-Uri": {
+			reason: "The Function should parse one pkl file",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							CRDs: DefaultCRDs(),
+							Resources: []v1beta1.PklFileRef{
+								{
+									Name: "object-one",
+									Type: "uri",
+									Uri:  pklPackage + "#/object-one.pkl",
 								},
 							},
-						}),
-						Observed: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 													"apiVersion": "example.crossplane.io/v1",
 													"kind": "XR",
 													"metadata": {
@@ -83,20 +85,20 @@ func TestRunFunction(t *testing.T) {
 													},
 													"spec": {}
 												}`),
-							},
 						},
 					},
 				},
-				want: want{
-					rsp: &fnv1beta1.RunFunctionResponse{
-						Meta: &fnv1beta1.ResponseMeta{
-							Tag: "extra",
-							Ttl: durationpb.New(time.Second * 60),
-						},
-						Desired: &fnv1beta1.State{
-							Resources: map[string]*fnv1beta1.Resource{
-								"object-one": {
-									Resource: resource.MustStructJSON(`{
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Resources: map[string]*fnv1beta1.Resource{
+							"object-one": {
+								Resource: resource.MustStructJSON(`{
 														"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 														"kind": "Object",
 														"metadata": {
@@ -118,32 +120,32 @@ func TestRunFunction(t *testing.T) {
 															}
 														}
 													}`),
-									Ready: fnv1beta1.Ready_READY_FALSE,
-								},
+								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
 					},
 				},
 			},
-			"Composite-Status": {
-				reason: "The Function should update the status of the Composite Resource",
-				args: args{
-					ctx: context.TODO(),
-					req: &fnv1beta1.RunFunctionRequest{
-						Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
-						Input: resource.MustStructObject(&v1beta1.Pkl{
-							Spec: v1beta1.PklSpec{
-								CRDs: DefaultCRDs(),
-								Composition: &v1beta1.PklFileRef{
-									Name: "xr",
-									Type: "uri",
-									Uri:  pklPackage + "#/xr.pkl",
-								},
+		},
+		"Composite-Status": {
+			reason: "The Function should update the status of the Composite Resource",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
+								Name: "xr",
+								Type: "uri",
+								Uri:  pklPackage + "#/xr.pkl",
 							},
-						}),
-						Observed: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 									"apiVersion": "example.crossplane.io/v1",
 									"kind": "XR",
 									"metadata": {
@@ -151,10 +153,10 @@ func TestRunFunction(t *testing.T) {
 									},
 									"spec": {}
 									}`),
-							},
-							Resources: map[string]*fnv1beta1.Resource{
-								"cm-one": {
-									Resource: resource.MustStructJSON(`{
+						},
+						Resources: map[string]*fnv1beta1.Resource{
+							"cm-one": {
+								Resource: resource.MustStructJSON(`{
 										"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 										"kind": "Object",
 										"metadata": {
@@ -191,20 +193,20 @@ func TestRunFunction(t *testing.T) {
 											}
 										}
 									}`),
-								},
 							},
 						},
 					},
 				},
-				want: want{
-					rsp: &fnv1beta1.RunFunctionResponse{
-						Meta: &fnv1beta1.ResponseMeta{
-							Tag: "extra",
-							Ttl: durationpb.New(time.Second * 60),
-						},
-						Desired: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 								"apiVersion": "example.crossplane.io/v1",
 								"kind": "XR",
 								"metadata": {
@@ -215,44 +217,44 @@ func TestRunFunction(t *testing.T) {
 									"someStatus": "I observed cm-one's namespace. it is crossplane-system"
 								}
 								}`),
-							},
-							Resources: map[string]*fnv1beta1.Resource{},
 						},
+						Resources: map[string]*fnv1beta1.Resource{},
 					},
 				},
 			},
+		},
 
-			"ExtraResource": {
-				reason: "The Function should parse a requested and given ExtraResource",
-				args: args{
-					ctx: context.TODO(),
-					req: &fnv1beta1.RunFunctionRequest{
-						Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
-						Input: resource.MustStructObject(&v1beta1.Pkl{
-							Spec: v1beta1.PklSpec{
-								CRDs: DefaultCRDs(),
-								Composition: &v1beta1.PklFileRef{
-									Name: "XR",
+		"ExtraResource": {
+			reason: "The Function should parse a requested and given ExtraResource",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
+								Name: "XR",
+								Type: "uri",
+								Uri:  pklPackage + "#/crds/XR.pkl",
+							},
+							Resources: []v1beta1.PklFileRef{
+								{
+									Name: "object-needs-extra-resource",
 									Type: "uri",
-									Uri:  pklPackage + "#/crds/XR.pkl",
-								},
-								Resources: []v1beta1.PklFileRef{
-									{
-										Name: "object-needs-extra-resource",
-										Type: "uri",
-										Uri:  pklPackage + "#/object-needs-extra-resource.pkl",
-									},
-								},
-								Requirements: &v1beta1.PklFileRef{
-									Name: "extra-resource",
-									Type: "uri",
-									Uri:  pklPackage + "#/extra-resource.pkl",
+									Uri:  pklPackage + "#/object-needs-extra-resource.pkl",
 								},
 							},
-						}),
-						Observed: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+							Requirements: &v1beta1.PklFileRef{
+								Name: "extra-resource",
+								Type: "uri",
+								Uri:  pklPackage + "#/extra-resource.pkl",
+							},
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 			   										"apiVersion": "example.crossplane.io/v1",
 			   										"kind": "XR",
 			   										"metadata": {
@@ -260,36 +262,36 @@ func TestRunFunction(t *testing.T) {
 			   										},
 			   										"spec": {}
 			   									}`),
-							},
 						},
-						ExtraResources: map[string]*fnv1beta1.Resources{
-							"myextras": {
-								Items: []*fnv1beta1.Resource{
-									{
-										Resource: resource.MustStructJSON(`{
+					},
+					ExtraResources: map[string]*fnv1beta1.Resources{
+						"myextras": {
+							Items: []*fnv1beta1.Resource{
+								{
+									Resource: resource.MustStructJSON(`{
 			   												"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 			   												"kind": "Object",
 			   												"metadata": {
 			   													"name": "iamspecial"
 			   												}
 			   											}`),
-									},
 								},
 							},
 						},
 					},
 				},
-				want: want{
-					rsp: &fnv1beta1.RunFunctionResponse{
-						Meta: &fnv1beta1.ResponseMeta{
-							Tag: "extra",
-							Ttl: durationpb.New(time.Second * 60),
-						},
-						Desired: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{},
-							Resources: map[string]*fnv1beta1.Resource{
-								"object-needs-extra-resource": {
-									Resource: resource.MustStructJSON(`{
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{},
+						Resources: map[string]*fnv1beta1.Resource{
+							"object-needs-extra-resource": {
+								Resource: resource.MustStructJSON(`{
 			   											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 			   											"kind": "Object",
 			   											"metadata": {
@@ -311,63 +313,63 @@ func TestRunFunction(t *testing.T) {
 			   												}
 			   											}
 			   										}`),
-									Ready: fnv1beta1.Ready_READY_FALSE,
-								},
+								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
-						Requirements: &fnv1beta1.Requirements{
-							ExtraResources: map[string]*fnv1beta1.ResourceSelector{
-								"myextras": {
-									ApiVersion: "kubernetes.crossplane.io/v1alpha2",
-									Kind:       "Object",
-									Match: &fnv1beta1.ResourceSelector_MatchName{
-										MatchName: "required",
-									},
+					},
+					Requirements: &fnv1beta1.Requirements{
+						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
+							"myextras": {
+								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
+								Kind:       "Object",
+								Match: &fnv1beta1.ResourceSelector_MatchName{
+									MatchName: "required",
 								},
 							},
 						},
 					},
 				},
 			},
+		},
 
-			"Packages": {
-				reason: "The function should correctly replace Package references in it's input",
-				args: args{
-					ctx: context.TODO(),
-					req: &fnv1beta1.RunFunctionRequest{
-						Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
-						Input: resource.MustStructObject(&v1beta1.Pkl{
-							Spec: v1beta1.PklSpec{
-								CRDs: DefaultCRDs(),
-								Composition: &v1beta1.PklFileRef{
-									Name: "XR",
+		"Packages": {
+			reason: "The function should correctly replace Package references in it's input",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
+								Name: "XR",
+								Type: "uri",
+								Uri:  "@example/crds/XR.pkl",
+							},
+							Resources: []v1beta1.PklFileRef{
+								{
+									Name: "object-one",
 									Type: "uri",
-									Uri:  "@example/crds/XR.pkl",
-								},
-								Resources: []v1beta1.PklFileRef{
-									{
-										Name: "object-one",
-										Type: "uri",
-										Uri:  "@example/object-one.pkl",
-									},
-								},
-								Requirements: &v1beta1.PklFileRef{
-									Name: "extra-resource",
-									Type: "uri",
-									Uri:  "@example/extra-resource.pkl",
-								},
-								Packages: []v1beta1.Package{
-									{
-										Name: "example",
-										Core: false,
-										Uri:  pklPackage,
-									},
+									Uri:  "@example/object-one.pkl",
 								},
 							},
-						}),
-						Observed: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+							Requirements: &v1beta1.PklFileRef{
+								Name: "extra-resource",
+								Type: "uri",
+								Uri:  "@example/extra-resource.pkl",
+							},
+							Packages: []v1beta1.Package{
+								{
+									Name: "example",
+									Core: false,
+									Uri:  pklPackage,
+								},
+							},
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 			   										"apiVersion": "example.crossplane.io/v1",
 			   										"kind": "XR",
 			   										"metadata": {
@@ -375,21 +377,21 @@ func TestRunFunction(t *testing.T) {
 			   										},
 			   										"spec": {}
 			   									}`),
-							},
 						},
 					},
 				},
-				want: want{
-					rsp: &fnv1beta1.RunFunctionResponse{
-						Meta: &fnv1beta1.ResponseMeta{
-							Tag: "extra",
-							Ttl: durationpb.New(time.Second * 60),
-						},
-						Desired: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{},
-							Resources: map[string]*fnv1beta1.Resource{
-								"object-one": {
-									Resource: resource.MustStructJSON(`{
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{},
+						Resources: map[string]*fnv1beta1.Resource{
+							"object-one": {
+								Resource: resource.MustStructJSON(`{
 			   											"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 			   											"kind": "Object",
 			   											"metadata": {
@@ -411,52 +413,53 @@ func TestRunFunction(t *testing.T) {
 			   												}
 			   											}
 			   										}`),
-									Ready: fnv1beta1.Ready_READY_FALSE,
-								},
+								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
-						Requirements: &fnv1beta1.Requirements{
-							ExtraResources: map[string]*fnv1beta1.ResourceSelector{
-								"myextras": {
-									ApiVersion: "kubernetes.crossplane.io/v1alpha2",
-									Kind:       "Object",
-									Match: &fnv1beta1.ResourceSelector_MatchName{
-										MatchName: "required",
-									},
+					},
+					Requirements: &fnv1beta1.Requirements{
+						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
+							"myextras": {
+								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
+								Kind:       "Object",
+								Match: &fnv1beta1.ResourceSelector_MatchName{
+									MatchName: "required",
 								},
 							},
 						},
 					},
 				},
 			},
+		},
 
-			"SingleResource-Inline": {
-				reason: "The Function should parse one inline pkl file",
-				args: args{
-					ctx: context.TODO(),
-					req: &fnv1beta1.RunFunctionRequest{
-						Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
-						Input: resource.MustStructObject(&v1beta1.Pkl{
-							Spec: v1beta1.PklSpec{
-								CRDs: DefaultCRDs(),
-								Composition: &v1beta1.PklFileRef{
-									Name: "XR",
-									Type: "inline",
-									Inline: fmt.Sprintf(`
+		"SingleResource-Inline": {
+			reason: "The Function should parse one inline pkl file",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							CRDs: DefaultCRDs(),
+							Composition: &v1beta1.PklFileRef{
+								Name: "XR",
+								Type: "inline",
+								Inline: fmt.Sprintf(`
 			   amends "%[1]s#/CrossplaneResource.pkl"
 			   import "%[1]s#/CompositionRequest.pkl"
 
 			   import "%[2]s#/crds/XR.pkl"
+			   import "%[2]s#/crds/Object.pkl"
 			   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
 			   local state = import("crossplane:state") as CompositionRequest
 			   local observedCompositeResource: XR = state.observed.composite.resource as XR
-			   local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
+			   local cmOneObj: Object? = state.observed.resources.getOrNull("cm-one")?.resource as Object?
 
 			   resource = (observedCompositeResource) {
 			     status {
-			       when (cmOne?.metadata?.namespace != null) {
-			         someStatus = "I observed cm-one's namespace. it is \(cmOne.metadata.namespace)"
+			       when (cmOneObj?.metadata?.namespace != null) {
+			         someStatus = "I observed cm-one's namespace. it is \(cmOneObj.metadata.namespace)"
 			       }
 			     }
 			   }
@@ -464,12 +467,12 @@ func TestRunFunction(t *testing.T) {
 			     ["test"] = "bar"
 			   }
 			   `, pklCorePackage, pklPackage, pklK8sPackage),
-								},
-								Resources: []v1beta1.PklFileRef{
-									{
-										Name: "object-one",
-										Type: "inline",
-										Inline: fmt.Sprintf(`
+							},
+							Resources: []v1beta1.PklFileRef{
+								{
+									Name: "object-one",
+									Type: "inline",
+									Inline: fmt.Sprintf(`
 			   amends "%[1]s#/CrossplaneResource.pkl"
 			   import "%[1]s#/CompositionRequest.pkl"
 
@@ -495,19 +498,19 @@ func TestRunFunction(t *testing.T) {
 			           data {
 			             ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
 			           }
-			         }
+			         }.toDynamic()
 			       }
 			     }
 			   }
 			   ready = Ready_READY_FALSE
 			   `, pklCorePackage, pklPackage, pklK8sPackage),
-									},
 								},
 							},
-						}),
-						Observed: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 			   								"apiVersion": "example.crossplane.io/v1",
 			   								"kind": "XR",
 			   								"metadata": {
@@ -515,19 +518,19 @@ func TestRunFunction(t *testing.T) {
 			   								},
 			   								"spec": {}
 			   							}`),
-							},
 						},
 					},
 				},
-				want: want{
-					rsp: &fnv1beta1.RunFunctionResponse{
-						Meta: &fnv1beta1.ResponseMeta{
-							Tag: "extra",
-							Ttl: durationpb.New(time.Second * 60),
-						},
-						Desired: &fnv1beta1.State{
-							Composite: &fnv1beta1.Resource{
-								Resource: resource.MustStructJSON(`{
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: durationpb.New(time.Second * 60),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
 			   							"apiVersion": "example.crossplane.io/v1",
 			   							"kind": "XR",
 			   							"metadata": {
@@ -536,10 +539,10 @@ func TestRunFunction(t *testing.T) {
 			   							"spec": {},
 			   							"status": {}
 			   							}`),
-							},
-							Resources: map[string]*fnv1beta1.Resource{
-								"object-one": {
-									Resource: resource.MustStructJSON(`{
+						},
+						Resources: map[string]*fnv1beta1.Resource{
+							"object-one": {
+								Resource: resource.MustStructJSON(`{
 			   									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 			   									"kind": "Object",
 			   									"metadata": {
@@ -561,13 +564,13 @@ func TestRunFunction(t *testing.T) {
 			   										}
 			   									}
 			   								}`),
-									Ready: fnv1beta1.Ready_READY_FALSE,
-								},
+								Ready: fnv1beta1.Ready_READY_FALSE,
 							},
 						},
 					},
 				},
-			},*/
+			},
+		},
 
 		"Full": {
 			reason: "The Function should create a full functionResult",
