@@ -23,7 +23,7 @@ resource = (Object) {
         data {
           ["foo"] = observedCompositeResource.metadata.name ?? throw("Composite could not find observed composite name")
         }
-      }
+      }.toDynamic()
     }
   }
 }

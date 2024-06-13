@@ -47,7 +47,7 @@ desired {
                 ["foo"] = observedCompositeResource?.metadata?.name ?? throw("Composite could not find observed composite name")
                 ["required"] = extraResource?.metadata?.name ?? "i could not find what I needed..."
               }
-            }
+            }.toDynamic()
           }
         }
       }

@@ -22,7 +22,7 @@ resource = (Object) {
         data {
           ["bar"] = foo?.metadata?.name ?? "alternative"
         }
-      }
+      }.toDynamic()
     }
   }
 }
