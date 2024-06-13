@@ -1,19 +1,19 @@
 amends "@crossplane/CrossplaneResource.pkl"
-import "@crossplane/CompositionInput.pkl"
+import "@crossplane/CompositionRequest.pkl"
 import "crds/XR.pkl"
 import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionInput
+local state = import("crossplane:state") as CompositionRequest
 local observedCompositeResource: XR = state.observed.composite.resource as XR
 
 local obj: Object? = state.observed.resources.getOrNull("cm-one")?.resource as Object?
-local cmOne: ConfigMap? = obj?.status?.atProvider?.manifest as ConfigMap?
+local cmOne: Dynamic? = obj?.status?.atProvider?.manifest
 
 resource = (observedCompositeResource) {
   status {
-    when (cmOne?.metadata?.namespace != null) {
-      someStatus = "I observed cm-one's namespace. it is \(cmOne.metadata.namespace)"
+    when (cmOne != null) {
+      someStatus = "I observed cm-one's namespace. it is \(cmOne["metadata"]["namespace"])"
     }
   }
 }

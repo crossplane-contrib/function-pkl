@@ -1,7 +1,18 @@
 import "pkl:yaml"
 import "@k8s.contrib/convert.pkl"
 // import "@k8s/K8sResource.pkl"
-import "crossplane:crds"
+
+/*
+resourceTemplates: Mapping<String, Mapping<String, unknown>> = new {
+  ["XR"] {
+    ["example.crossplane.io/v1"] = import("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl")
+  }
+  ["Object"] {
+    ["kubernetes.crossplane.io/v1alpha2"] = import("package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/Object.pkl")
+  }
+}
+*/
+import "crossplane:crds" // sets resourceTemplates variable
 /*
 input = """
   context:
@@ -39,7 +50,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"\(package)#/CompositionInput.pkl\"\n"
+  "amends \"\(package)#/CompositionRequest.pkl\"\n"
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)
@@ -48,7 +59,14 @@ local o: Listing = new {
       "import \"\(importInfo.uri)\"\n"
   }
   "\n"
-  // TODO add imports for all CRDs used
+
+  if (parsedInput.containsKey("meta"))
+    """
+    meta {
+      tag = "\(parsedInput.getOrNull("meta").getOrNull("tag"))"
+    }\n
+    """
+  else ""
 
   if (parsedInput.containsKey("context"))
     "context = \(parsedInput.getOrNull("context"))\n"

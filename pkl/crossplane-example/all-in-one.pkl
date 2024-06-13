@@ -1,0 +1,75 @@
+amends "@crossplane/CompositionResponse.pkl"
+import "@crossplane/CrossplaneResource.pkl"
+import "@crossplane/CompositionRequest.pkl"
+
+import "crds/XR.pkl"
+import "crds/Object.pkl"
+import "@k8s/api/core/v1/ConfigMap.pkl"
+
+local state = import("crossplane:state") as CompositionRequest
+local observedCompositeResource: XR = state.observed.composite.resource as XR
+local extraResource: Object? = state.getExtraResource("ineed", 0)?.resource
+
+requirements {
+  extraResources {
+    ["ineed"] {
+      apiVersion = Object.apiVersion
+      kind = Object.kind
+      match {
+        matchName = "required"
+      }
+    }
+  }
+}
+
+desired {
+  composite {
+    resource = new XR {
+      status {
+        someStatus = "pretty status"
+      }
+    }
+  }
+  resources {
+    ["cm-one"] = new CrossplaneResource {
+      resource = new Object {
+        metadata {
+          name = "cm-one"
+        }
+        spec {
+          forProvider {
+            manifest = (ConfigMap) {
+              metadata {
+                name = "cm-one"
+                namespace = "crossplane-system"
+              }
+              data {
+                ["foo"] = observedCompositeResource?.metadata?.name ?? throw("Composite could not find observed composite name")
+                ["required"] = extraResource?.metadata?.name ?? "i could not find what I needed..."
+              }
+            }.toDynamic()
+          }
+        }
+      }
+      ready = Ready_READY_TRUE
+    }
+
+  }
+}
+results {
+  new {
+    severity = Severity_SEVERITY_NORMAL
+    message = "welcome"
+  }
+}
+context {
+  ["greetings"] = "with <3 from function-pkl"
+  when (state.context.containsKey("apiextensions.crossplane.io/environment")) {
+    ["apiextensions.crossplane.io/environment"] = state.context.getOrNull("apiextensions.crossplane.io/environment")
+  }
+}
+
+meta {
+  tag = state.meta.tag
+  ttl = 60.s
+}

@@ -1,0 +1,82 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+module CompositionResponse
+
+import "CrossplaneResource.pkl"
+// import "pkl:protobuf"
+
+meta: ResponseMeta?
+
+desired: State?
+
+results: Listing<Result?>
+
+context: Mapping<String, Any>?
+
+requirements: Requirements?
+
+class ResponseMeta {
+  tag: String
+  ttl: Duration
+}
+
+class Result {
+  severity: Severity
+  message: String
+
+  hidden const Severity_SEVERITY_UNSPECIFIED: Severity = 0
+  hidden const Severity_SEVERITY_FATAL: Severity = 1
+  hidden const Severity_SEVERITY_WARNING: Severity = 2
+  hidden const Severity_SEVERITY_NORMAL: Severity = 3
+}
+typealias Severity = Int(isBetween(0,3))
+
+class State {
+  composite: CrossplaneResource
+  resources: Mapping<String, CrossplaneResource>
+}
+
+class Requirements {
+  extraResources: Mapping<String, ResourceSelector?>
+}
+class ResourceSelector {
+  apiVersion: String
+  kind: String
+  match: Match
+}
+
+class Match {
+  matchName: String?
+  matchLabels: MatchLabels?
+}
+
+class MatchLabels {
+  labels: Mapping<String, String>
+}
+
+output {
+  // renderer = new protobuf.Renderer {}
+
+  renderer = new YamlRenderer {
+    converters {
+      [DataSize] = (size: DataSize) ->
+          let (unit = size.unit)
+            let (k8sUnit =
+              if (unit.length == 3) unit[0].toUpperCase() + unit[1]
+              else if (unit.length == 2) unit[0].toUpperCase()
+              else "")
+              "\(size.value)\(k8sUnit)"
+      [Duration] = (duration: Duration) ->
+          let (secs = duration.toUnit("s").value.toInt())
+            let (ns: Duration = duration - secs.s)
+              new protobufDuration {
+                seconds = secs
+                nanos = ns.toUnit("ns").value.toInt()
+              }
+    }
+  }
+}
+
+local class protobufDuration {
+  seconds: Int // int64 not available in pkl
+  nanos: Int
+}

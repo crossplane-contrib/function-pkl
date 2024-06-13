@@ -25,24 +25,24 @@ spec:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
-        pklCRDs:
+        crds:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/XR.pkl
           - apiVersion: kubernetes.crossplane.io/v1alpha2
             kind: Object
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/Object.pkl
-        pklComposition:
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/Object.pkl
+        composition:
           name: XR
           type: uri
-          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/crds/XR.pkl
-        pklManifests:
+          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/XR.pkl
+        resources:
           - name: object-one
             type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/object-one.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/object-one.pkl
           - name: object-two
             type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.0.16#/object-two.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/object-two.pkl
 ```
 
 ## Building a Pkl Package
@@ -63,10 +63,10 @@ A Pkl Package can be built in the following steps:
 ## Basic Pkl File
 The bare pkl file we expect is
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.15#/CrossplaneResource.pkl"
-import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.15#/CompositionInput.pkl"
+amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CrossplaneResource.pkl"
+import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionRequest.pkl"
 
-local state = import("crossplane:state") as CompositionInput
+local state = import("crossplane:state") as CompositionRequest
 ```
 
 ### Pkl Function Call Order
@@ -78,7 +78,7 @@ Each Pkl file will be parsed individually. (TODO: add paralellisation?)
         * this loads other pkl files defined in Composition CRDs `import crossplane:crds`
         * it also imports pkl-pantry/k8s.contrib/convert.pkl
         * imports pkl-k8s/k8s/k8sResource.pkl
-    * `CompositionInput.pkl` is used by the result of `local state = (import crossplane:state) as CompositionInput`
+    * `CompositionRequest.pkl` is used by the result of `local state = (import crossplane:state) as CompositionRequest`
 
 > Not complete
 ```mermaid

@@ -8,12 +8,12 @@ BRANCH := main
 PKL_BASE_URI := package://pkg.pkl-lang.org
 
 PKL_CORE_NAME := crossplane
-PKL_CORE_VERSION := 0.0.17
+PKL_CORE_VERSION := 0.0.24
 PKL_CORE_REF := ${PKL_CORE_NAME}@${PKL_CORE_VERSION}
 PKL_CORE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
 PKL_EXAMPLE_NAME := crossplane-example
-PKL_EXAMPLE_VERSION := 0.0.16
+PKL_EXAMPLE_VERSION := 0.1.9
 PKL_EXAMPLE_REF := ${PKL_EXAMPLE_NAME}@${PKL_EXAMPLE_VERSION}
 PKL_EXAMPLE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
@@ -23,7 +23,7 @@ SED_TARGETS := example/ README.md pkl/${PKL_CORE_NAME}/PklProject pkl/${PKL_EXAM
 
 .PHONY: build-core-package
 build-core-package: PACKAGE_NAME := $(PKL_CORE_NAME)
-build-example-package: PACKAGE_VERSION := $(PKL_CORE_VERSION)
+build-core-package: PACKAGE_VERSION := $(PKL_CORE_VERSION)
 build-core-package:
 	pkl project resolve ./pkl/${PACKAGE_NAME}/
 ifeq ($(shell uname), Darwin)
