@@ -9,12 +9,11 @@ local observedCompositeResource: XR = state.observed.composite.resource as XR
 
 local obj: Object? = state.observed.resources.getOrNull("cm-one")?.resource as Object?
 local cmOne: Dynamic? = obj?.status?.atProvider?.manifest
-local cmOneNs = cmOne?.getPropertyOrNull("metadata")?.getPropertyOrNull("namespace")
 
 resource = (observedCompositeResource) {
   status {
-    when (cmOneNs != null) {
-      someStatus = "I observed cm-one's namespace. it is \(cmOneNs)"
+    when (cmOne != null) {
+      someStatus = "I observed cm-one's namespace. it is \(cmOne["metadata"]["namespace"])"
     }
   }
 }
