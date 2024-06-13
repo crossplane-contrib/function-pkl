@@ -1,11 +1,11 @@
 amends "@crossplane/CrossplaneResource.pkl"
-import "@crossplane/CompositionInput.pkl"
+import "@crossplane/CompositionRequest.pkl"
 
 import "crds/XR.pkl"
 import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionInput
+local state = import("crossplane:state") as CompositionRequest
 local observedCompositeResource: XR = state.observed.composite.resource as XR
 
 resource = (Object) {
