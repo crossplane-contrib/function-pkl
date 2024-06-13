@@ -8,7 +8,7 @@ BRANCH := main
 PKL_BASE_URI := package://pkg.pkl-lang.org
 
 PKL_CORE_NAME := crossplane
-PKL_CORE_VERSION := 0.0.23
+PKL_CORE_VERSION := 0.0.24
 PKL_CORE_REF := ${PKL_CORE_NAME}@${PKL_CORE_VERSION}
 PKL_CORE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 

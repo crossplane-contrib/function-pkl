@@ -18,7 +18,7 @@ import (
 
 var (
 	pklPackage     = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.5"
-	pklCorePackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.23"
+	pklCorePackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.24"
 	pklK8sPackage  = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
 )
 
@@ -443,12 +443,12 @@ func TestRunFunction(t *testing.T) {
 									Type: "inline",
 									Inline: fmt.Sprintf(`
 			   amends "%[1]s#/CrossplaneResource.pkl"
-			   import "%[1]s#/CompositionInput.pkl"
+			   import "%[1]s#/CompositionRequest.pkl"
 
 			   import "%[2]s#/crds/XR.pkl"
 			   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
-			   local state = import("crossplane:state") as CompositionInput
+			   local state = import("crossplane:state") as CompositionRequest
 			   local observedCompositeResource: XR = state.observed.composite.resource as XR
 			   local cmOne: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
 
@@ -470,13 +470,13 @@ func TestRunFunction(t *testing.T) {
 										Type: "inline",
 										Inline: fmt.Sprintf(`
 			   amends "%[1]s#/CrossplaneResource.pkl"
-			   import "%[1]s#/CompositionInput.pkl"
+			   import "%[1]s#/CompositionRequest.pkl"
 
 			   import "%[2]s#/crds/XR.pkl"
 			   import "%[2]s#/crds/Object.pkl"
 			   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
-			   local state = import("crossplane:state") as CompositionInput
+			   local state = import("crossplane:state") as CompositionRequest
 			   local observedCompositeResource: XR = state.observed.composite.resource as XR
 
 			   resource = (Object) {

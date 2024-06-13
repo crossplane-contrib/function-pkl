@@ -50,7 +50,7 @@ local importInfos = importsByKindAndVersion.values
   .sortWith((info1, info2) -> info1.uri < info2.uri)
 
 local o: Listing = new {
-  "amends \"\(package)#/CompositionInput.pkl\"\n"
+  "amends \"\(package)#/CompositionRequest.pkl\"\n"
   //"import \"@k8s/api/core/v1/ConfigMap.pkl\"\n" // example
   for (importInfo in importInfos) {
     if (importInfo.isAliased)

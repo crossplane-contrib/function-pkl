@@ -1,5 +1,5 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
-module CompositionInput
+module CompositionRequest
 
 import "CrossplaneResource.pkl"
 

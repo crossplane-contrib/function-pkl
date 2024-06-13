@@ -64,9 +64,9 @@ A Pkl Package can be built in the following steps:
 The bare pkl file we expect is
 ```pkl
 amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CrossplaneResource.pkl"
-import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionInput.pkl"
+import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionRequest.pkl"
 
-local state = import("crossplane:state") as CompositionInput
+local state = import("crossplane:state") as CompositionRequest
 ```
 
 ### Pkl Function Call Order
@@ -78,7 +78,7 @@ Each Pkl file will be parsed individually. (TODO: add paralellisation?)
         * this loads other pkl files defined in Composition CRDs `import crossplane:crds`
         * it also imports pkl-pantry/k8s.contrib/convert.pkl
         * imports pkl-k8s/k8s/k8sResource.pkl
-    * `CompositionInput.pkl` is used by the result of `local state = (import crossplane:state) as CompositionInput`
+    * `CompositionRequest.pkl` is used by the result of `local state = (import crossplane:state) as CompositionRequest`
 
 > Not complete
 ```mermaid

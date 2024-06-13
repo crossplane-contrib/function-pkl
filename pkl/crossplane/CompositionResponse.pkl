@@ -1,9 +1,8 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
-module RunFunctionResponse
+module CompositionResponse
 
 import "CrossplaneResource.pkl"
-import "@k8s/K8sResource.pkl"
-import "pkl:protobuf"
+// import "pkl:protobuf"
 
 meta: ResponseMeta?
 
@@ -77,7 +76,7 @@ output {
   }
 }
 
-class protobufDuration {
+local class protobufDuration {
   seconds: Int // int64 not available in pkl
   nanos: Int
 }

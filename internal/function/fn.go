@@ -25,7 +25,7 @@ type Function struct {
 	EvaluatorManager pkl.EvaluatorManager
 }
 
-type RunFunctionResponse struct {
+type CompositionResponse struct {
 	fnv1beta1.RunFunctionResponse
 
 	Requirements *Requirements `json:"requirements,omitempty"`
@@ -90,7 +90,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 			return nil, errors.Wrapf(err, "could not parse Pkl file \"%s\"", fileName)
 		}
 
-		helper := &RunFunctionResponse{}
+		helper := &CompositionResponse{}
 		err = yaml.Unmarshal([]byte(renderedManifest), helper)
 		if err != nil {
 			return nil, errors.Wrapf(err, "could unmarshal pkl result")
