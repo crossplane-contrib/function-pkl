@@ -92,7 +92,11 @@ func (in *PklSpec) DeepCopyInto(out *PklSpec) {
 		*out = make([]PklFileRef, len(*in))
 		copy(*out, *in)
 	}
-	out.Full = in.Full
+	if in.Full != nil {
+		in, out := &in.Full, &out.Full
+		*out = new(PklFileRef)
+		**out = **in
+	}
 	if in.CRDs != nil {
 		in, out := &in.CRDs, &out.CRDs
 		*out = make([]PklCrdRef, len(*in))
