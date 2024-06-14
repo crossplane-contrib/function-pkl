@@ -3,10 +3,18 @@
 ## Open/WiP
 ### Prototype
 
-- [ ] Use PklProject with references instead of static links in code and Pkl Templates.
-  - [ ] They are used for each invocation and maybe should therefore be local
+- [ ] rename 'full' input to something better
+- [ ] decide whether to keep composition and resources inputs.
+- [ ] find a way to load the imports from full Pkl to convert.pkl
+      This would remove the need manually specifying them
+- [ ] [Make Objects neat](https://github.com/apple/pkl-pantry/issues/62)
+- [ ] Provide a Pkl Module for Compositions and XRDs, so they can help make Compositions faster.
+      Impacted by https://github.com/apple/pkl-pantry/issues/40
+
+
+- [x] Use PklProject with references instead of static links in code and Pkl Templates.
+- [ ] Consider making the Dependencies available locally
 - [ ] Switch from Errors to Results in fn.go
-- [ ] Attempt to Remove ApiVersion and Kind fields from Function input
 
 - [ ] Cleanup
   - [x] Remove Brainstorming files
