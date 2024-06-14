@@ -1,12 +1,12 @@
 module github.com/avarei/function-pkl
 
-go 1.22.0
+go 1.22.1
 
-toolchain go1.22.2
+toolchain go1.22.3
 
 require (
 	github.com/alecthomas/kong v0.9.0
-	github.com/apple/pkl-go v0.6.0
+	github.com/apple/pkl-go v0.7.0
 	github.com/crossplane/crossplane-runtime v1.15.1
 	github.com/crossplane/function-sdk-go v0.2.0
 	github.com/google/go-cmp v0.6.0
