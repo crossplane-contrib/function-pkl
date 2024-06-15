@@ -6,9 +6,9 @@ import "crds/XR.pkl"
 import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionRequest
-local observedCompositeResource: XR = state.observed.composite.resource as XR
-local extraResource: Object? = state.getExtraResource("ineed", 0)?.resource
+local request = import("crossplane:request") as CompositionRequest
+local observedCompositeResource: XR = request.observed.composite.resource as XR
+local extraResource: Object? = request.getExtraResource("ineed", 0)?.resource
 
 requirements {
   extraResources {
@@ -64,12 +64,12 @@ results {
 }
 context {
   ["greetings"] = "with <3 from function-pkl"
-  when (state.context.containsKey("apiextensions.crossplane.io/environment")) {
-    ["apiextensions.crossplane.io/environment"] = state.context.getOrNull("apiextensions.crossplane.io/environment")
+  when (request.context.containsKey("apiextensions.crossplane.io/environment")) {
+    ["apiextensions.crossplane.io/environment"] = request.context.getOrNull("apiextensions.crossplane.io/environment")
   }
 }
 
 meta {
-  tag = state.meta.tag
+  tag = request.meta.tag
   ttl = 60.s
 }

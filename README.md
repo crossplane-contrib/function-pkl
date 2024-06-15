@@ -28,21 +28,21 @@ spec:
         crds:
           - apiVersion: example.crossplane.io/v1
             kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/XR.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/XR.pkl
           - apiVersion: kubernetes.crossplane.io/v1alpha2
             kind: Object
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/Object.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/Object.pkl
         composition:
           name: XR
           type: uri
-          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/XR.pkl
+          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/XR.pkl
         resources:
           - name: object-one
             type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/object-one.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/object-one.pkl
           - name: object-two
             type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/object-two.pkl
+            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/object-two.pkl
 ```
 
 ## Building a Pkl Package

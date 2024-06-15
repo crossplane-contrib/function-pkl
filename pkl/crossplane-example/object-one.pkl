@@ -5,8 +5,8 @@ import "crds/XR.pkl"
 import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionRequest
-local observedCompositeResource: XR = state.observed.composite.resource as XR
+local request = import("crossplane:request") as CompositionRequest
+local observedCompositeResource: XR = request.observed.composite.resource as XR
 
 resource = (Object) {
   metadata {

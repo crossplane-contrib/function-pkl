@@ -4,8 +4,8 @@ import "@crossplane/CompositionRequest.pkl"
 import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionRequest
-local foo: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
+local request = import("crossplane:request") as CompositionRequest
+local foo: ConfigMap? = request.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
 
 resource = (Object) {
   metadata {

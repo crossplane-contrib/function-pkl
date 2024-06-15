@@ -4,8 +4,8 @@ import "@crossplane/CompositionRequest.pkl"
 import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local state = import("crossplane:state") as CompositionRequest
-local extraResource = state.getExtraResource("myextras", 0)?.resource
+local request = import("crossplane:request") as CompositionRequest
+local extraResource = request.getExtraResource("myextras", 0)?.resource
 
 resource = (Object) {
   metadata {

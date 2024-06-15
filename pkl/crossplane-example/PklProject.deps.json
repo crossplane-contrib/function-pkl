@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "resolvedDependencies": {
+    "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.24",
+      "checksums": {
+        "sha256": "13f772485d80650edde63a7af2bec7cd8b5aa19b84ccf1330935b0b7fae7f4f8"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1",
+      "checksums": {
+        "sha256": "3bcd9aff8eb04dfced33a61be8a61d4901261610bc24d2a2e492258fedc049d5"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-k8s/k8s@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1",
+      "checksums": {
+        "sha256": "75c6d66d94c335417a3c502e107aaeadf7a60b4e1d34b2c979afe11193205a1a"
+      }
+    }
+  }
+}
