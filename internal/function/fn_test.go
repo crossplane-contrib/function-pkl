@@ -452,9 +452,9 @@ func TestRunFunction(t *testing.T) {
 			   import "%[2]s#/crds/Object.pkl"
 			   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
-			   local state = import("crossplane:state") as CompositionRequest
-			   local observedCompositeResource: XR = state.observed.composite.resource as XR
-			   local cmOneObj: Object? = state.observed.resources.getOrNull("cm-one")?.resource as Object?
+			   local request = import("crossplane:request") as CompositionRequest
+			   local observedCompositeResource: XR = request.observed.composite.resource as XR
+			   local cmOneObj: Object? = request.observed.resources.getOrNull("cm-one")?.resource as Object?
 
 			   resource = (observedCompositeResource) {
 			     status {
@@ -480,8 +480,8 @@ func TestRunFunction(t *testing.T) {
 			   import "%[2]s#/crds/Object.pkl"
 			   import "%[3]s#/api/core/v1/ConfigMap.pkl"
 
-			   local state = import("crossplane:state") as CompositionRequest
-			   local observedCompositeResource: XR = state.observed.composite.resource as XR
+			   local request = import("crossplane:request") as CompositionRequest
+			   local observedCompositeResource: XR = request.observed.composite.resource as XR
 
 			   resource = (Object) {
 			     metadata {

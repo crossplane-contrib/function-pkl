@@ -29,10 +29,10 @@ spec:
             import "crds/Object.pkl"
             import "@k8s/api/core/v1/ConfigMap.pkl"
               
-            local state = import("crossplane:state") as CompositionRequest
-            local observedCompositeResource: XR = state.observed.composite.resource as XR
+            local request = import("crossplane:request") as CompositionRequest
+            local observedCompositeResource: XR = request.observed.composite.resource as XR
             
-            local obj: Object? = state.observed.resources.getOrNull("cm-one")?.resource as Object?
+            local obj: Object? = request.observed.resources.getOrNull("cm-one")?.resource as Object?
             local cmOne: ConfigMap? = obj?.status?.atProvider?.manifest as ConfigMap?
               
             resource = (observedCompositeResource) {
@@ -55,8 +55,8 @@ spec:
               import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.9#/crds/XR.pkl"
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
-              local state = import("crossplane:state") as CompositionRequest
-              local observedCompositeResource: XR = state.observed.composite.resource as XR
+              local request = import("crossplane:request") as CompositionRequest
+              local observedCompositeResource: XR = request.observed.composite.resource as XR
 
               resource = (ConfigMap) {
                 metadata {
@@ -77,8 +77,8 @@ spec:
 
               import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
-              local state = import("crossplane:state") as CompositionRequest
-              local foo: ConfigMap? = state.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
+              local request = import("crossplane:request") as CompositionRequest
+              local foo: ConfigMap? = request.observed.resources.getOrNull("cm-one")?.resource as ConfigMap?
 
               resource = (ConfigMap) {
                 metadata {

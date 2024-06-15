@@ -66,7 +66,7 @@ The bare pkl file we expect is
 amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CrossplaneResource.pkl"
 import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionRequest.pkl"
 
-local state = import("crossplane:state") as CompositionRequest
+local request = import("crossplane:request") as CompositionRequest
 ```
 
 ### Pkl Function Call Order
@@ -74,11 +74,11 @@ The Composition function is triggered by the Pkl files referenced within the com
 Each Pkl file will be parsed individually. (TODO: add paralellisation?)
 * Pkl file within composition
     * The file will amend `CrossplaneResource.pkl`
-    * `convert.pkl` is usually called by `import crossplane:state` as a new process.
+    * `convert.pkl` is usually called by `import crossplane:request` as a new process.
         * this loads other pkl files defined in Composition CRDs `import crossplane:crds`
         * it also imports pkl-pantry/k8s.contrib/convert.pkl
         * imports pkl-k8s/k8s/k8sResource.pkl
-    * `CompositionRequest.pkl` is used by the result of `local state = (import crossplane:state) as CompositionRequest`
+    * `CompositionRequest.pkl` is used by the result of `local request = (import crossplane:request) as CompositionRequest`
 
 > Not complete
 ```mermaid

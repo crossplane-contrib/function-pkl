@@ -42,7 +42,7 @@ func (f *CrossplaneReader) HasHierarchicalUris() bool {
 // This method is only called if it is hierarchical and local, or if it is globbable.
 func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
 	out := []pkl.PathElement{
-		pkl.NewPathElement("state", false),
+		pkl.NewPathElement("request", false),
 		pkl.NewPathElement("input", false),
 		pkl.NewPathElement("crds", false),
 		pkl.NewPathElement("package", false),
@@ -77,7 +77,7 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 
 func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
-	case "state":
+	case "request":
 		evaluator, err := evaluatorManager.NewEvaluator(
 			f.Ctx,
 			pkl.PreconfiguredOptions,
@@ -87,7 +87,7 @@ func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 				Log:          nil,
 				Ctx:          f.Ctx,
 				Packages:     f.Packages,
-			}), // TODO: This should be a seperate reader Implementation, as calling crossplane:state within crossplane:state would softlock and should not be allowed
+			}), // TODO: This should be a seperate reader Implementation, as calling crossplane:request within crossplane:request would softlock and should not be allowed
 		)
 		if err != nil {
 			return nil, err
