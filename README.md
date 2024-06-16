@@ -80,19 +80,31 @@ Each Pkl file will be parsed individually. (TODO: add paralellisation?)
         * imports pkl-k8s/k8s/k8sResource.pkl
     * `CompositionRequest.pkl` is used by the result of `local request = (import crossplane:request) as CompositionRequest`
 
-> Not complete
 ```mermaid
 sequenceDiagram
-    Caller->>Function Pkl: gRPC Request
+    participant fun as RunFunction
+    box rgb(20, 100, 60) Pkl Files
+        participant all.pkl as all-in-one.pkl
+        participant c.pkl as convert.pkl
+    end
+    box rgb(20,60,100) CrossplaneReader
+        participant c.h as crossplane:helper
+        participant c.i as crossplane:input
+    %%        participant c.p as crossplane:package
+    %%        participant c.r as crossplane:request
+    end
 
-    Function Pkl->>Pkl: Parse Pkl File
-    Pkl->>Function Pkl: Request gRPC input
-    Function Pkl->>Function Pkl: Convert struct to yaml
-    Function Pkl->>Pkl: Send Input
-    Pkl->>Pkl: Finish rendering
-    Pkl->>Function Pkl: Output as Yaml string
-    Function Pkl->>Function Pkl: Convert to Struct
-    Function Pkl->>Caller: Send Response in gRPC
+    fun->>fun: Create Evaluator
+    activate fun
+    fun->>all.pkl: Evaluate
+    all.pkl->>c.h: import
+    c.h->>all.pkl: Module with helper functions
+    all.pkl->>c.h: .parseInput()
+    c.h->>c.i: read()
+    c.i->>c.h: return resourceToConvert
+    c.h->>all.pkl: return CrossplaneRequest
+    all.pkl->>fun: Function Respone
+    deactivate fun
 ```
 
 ### Generating Pkl Files and Modules from Manifests

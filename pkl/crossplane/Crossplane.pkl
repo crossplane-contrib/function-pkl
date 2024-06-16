@@ -1,0 +1,200 @@
+import "pkl:reflect"
+import "pkl:yaml"
+import "@k8s/K8sObject.pkl"
+import "@k8s/K8sResource.pkl"
+import "@k8s/k8sSchema.pkl"
+import "@k8s/api/core/v1/ResourceRequirements.pkl"
+
+import "CompositionRequest.pkl"
+
+local yamlParser = new yaml.Parser { useMapping = true }
+
+//local input = read("crossplane:input").text
+local input = """
+  input:
+    metadata:
+      generation: 0
+    spec:
+      crds:
+      - apiVersion: example.crossplane.io/v1
+        kind: XR
+        uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/XR.pkl
+      - apiVersion: kubernetes.crossplane.io/v1alpha2
+        kind: Object
+        uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/Object.pkl
+      resources:
+      - name: object-one
+        type: uri
+        uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/object-one.pkl
+  meta:
+    tag: extra
+  observed:
+    composite:
+      resource:
+        apiVersion: example.crossplane.io/v1
+        kind: XR
+        metadata:
+          name: example-xr
+        spec: {}
+  """
+
+customResourceTemplates: Mapping<String, Mapping<String, K8sResource>>
+k8sSchemaResourceTemplate: Mapping<String, Mapping<String, K8sResource>> = k8sSchema.resourceTemplates
+
+/// Returns the CompositionRequest that was sent to the Composition Function.
+Request: CompositionRequest = YamlToClass(input, CompositionRequest.getClass()) as CompositionRequest
+
+
+/// Converts a Yaml Manifest to a Kubernetes Resource.
+/// - If Resource is a Standard Kubernetes Resource (e.g. ConfigMap) it will be looked up at @k8s/k8sSchema.pkl
+/// - If Resource is a Custom Resource Definition, customResourceTemplates is used for looking up the correct Module
+/// - Throws an Error if kind, or apiVersion are undefined
+/// - Throws an Error if kind and apiVersion cannot be found in k8sSchema.pkl and customResourceTemplates
+function YamlToK8sResource(resource: String): K8sResource =
+  let (parsedResource = yamlParser.parse(resource) as Mapping)
+    let (template = getResourceTemplate(parsedResource, customResourceTemplates))
+      let (templateType = reflect.DeclaredType(reflect.Module(template).moduleClass))
+        convert(parsedResource, templateType) as K8sResource
+
+/// Converts any to an object of the Specified class.
+function YamlToClass(resource: String, clazz: Class): Any =
+  let (parsedResource = yamlParser.parse(resource) as Mapping)
+    let (templateType = reflect.DeclaredType(reflect.Class(clazz)))
+      convert(parsedResource, templateType)
+
+
+
+// The Following Section is from https://github.com/apple/pkl-pantry/blob/main/packages/k8s.contrib/convert.pkl
+// It has only been slightly modified to return Actual Types instead of Dynamic.
+
+//===----------------------------------------------------------------------===//
+// Copyright © 2024 Apple Inc. and the Pkl project authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-memory
+local function convertDataSize(input: K8sObject.Quantity): RenderDirective? =
+  let (inputString: String = if (input is Int|Float|DataSize) input.toString() else input as String)
+    let (matches = Regex(#"^(\d+(?:\.\d+)?)(k|Ki|Mi?|Gi?|Ti?|Pi?|Ei?)$"#).findMatchesIn(inputString))
+      if (matches.isEmpty)
+        null
+      else
+        let (groups = matches[0].groups)
+          let (value = groups[1].value)
+            let (unit = groups[2].value)
+              // We don't have exabytes/exbibytes in Pkl, so convert down to peta/pebi
+              let (pklValue = if (unit.startsWith("E")) value.toInt() * 1000 else value)
+                let (pklUnit = if (unit.startsWith("E")) unit.replaceFirst("E", "P") else unit)
+                  new RenderDirective {
+                    text = "= \(pklValue).\(pklUnit.toLowerCase())b"
+                  }
+
+/// Preserve entry key `"default"` as property `_____default_____`, because `default` conflicts with
+/// built-in [Dynamic.default].
+///
+/// We'll turn this back when rendering (see [renderConvertedValue]).
+local toDynamic: (Mapping|Map) -> Dynamic = (input) ->
+  if (input is Mapping) toDynamic.apply(input.toMap())
+  else
+    (input.toDynamic()) {
+      when (input.containsKey("default")) {
+        _____default_____ = input["default"]
+      }
+    }
+
+local typedClass = reflect.Class(Typed)
+
+local function convert(value: Any, type: reflect.Type?): Any =
+  if (type is reflect.NullableType)
+    convert(value, type.member)
+  else if (type is reflect.DeclaredType)
+    let (referent = type.referent)
+      if (value is Listing && referent.reflectee == Listing)
+        new Listing {
+          for (e in value) {
+            convert(e, type.typeArguments[0])
+          }
+        }
+      else if (value is Mapping && referent.reflectee == Mapping)
+        new Mapping {
+          for (k, v in value) {
+            [k] = convert(v, type.typeArguments[1])
+          }
+        }
+      else if (value is Mapping && referent.reflectee == ResourceRequirements.getClass())
+        new ResourceRequirements {
+          when (value.containsKey("requests")) {
+            requests {
+              for (k, v in value["requests"]) {
+                [k] = convertDataSize(v) ?? v
+              }
+            }
+          }
+          when (value.containsKey("limits")) {
+            limits {
+              for (k, v in value["limits"]) {
+                [k] = convertDataSize(v) ?? v
+              }
+            }
+          }
+        }
+      else if (value is Mapping && referent is reflect.Class && referent.reflectee == K8sResource.getClass())
+        // K8sResource is abstract. Get correct type from kind and apiVersion.
+        let (template = getResourceTemplate(value, customResourceTemplates)) // TODO: replace customResourceTemplate with actual val
+          value
+            .toMap()
+            .map((k, v) -> Pair(k, convert(v, reflect.Class(template.getClass()).properties.getOrNull(k)?.type)))
+            .toTyped(template.getClass())
+      else if (value is Mapping && referent is reflect.Class && referent.isSubclassOf(typedClass))
+        value
+          .toMap()
+          .map((k, v) -> Pair(k, convert(v, referent.properties.getOrNull(k)?.type)))
+          .toTyped(referent.reflectee)
+      else value
+  else if (type is reflect.UnionType)
+    if (!(value is Mapping|Listing))
+      value
+    else
+      let (listingType = type.members.findOrNull((elem) -> elem is reflect.DeclaredType && elem.referent.reflectee == Listing))
+        let (mappingType = type.members.findOrNull((elem) -> elem is reflect.DeclaredType && elem.referent.reflectee == Mapping))
+          if (value is Listing && listingType != null)
+            convert(value, listingType)
+          else if (mappingType != null)
+            convert(value, mappingType)
+          else
+            let (otherType = type.members.find((elem) -> elem != listingType && elem != mappingType))
+              convert(value, otherType)
+  else if (value is Mapping) value |> toDynamic // TODO: when does this occur? should it actually be Dyanmic or remain Mapping?
+  else value
+
+local function doGetResourceTemplate(kind: String, apiVersion: String, templatesByKindAndVersion: Mapping): K8sResource? =
+  let (templatesByVersion: Mapping? = templatesByKindAndVersion.getOrNull(kind))
+    if (templatesByVersion == null)
+      null
+    else
+      let (template = templatesByVersion.getOrNull(apiVersion))
+        if (template != null)
+          template as K8sResource
+        else
+          throw("""
+            Cannot find a pantry template for version `\(apiVersion)` of resource `\(kind)`.
+            Available versions:
+            \(templatesByVersion.keys.join("\n"))
+            """)
+
+local function getResourceTemplate(resource: Mapping, customResourceTemplates: Mapping<String, Mapping<String, K8sResource>>): K8sResource =
+  let (kind = resource["kind"])
+    let (apiVersion = resource["apiVersion"])
+      doGetResourceTemplate(kind, apiVersion, k8sSchemaResourceTemplate) ??
+        doGetResourceTemplate(kind, apiVersion, customResourceTemplates) ??
+          throw("Cannot find a template for resource of kind `\(kind)`.")
