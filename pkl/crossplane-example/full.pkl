@@ -9,7 +9,7 @@ import "crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
 local request = new Crossplane {
-  customResourceTemplates: Mapping<String, Mapping<String, unknown>> = new {
+  customResourceTemplates = new {
     ["XR"] {
       ["example.crossplane.io/v1"] = XR
     }
