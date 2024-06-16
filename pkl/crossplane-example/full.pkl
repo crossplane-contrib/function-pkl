@@ -80,9 +80,7 @@ context {
   }
 }
 
-meta {
-  when (request.meta != null) {
-    tag = request.meta.tag
-  }
+meta = if (request.meta != null) new ResponseMeta {
+  tag = request.meta.tag
   ttl = 60.s
-}
+} else null
