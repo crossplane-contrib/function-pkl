@@ -13,12 +13,13 @@
 
 
 - [x] Use PklProject with references instead of static links in code and Pkl Templates.
-- [ ] Consider making the Dependencies available locally
-- [ ] Switch from Errors to Results in fn.go
+- [x] Consider making the Dependencies available locally
+  - obsolete due to the of the converter. unless there is a nice way to have the package pre-cached.
+- [x] Switch from Errors to Results in fn.go
 
-- [ ] Cleanup
+- [x] Cleanup
   - [x] Remove Brainstorming files
-  - [ ] Improve Variables in pkl/convert.pkl
+  - [x] Improve Variables in pkl/convert.pkl
 
 - [ ] Documentation
   - [x] Update examples
@@ -35,7 +36,7 @@
 ### Prototype
 - [x] Use one pkl.EvaluatorManager per invocation or globally
 - [x] Support Composition Status Updates
-- [ ] ~~Disallow Filesystem Access for pkl Modules as that is not needed~~
+- [ ] Disallow Filesystem Access for pkl Modules as that is not needed
 
 ### Proof of Concept
 - [x] Allow Composition Resources to be loaded from:
