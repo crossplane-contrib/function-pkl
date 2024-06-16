@@ -5,6 +5,7 @@ import (
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/avarei/function-pkl/internal/pkl/reader"
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
@@ -20,29 +21,6 @@ type Function struct {
 
 	Log              logging.Logger
 	EvaluatorManager pkl.EvaluatorManager
-}
-
-type CompositionResponse struct {
-	fnv1beta1.RunFunctionResponse
-
-	Requirements *Requirements `json:"requirements,omitempty"`
-}
-
-type Requirements struct {
-	//fnv1beta1.Requirements
-
-	ExtraResources map[string]*ResourceSelector `protobuf:"bytes,1,rep,name=extra_resources,json=extraResources,proto3" json:"extraResources,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-}
-
-type ResourceSelector struct {
-	ApiVersion string `protobuf:"bytes,1,opt,name=api_version,json=apiVersion,proto3" json:"apiVersion,omitempty"`
-	Kind       string `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
-	Match      Match  `json:"match,omitempty"`
-}
-
-type Match struct {
-	MatchName   string                 `protobuf:"bytes,3,opt,name=match_name,json=matchName,proto3,oneof" json:"matchName,omitempty"`
-	MatchLabels *fnv1beta1.MatchLabels `protobuf:"bytes,4,opt,name=match_labels,json=matchLabels,proto3,oneof" json:"matchLabels,omitempty"`
 }
 
 // RunFunction runs the Function.
@@ -61,9 +39,12 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		pkl.PreconfiguredOptions,
 		reader.WithCrossplane(&reader.CrossplaneReader{
 			ReaderScheme: "crossplane",
-			Request:      req,
-			Log:          f.Log,
-			Ctx:          ctx,
+			Request: &helper.CompositionRequest{
+				RunFunctionRequest: *req,
+				ExtraResources:     req.GetExtraResources(),
+			},
+			Log: f.Log,
+			Ctx: ctx,
 		}),
 	)
 
@@ -84,7 +65,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return nil, errors.Wrapf(err, "could not parse Pkl file")
 	}
 
-	helper := &CompositionResponse{}
+	helper := &helper.CompositionResponse{}
 	err = yaml.Unmarshal([]byte(renderedManifest), helper)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not unmarshal pkl result")
@@ -106,7 +87,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	return rsp, nil
 }
 
-func convertExtraResources(extraResources map[string]*ResourceSelector) map[string]*fnv1beta1.ResourceSelector {
+func convertExtraResources(extraResources map[string]*helper.ResourceSelector) map[string]*fnv1beta1.ResourceSelector {
 	out := make(map[string]*fnv1beta1.ResourceSelector)
 	for name, fixedrs := range extraResources {
 		rs := &fnv1beta1.ResourceSelector{

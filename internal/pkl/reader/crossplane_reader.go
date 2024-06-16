@@ -6,13 +6,13 @@ import (
 	"net/url"
 
 	"github.com/apple/pkl-go/pkl"
+	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/crossplane/function-sdk-go/logging"
-	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"sigs.k8s.io/yaml"
 )
 
 type CrossplaneReader struct {
-	Request      *fnv1beta1.RunFunctionRequest
+	Request      *helper.CompositionRequest
 	ReaderScheme string
 	Log          logging.Logger
 	Ctx          context.Context
