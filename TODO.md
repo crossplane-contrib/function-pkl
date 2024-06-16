@@ -3,11 +3,11 @@
 ## Open/WiP
 ### Prototype
 
-- [ ] rename 'full' input to something better
-- [ ] decide whether to keep composition and resources inputs.
-- [ ] find a way to load the imports from full Pkl to convert.pkl
+- [x] rename 'full' input to something better
+- [x] decide whether to keep composition and resources inputs.
+- [x] find a way to load the imports from full Pkl to convert.pkl
       This would remove the need manually specifying them
-- [ ] [Make Objects neat](https://github.com/apple/pkl-pantry/issues/62)
+- [x] [Make Objects neat](https://github.com/apple/pkl-pantry/issues/62)
 - [ ] Provide a Pkl Module for Compositions and XRDs, so they can help make Compositions faster.
       Impacted by https://github.com/apple/pkl-pantry/issues/40
 

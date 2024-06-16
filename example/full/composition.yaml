@@ -15,7 +15,5 @@ spec:
       apiVersion: template.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
-        full:
-          name: full
-          type: uri
-          uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.12#/full.pkl"
+        type: uri
+        uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.12#/full.pkl"

@@ -9,7 +9,7 @@ import "CompositionRequest.pkl"
 
 local yamlParser = new yaml.Parser { useMapping = true }
 
-local input = read("crossplane:input").text
+local request= read("crossplane:request").text
 
 /// Resource modules keyed by `kind` and `apiVersion`.
 ///
@@ -24,7 +24,7 @@ customResourceTemplates: Mapping<String, Mapping<String, unknown>>
 k8sSchemaResourceTemplate: Mapping<String, Mapping<String, unknown>> = k8sSchema.resourceTemplates
 
 /// Returns the CompositionRequest that was sent to the Composition Function.
-Request: CompositionRequest = YamlToClass(input, CompositionRequest.getClass()) as CompositionRequest
+Request: CompositionRequest = YamlToClass(request, CompositionRequest.getClass()) as CompositionRequest
 
 
 /// Converts a Yaml Manifest to a Kubernetes Resource.

@@ -48,26 +48,24 @@ Each Pkl file will be parsed individually. (TODO: add paralellisation?)
 sequenceDiagram
     participant fun as RunFunction
     box rgb(20, 100, 60) Pkl Files
-        participant all.pkl as all-in-one.pkl
-        participant c.pkl as convert.pkl
+        participant full.pkl as full.pkl
+        participant c.pkl as Crossplane.pkl
     end
     box rgb(20,60,100) CrossplaneReader
-        participant c.h as crossplane:helper
-        participant c.i as crossplane:input
-    %%        participant c.p as crossplane:package
-    %%        participant c.r as crossplane:request
+        participant c.r as crossplane:request
     end
 
     fun->>fun: Create Evaluator
     activate fun
-    fun->>all.pkl: Evaluate
-    all.pkl->>c.h: import
-    c.h->>all.pkl: Module with helper functions
-    all.pkl->>c.h: .parseInput()
-    c.h->>c.i: read()
-    c.i->>c.h: return resourceToConvert
-    c.h->>all.pkl: return CrossplaneRequest
-    all.pkl->>fun: Function Respone
+    fun->>full.pkl: Evaluate
+    full.pkl->>c.pkl: import
+    c.pkl->>full.pkl: Module with helper functions
+    full.pkl->>+c.pkl: get CompositionRequest
+        c.pkl->>c.r: Get RunFunctionRequest
+        c.r->>c.pkl: Return it in yaml
+        c.pkl->>c.pkl: convert from yaml to Pkl Objects
+    c.pkl->>-full.pkl: return CrossplaneRequest
+    full.pkl->>fun: Function Respone
     deactivate fun
 ```
 

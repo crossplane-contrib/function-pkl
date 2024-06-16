@@ -37,7 +37,7 @@ func (f *CrossplaneReader) HasHierarchicalUris() bool {
 // This method is only called if it is hierarchical and local, or if it is globbable.
 func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
 	out := []pkl.PathElement{
-		pkl.NewPathElement("input", false),
+		pkl.NewPathElement("request", false),
 	}
 	return out, nil
 }
@@ -69,7 +69,7 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 
 func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
-	case "input":
+	case "request":
 		requestYaml, err := yaml.Marshal(f.Request)
 		if err != nil {
 			return nil, err
