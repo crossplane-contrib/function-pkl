@@ -3,7 +3,7 @@ CONTAINER_IMAGE := ghcr.io/avarei/function-pkl
 TAG := v0.0.1
 
 # Branch used for Pkl Package Releases
-BRANCH := main
+BRANCH := $(shell git branch --show-current)
 
 PKL_BASE_URI := package://pkg.pkl-lang.org
 
