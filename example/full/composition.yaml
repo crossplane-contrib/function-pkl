@@ -18,4 +18,4 @@ spec:
         full:
           name: full
           type: uri
-          uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.12#/object-one.pkl"
+          uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.12#/full.pkl"
