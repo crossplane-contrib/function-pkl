@@ -56,19 +56,20 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	moduleSource, err := getModuleSource(in.Spec)
 	if err != nil {
-		response.Fatal(rsp, errors.Wrap(err, "could not evaluate fileRef"))
+		response.Fatal(rsp, errors.Wrap(err, "invalid composition function input"))
 		return rsp, nil
 	}
 
 	renderedManifest, err := evaluator.EvaluateOutputText(ctx, moduleSource)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not parse Pkl file")
+		response.Fatal(rsp, errors.Wrap(err, "error while parsing the Pkl file"))
+		return rsp, nil
 	}
 
 	helper := &helper.CompositionResponse{}
 	err = yaml.Unmarshal([]byte(renderedManifest), helper)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not unmarshal pkl result")
+		return nil, errors.Wrapf(err, "rendered Pkl file was not in expected format. did you amend @crossplane/CompositionResponse.pkl?")
 	}
 
 	fixedRequirements := &fnv1beta1.Requirements{
