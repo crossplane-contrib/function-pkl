@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	pklPackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.15"
+	pklPackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.16"
 )
 
 func TestRunFunction(t *testing.T) {

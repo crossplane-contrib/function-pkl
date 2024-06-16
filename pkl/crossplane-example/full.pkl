@@ -19,7 +19,7 @@ local request = new Crossplane {
 }.Request
 
 local observedCompositeResource: XR = request.observed.composite.resource as XR
-local extraResource: Object? = request.getExtraResource("ineed", 0)?.resource as Object
+local extraResource: Object? = request.getExtraResource("ineed", 0)?.resource as Object?
 
 requirements {
   extraResources {
