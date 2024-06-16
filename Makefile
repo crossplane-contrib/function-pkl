@@ -1,6 +1,6 @@
 REPO := github.com/avarei/function-pkl
 CONTAINER_IMAGE := ghcr.io/avarei/function-pkl
-TAG := v0.0.1-dev
+TAG := v0.0.1
 
 # Branch used for Pkl Package Releases
 BRANCH := $(shell git branch --show-current)

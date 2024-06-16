@@ -10,7 +10,7 @@ kind: Function
 metadata:
   name: function-pkl
 spec:
-  package: ghcr.io/avarei/function-pkl:v0.0.1-dev
+  package: ghcr.io/avarei/function-pkl:v0.0.1
 ```
 
 ## Usage
