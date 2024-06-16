@@ -36,6 +36,6 @@ dependencies {
     uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
   }
   ["crossplane"] {
-    uri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.26"
+    uri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.27"
   }
 }

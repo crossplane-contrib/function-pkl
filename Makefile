@@ -8,7 +8,7 @@ BRANCH := $(shell git branch --show-current)
 PKL_BASE_URI := package://pkg.pkl-lang.org
 
 PKL_CORE_NAME := crossplane
-PKL_CORE_VERSION := 0.0.26
+PKL_CORE_VERSION := 0.0.27
 PKL_CORE_REF := ${PKL_CORE_NAME}@${PKL_CORE_VERSION}
 PKL_CORE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
