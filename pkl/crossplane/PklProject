@@ -22,7 +22,7 @@ package {
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
-  version = "0.0.24"
+  version = "0.0.28"
   baseUri = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/\(name)"
   packageZipUrl = "https://github.com/Avarei/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
   sourceCode = "https://github.com/Avarei/function-pkl"

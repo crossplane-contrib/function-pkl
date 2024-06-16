@@ -5,9 +5,6 @@
 package v1beta1
 
 import (
-	"fmt"
-	"strings"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -27,61 +24,6 @@ type Pkl struct {
 }
 
 type PklSpec struct {
-	Composition *PklFileRef `json:"composition,omitempty"`
-
-	// +kubebuilder:validation:Required
-	Resources []PklFileRef `json:"resources,omitempty"`
-
-	Full *PklFileRef `json:"full,omitempty"`
-
-	// Pkl Template of the CompositeResourceDefinition (XRD), which will be amended by the CompositeResource (XR)
-	CRDs []PklCrdRef `json:"crds,omitempty"`
-
-	Requirements *PklFileRef `json:"requirements,omitempty"`
-
-	// Packages is a list of Pkl Packages that can be used as a shorthand for the full package Path. This is similar to PklProject dependencies
-	Packages []Package `json:"packages,omitempty"`
-}
-
-func (p PklSpec) ParseUri(uri string) string {
-	if !strings.Contains(uri, "@") {
-		return uri
-	}
-	for _, v := range p.Packages {
-		if filePath, found := strings.CutPrefix(uri, "@"+v.Name); found {
-			return fmt.Sprintf("%s#%s", v.Uri, filePath)
-		}
-	}
-
-	// If no match was found try the full path
-	return uri
-}
-
-type Package struct {
-	Name string `json:"name,omitempty"`
-
-	// Core specifies this packages as the one
-	// providing essential capabilities for this function
-	Core bool `json:"core,omitempty"`
-
-	Uri string `json:"uri,omitempty"`
-}
-
-type PklCrdRef struct {
-	// Use URI Scheme to load CRD Template
-	Uri string `json:"uri,omitempty"`
-
-	// +kubebuilder:validation:Required
-	Kind string `json:"kind,omitempty"`
-
-	// +kubebuilder:validation:Required
-	ApiVersion string `json:"apiVersion,omitempty"`
-}
-
-type PklFileRef struct {
-	// +kubebuilder:validation:Required
-	Name string `json:"name"`
-
 	// +kubebuilder:validation:Enum=uri;inline
 	Type string `json:"type,omitempty"`
 

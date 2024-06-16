@@ -7,43 +7,7 @@ This [composition function][functions] allows to deploy [Crossplane Managed Reso
 Currently the Composite Resource Definition, as well as All CRDs must be available in the Pkl Format, and deployed as a Pkl Package so that they can be referenced as observed variables.
 
 ### Example
-```yaml
-apiVersion: apiextensions.crossplane.io/v1
-kind: Composition
-metadata:
-  name: function-pkl
-spec:
-  compositeTypeRef:
-    apiVersion: example.crossplane.io/v1
-    kind: XR
-  mode: Pipeline
-  pipeline:
-  - step: run-the-template
-    functionRef:
-      name: function-pkl
-    input:
-      apiVersion: template.fn.crossplane.io/v1beta1
-      kind: Pkl
-      spec:
-        crds:
-          - apiVersion: example.crossplane.io/v1
-            kind: XR
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/XR.pkl
-          - apiVersion: kubernetes.crossplane.io/v1alpha2
-            kind: Object
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/Object.pkl
-        composition:
-          name: XR
-          type: uri
-          uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/XR.pkl
-        resources:
-          - name: object-one
-            type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/object-one.pkl
-          - name: object-two
-            type: uri
-            uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/object-two.pkl
-```
+see [examples](./example/)
 
 ## Building a Pkl Package
 A Pkl Package can be built in the following steps:
@@ -63,7 +27,7 @@ A Pkl Package can be built in the following steps:
 ## Basic Pkl File
 The bare pkl file we expect is
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CrossplaneResource.pkl"
+amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/Resource.pkl"
 import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@#/CompositionRequest.pkl"
 
 local request = import("crossplane:request") as CompositionRequest
@@ -73,26 +37,36 @@ local request = import("crossplane:request") as CompositionRequest
 The Composition function is triggered by the Pkl files referenced within the composition pipeline step.
 Each Pkl file will be parsed individually. (TODO: add paralellisation?)
 * Pkl file within composition
-    * The file will amend `CrossplaneResource.pkl`
+    * The file will amend `Resource.pkl`
     * `convert.pkl` is usually called by `import crossplane:request` as a new process.
         * this loads other pkl files defined in Composition CRDs `import crossplane:crds`
         * it also imports pkl-pantry/k8s.contrib/convert.pkl
         * imports pkl-k8s/k8s/k8sResource.pkl
     * `CompositionRequest.pkl` is used by the result of `local request = (import crossplane:request) as CompositionRequest`
 
-> Not complete
 ```mermaid
 sequenceDiagram
-    Caller->>Function Pkl: gRPC Request
+    participant fun as RunFunction
+    box rgb(20, 100, 60) Pkl Files
+        participant full.pkl as full.pkl
+        participant c.pkl as Crossplane.pkl
+    end
+    box rgb(20,60,100) CrossplaneReader
+        participant c.r as crossplane:request
+    end
 
-    Function Pkl->>Pkl: Parse Pkl File
-    Pkl->>Function Pkl: Request gRPC input
-    Function Pkl->>Function Pkl: Convert struct to yaml
-    Function Pkl->>Pkl: Send Input
-    Pkl->>Pkl: Finish rendering
-    Pkl->>Function Pkl: Output as Yaml string
-    Function Pkl->>Function Pkl: Convert to Struct
-    Function Pkl->>Caller: Send Response in gRPC
+    fun->>fun: Create Evaluator
+    activate fun
+    fun->>full.pkl: Evaluate
+    full.pkl->>c.pkl: import
+    c.pkl->>full.pkl: Module with helper functions
+    full.pkl->>+c.pkl: get CompositionRequest
+        c.pkl->>c.r: Get RunFunctionRequest
+        c.r->>c.pkl: Return it in yaml
+        c.pkl->>c.pkl: convert from yaml to Pkl Objects
+    c.pkl->>-full.pkl: return CrossplaneRequest
+    full.pkl->>fun: Function Respone
+    deactivate fun
 ```
 
 ### Generating Pkl Files and Modules from Manifests

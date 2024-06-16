@@ -1,16 +1,44 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionRequest
 
-import "CrossplaneResource.pkl"
+import "Resource.pkl"
 
+/// Metadata pertaining to this request.
 meta: RequestMeta?
 
-context: Mapping<String, Any>?
-
-desired: State?
-
+/// The observed state prior to invocation of a Function pipeline. State passed
+/// to each Function is fresh as of the time the pipeline was invoked, not as
+/// of the time each Function was invoked.
 observed: State?
 
+/// Desired state according to a Function pipeline. The state passed to a
+/// particular Function may have been accumulated by previous Functions in the
+/// pipeline.
+///
+/// Note that the desired state must be a partial object with only the fields
+/// that this function (and its predecessors in the pipeline) wants to have
+/// set in the object. Copying a non-partial observed state to desired is most
+/// likely not what you want to do. Leaving out fields that had been returned
+/// as desired before will result in them being deleted from the objects in the
+/// cluster.
+desired: State?
+
+/// Optional input specific to this Function invocation. A JSON representation
+/// of the 'input' block of the relevant entry in a Composition's pipeline.
+input: Mapping<String, Any>?
+
+/// Optional context. Crossplane may pass arbitary contextual information to a
+/// Function. A Function may also return context in its RunFunctionResponse,
+/// and that context will be passed to subsequent Functions. Crossplane
+/// discards all context returned by the last Function in the pipeline.
+context: Mapping<String, Any>?
+
+/// Optional extra resources that the Function required.
+/// Note that extra resources is a map to Resources, plural.
+/// The map key corresponds to the key in a RunFunctionResponse's
+/// extra_resources field. If a Function requested extra resources that
+/// did not exist, Crossplane sets the map key to an empty Resources message to
+/// indicate that it attempted to satisfy the request.
 extraResources: Mapping<String, Resources?>
 
 class RequestMeta {
@@ -18,16 +46,16 @@ class RequestMeta {
 }
 
 class State {
-  composite: CrossplaneResource
-  resources: Mapping<String, CrossplaneResource>
+  composite: Resource
+  resources: Mapping<String, Resource>
 }
 
 class Resources {
-  items: Listing<CrossplaneResource?>
+  items: Listing<Resource?>
 }
 
-function getExtraResources(name: String): Listing<CrossplaneResource?> =
-  extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<CrossplaneResource?> {}
+function getExtraResources(name: String): Listing<Resource?> =
+  extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<Resource?> {}
 
-function getExtraResource(name: String, index: Int):CrossplaneResource? =
+function getExtraResource(name: String, index: Int):Resource? =
     getExtraResources(name).toList().getOrNull(index)

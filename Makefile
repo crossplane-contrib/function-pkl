@@ -3,17 +3,17 @@ CONTAINER_IMAGE := ghcr.io/avarei/function-pkl
 TAG := v0.0.1
 
 # Branch used for Pkl Package Releases
-BRANCH := main
+BRANCH := $(shell git branch --show-current)
 
 PKL_BASE_URI := package://pkg.pkl-lang.org
 
 PKL_CORE_NAME := crossplane
-PKL_CORE_VERSION := 0.0.24
+PKL_CORE_VERSION := 0.0.28
 PKL_CORE_REF := ${PKL_CORE_NAME}@${PKL_CORE_VERSION}
 PKL_CORE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
 PKL_EXAMPLE_NAME := crossplane-example
-PKL_EXAMPLE_VERSION := 0.1.10
+PKL_EXAMPLE_VERSION := 0.1.16
 PKL_EXAMPLE_REF := ${PKL_EXAMPLE_NAME}@${PKL_EXAMPLE_VERSION}
 PKL_EXAMPLE_URI := ${PKL_BASE_URI}/${REPO}/${PKL_CORE_REF}
 
