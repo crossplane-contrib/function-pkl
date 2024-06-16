@@ -1,7 +1,7 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionResponse
 
-import "CrossplaneResource.pkl"
+import "Resource.pkl"
 // import "pkl:protobuf"
 
 meta: ResponseMeta?
@@ -31,8 +31,8 @@ class Result {
 typealias Severity = Int(isBetween(0,3))
 
 class State {
-  composite: CrossplaneResource
-  resources: Mapping<String, CrossplaneResource>
+  composite: Resource
+  resources: Mapping<String, Resource>
 }
 
 class Requirements {

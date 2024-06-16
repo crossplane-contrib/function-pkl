@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	pklPackage     = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.11"
+	pklPackage     = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.12"
 	pklCorePackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.26"
 	pklK8sPackage  = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
 )
@@ -445,7 +445,7 @@ func TestRunFunction(t *testing.T) {
 								Name: "XR",
 								Type: "inline",
 								Inline: fmt.Sprintf(`
-			   amends "%[1]s#/CrossplaneResource.pkl"
+			   amends "%[1]s#/Resource.pkl"
 			   import "%[1]s#/CompositionRequest.pkl"
 
 			   import "%[2]s#/crds/XR.pkl"
@@ -473,7 +473,7 @@ func TestRunFunction(t *testing.T) {
 									Name: "object-one",
 									Type: "inline",
 									Inline: fmt.Sprintf(`
-			   amends "%[1]s#/CrossplaneResource.pkl"
+			   amends "%[1]s#/Resource.pkl"
 			   import "%[1]s#/CompositionRequest.pkl"
 
 			   import "%[2]s#/crds/XR.pkl"

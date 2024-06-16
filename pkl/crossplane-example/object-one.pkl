@@ -1,4 +1,4 @@
-amends "@crossplane/CrossplaneResource.pkl"
+amends "@crossplane/Resource.pkl"
 import "@crossplane/CompositionRequest.pkl"
 
 import "crds/XR.pkl"

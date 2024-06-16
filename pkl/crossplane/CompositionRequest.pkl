@@ -1,7 +1,7 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionRequest
 
-import "CrossplaneResource.pkl"
+import "Resource.pkl"
 
 /// Metadata pertaining to this request.
 meta: RequestMeta?
@@ -46,16 +46,16 @@ class RequestMeta {
 }
 
 class State {
-  composite: CrossplaneResource
-  resources: Mapping<String, CrossplaneResource>
+  composite: Resource
+  resources: Mapping<String, Resource>
 }
 
 class Resources {
-  items: Listing<CrossplaneResource?>
+  items: Listing<Resource?>
 }
 
-function getExtraResources(name: String): Listing<CrossplaneResource?> =
-  extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<CrossplaneResource?> {}
+function getExtraResources(name: String): Listing<Resource?> =
+  extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<Resource?> {}
 
-function getExtraResource(name: String, index: Int):CrossplaneResource? =
+function getExtraResource(name: String, index: Int):Resource? =
     getExtraResources(name).toList().getOrNull(index)

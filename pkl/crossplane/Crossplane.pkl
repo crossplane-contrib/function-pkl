@@ -11,8 +11,17 @@ local yamlParser = new yaml.Parser { useMapping = true }
 
 local input = read("crossplane:input").text
 
-customResourceTemplates: Mapping<String, Mapping<String, K8sResource>>
-k8sSchemaResourceTemplate: Mapping<String, Mapping<String, K8sResource>> = k8sSchema.resourceTemplates
+/// Resource modules keyed by `kind` and `apiVersion`.
+///
+/// Note: Declared template type is [unknown] instead of `K8sResource`
+/// to delay loading a template until it is accessed.
+customResourceTemplates: Mapping<String, Mapping<String, unknown>>
+
+/// Resource modules keyed by `kind` and `apiVersion`.
+///
+/// Note: Declared template type is [unknown] instead of `K8sResource`
+/// to delay loading a template until it is accessed.
+k8sSchemaResourceTemplate: Mapping<String, Mapping<String, unknown>> = k8sSchema.resourceTemplates
 
 /// Returns the CompositionRequest that was sent to the Composition Function.
 Request: CompositionRequest = YamlToClass(input, CompositionRequest.getClass()) as CompositionRequest
