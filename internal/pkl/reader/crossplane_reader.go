@@ -6,11 +6,8 @@ import (
 	"net/url"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/avarei/function-pkl/input/v1beta1"
-	"github.com/avarei/function-pkl/internal/helper"
 	"github.com/crossplane/function-sdk-go/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
-	"github.com/crossplane/function-sdk-go/request"
 	"sigs.k8s.io/yaml"
 )
 
@@ -19,8 +16,6 @@ type CrossplaneReader struct {
 	ReaderScheme string
 	Log          logging.Logger
 	Ctx          context.Context
-
-	Packages *helper.Packages
 }
 
 func (f *CrossplaneReader) Scheme() string {
@@ -42,10 +37,7 @@ func (f *CrossplaneReader) HasHierarchicalUris() bool {
 // This method is only called if it is hierarchical and local, or if it is globbable.
 func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
 	out := []pkl.PathElement{
-		pkl.NewPathElement("request", false),
 		pkl.NewPathElement("input", false),
-		pkl.NewPathElement("crds", false),
-		pkl.NewPathElement("package", false),
 	}
 	return out, nil
 }
@@ -77,31 +69,6 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 
 func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
-	case "request":
-		evaluator, err := evaluatorManager.NewEvaluator(
-			f.Ctx,
-			pkl.PreconfiguredOptions,
-			WithCrossplane(&CrossplaneReader{
-				Request:      f.Request,
-				ReaderScheme: "crossplane",
-				Log:          nil,
-				Ctx:          f.Ctx,
-				Packages:     f.Packages,
-			}), // TODO: This should be a seperate reader Implementation, as calling crossplane:request within crossplane:request would softlock and should not be allowed
-		)
-		if err != nil {
-			return nil, err
-		}
-		defer evaluator.Close()
-		uri := f.Packages.ParseCoreUri("/convert.pkl")
-		out, err := evaluator.EvaluateOutputText(f.Ctx, pkl.UriSource(uri))
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-
-		fmt.Println(out)
-		return []byte(out), err
 	case "input":
 		requestYaml, err := yaml.Marshal(f.Request)
 		if err != nil {
@@ -110,48 +77,9 @@ func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		fmt.Println(string(requestYaml))
 
 		return requestYaml, nil
-	case "crds":
-		in := &v1beta1.Pkl{}
-		if err := request.GetInput(f.Request, in); err != nil {
-			return nil, err
-		}
-
-		resourceTemplates := make(map[string]map[string]string)
-		for _, crd := range in.Spec.CRDs {
-			uri := f.Packages.ParseUri(crd.Uri)
-			if resourceTemplates[crd.Kind] == nil {
-				resourceTemplates[crd.Kind] = map[string]string{
-					crd.ApiVersion: uri,
-				}
-			} else {
-				resourceTemplates[crd.Kind][crd.ApiVersion] = uri
-			}
-		}
-
-		message := buildResourceTemplatesModule(resourceTemplates)
-		fmt.Println(message)
-		return []byte(message), nil
-	case "package":
-		{
-			return []byte(f.Packages.GetCoreUri()), nil
-		}
 	default:
 		return nil, fmt.Errorf("unsupported path")
 	}
-}
-
-// generates a resourceTemplate similar to https://github.com/apple/pkl-k8s/blob/main/generated-package/k8sSchema.pkl but for the custom Resources
-func buildResourceTemplatesModule(resourceTemplates map[string]map[string]string) string {
-	message := "resourceTemplates: Mapping<String, Mapping<String, unknown>> = new {\n"
-	for kind, versionUris := range resourceTemplates {
-		message += fmt.Sprintf("  [\"%s\"] {\n", kind)
-		for version, uri := range versionUris {
-			message += fmt.Sprintf("    [\"%s\"] = import(\"%s\")\n", version, uri)
-		}
-		message += "  }\n"
-	}
-	message += "}\n"
-	return message
 }
 
 // Expects an URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file

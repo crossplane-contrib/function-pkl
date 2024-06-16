@@ -40,111 +40,17 @@ spec:
             type: object
           spec:
             properties:
-              composition:
-                properties:
-                  inline:
-                    description: Contains a stringified Pkl file
-                    type: string
-                  name:
-                    type: string
-                  type:
-                    enum:
-                    - uri
-                    - inline
-                    type: string
-                  uri:
-                    description: Use URI Scheme to load Project/Package
-                    type: string
-                required:
-                - name
-                type: object
-              crds:
-                description: Pkl Template of the CompositeResourceDefinition (XRD),
-                  which will be amended by the CompositeResource (XR)
-                items:
-                  properties:
-                    apiVersion:
-                      type: string
-                    kind:
-                      type: string
-                    uri:
-                      description: Use URI Scheme to load CRD Template
-                      type: string
-                  type: object
-                type: array
-              full:
-                properties:
-                  inline:
-                    description: Contains a stringified Pkl file
-                    type: string
-                  name:
-                    type: string
-                  type:
-                    enum:
-                    - uri
-                    - inline
-                    type: string
-                  uri:
-                    description: Use URI Scheme to load Project/Package
-                    type: string
-                required:
-                - name
-                type: object
-              packages:
-                description: Packages is a list of Pkl Packages that can be used as
-                  a shorthand for the full package Path. This is similar to PklProject
-                  dependencies
-                items:
-                  properties:
-                    core:
-                      description: |-
-                        Core specifies this packages as the one
-                        providing essential capabilities for this function
-                      type: boolean
-                    name:
-                      type: string
-                    uri:
-                      type: string
-                  type: object
-                type: array
-              requirements:
-                properties:
-                  inline:
-                    description: Contains a stringified Pkl file
-                    type: string
-                  name:
-                    type: string
-                  type:
-                    enum:
-                    - uri
-                    - inline
-                    type: string
-                  uri:
-                    description: Use URI Scheme to load Project/Package
-                    type: string
-                required:
-                - name
-                type: object
-              resources:
-                items:
-                  properties:
-                    inline:
-                      description: Contains a stringified Pkl file
-                      type: string
-                    name:
-                      type: string
-                    type:
-                      enum:
-                      - uri
-                      - inline
-                      type: string
-                    uri:
-                      description: Use URI Scheme to load Project/Package
-                      type: string
-                  required:
-                  - name
-                  type: object
-                type: array
+              inline:
+                description: Contains a stringified Pkl file
+                type: string
+              type:
+                enum:
+                - uri
+                - inline
+                type: string
+              uri:
+                description: Use URI Scheme to load Project/Package
+                type: string
             type: object
         type: object
     served: true
