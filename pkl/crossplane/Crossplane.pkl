@@ -9,34 +9,7 @@ import "CompositionRequest.pkl"
 
 local yamlParser = new yaml.Parser { useMapping = true }
 
-//local input = read("crossplane:input").text
-local input = """
-  input:
-    metadata:
-      generation: 0
-    spec:
-      crds:
-      - apiVersion: example.crossplane.io/v1
-        kind: XR
-        uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/XR.pkl
-      - apiVersion: kubernetes.crossplane.io/v1alpha2
-        kind: Object
-        uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/crds/Object.pkl
-      resources:
-      - name: object-one
-        type: uri
-        uri: package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.10#/object-one.pkl
-  meta:
-    tag: extra
-  observed:
-    composite:
-      resource:
-        apiVersion: example.crossplane.io/v1
-        kind: XR
-        metadata:
-          name: example-xr
-        spec: {}
-  """
+local input = read("crossplane:input").text
 
 customResourceTemplates: Mapping<String, Mapping<String, K8sResource>>
 k8sSchemaResourceTemplate: Mapping<String, Mapping<String, K8sResource>> = k8sSchema.resourceTemplates

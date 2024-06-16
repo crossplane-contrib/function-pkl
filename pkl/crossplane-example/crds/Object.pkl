@@ -7,6 +7,7 @@ module io.crossplane.kubernetes.v1alpha2.Object
 extends "@k8s/K8sResource.pkl"
 
 import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+import "@k8s/K8sResource.pkl"
 
 fixed apiVersion: "kubernetes.crossplane.io/v1alpha2"
 
@@ -120,7 +121,7 @@ class ConnectionDetail {
 /// ObjectParameters are the configurable fields of a Object.
 class ForProvider {
   /// Raw JSON representation of the kubernetes object to be created.
-  manifest: Dynamic
+  manifest: K8sResource
 }
 
 /// ProviderConfigReference specifies how the provider that will be used to create, observe, update, and
@@ -284,7 +285,7 @@ class Status {
 /// ObjectObservation are the observable fields of a Object.
 class AtProvider {
   /// Raw JSON representation of the remote object.
-  manifest: Dynamic?
+  manifest: K8sResource?
 }
 
 /// A Condition that may apply to a resource.
