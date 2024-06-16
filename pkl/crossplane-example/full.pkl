@@ -81,6 +81,8 @@ context {
 }
 
 meta {
-  tag = request.meta.tag
+  when (request.meta != null) {
+    tag = request.meta.tag
+  }
   ttl = 60.s
 }
