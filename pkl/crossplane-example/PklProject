@@ -24,8 +24,8 @@ package {
   }
   version = "0.1.19"
   baseUri = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/\(name)"
-  packageZipUrl = "https://github.com/Avarei/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
-  sourceCode = "https://github.com/Avarei/function-pkl"
+  packageZipUrl = "https://github.com/crossplane-contrib/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
+  sourceCode = "https://github.com/crossplane-contrib/function-pkl"
   license = "Apache-2.0"
   description = """
     Example for using the [Composition Functions](https://docs.crossplane.io/latest/concepts/composition-functions/).
