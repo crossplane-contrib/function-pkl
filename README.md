@@ -35,7 +35,7 @@ spec:
       spec:
         type: uri
         # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
-        uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.18#/full.pkl"
+        uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.19#/full.pkl"
 ```
 
 ### Example

@@ -14,6 +14,13 @@
       "checksums": {
         "sha256": "75c6d66d94c335417a3c502e107aaeadf7a60b4e1d34b2c979afe11193205a1a"
       }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.1.1",
+      "checksums": {
+        "sha256": "a3ce491d0e504c14d456d599f988bbb4a2b77915696450dfd65b8e4cef7c9522"
+      }
     }
   }
 }
