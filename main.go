@@ -7,8 +7,8 @@ import (
 
 	"github.com/crossplane/function-sdk-go"
 
-	fn "github.com/avarei/function-pkl/internal/function"
-	"github.com/avarei/function-pkl/internal/pkl/reader"
+	fn "github.com/crossplane-contrib/function-pkl/internal/function"
+	"github.com/crossplane-contrib/function-pkl/internal/pkl/reader"
 )
 
 // CLI of this Function.

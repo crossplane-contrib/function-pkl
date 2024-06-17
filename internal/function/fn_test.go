@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/avarei/function-pkl/input/v1beta1"
+	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	pklPackage = "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.19"
+	pklPackage = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19"
 )
 
 func TestRunFunction(t *testing.T) {

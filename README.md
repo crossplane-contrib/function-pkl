@@ -10,7 +10,7 @@ kind: Function
 metadata:
   name: function-pkl
 spec:
-  package: ghcr.io/avarei/function-pkl:v0.0.1
+  package: ghcr.io/crossplane-contrib/function-pkl:v0.0.1
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ spec:
       spec:
         type: uri
         # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
-        uri: "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.19#/full.pkl"
+        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19#/full.pkl"
 ```
 
 ### Example
@@ -49,8 +49,8 @@ A Pkl Package can be built in the following steps:
     * Make sure that `\(baseUri)@\(version)` is the url where the package metadata can be downloaded from
     * Likewise `\(baseUri)@\(version).zip` is the path where the content will be expected.
     > Note: The PklProjects in this repository use pkg.pkl-lang.org, as they redirect to the download
-        * the path https://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@x.y.z
-        * redirects to https://github.com/avarei/function-pkl/releases/download/crossplane@x.y.z/crossplane@x.y.z
+        * the path https://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@x.y.z
+        * redirects to https://github.com/crossplane-contrib/function-pkl/releases/download/crossplane@x.y.z/crossplane@x.y.z
 1. Run `pkl project resolve` to resolve the dependencies of the PklProject
 1. Run `pkl project package` to package the Project into the files and make them ready for the upload.
 1. Publish the Package
@@ -108,7 +108,7 @@ $ docker build . --tag=runtime
 $ crossplane xpkg build -f package --embed-runtime-image=runtime
 
 # Push the Package to a registry
-$ crossplane xpkg push -f function-pkl*.xpkg ghcr.io/avarei/function-pkl
+$ crossplane xpkg push -f function-pkl*.xpkg ghcr.io/crossplane-contrib/function-pkl
 
 # Resolve Pkl Project Dependencies
 $ pkl project resolve

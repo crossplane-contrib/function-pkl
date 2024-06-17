@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/avarei/function-pkl/internal/helper"
+	"github.com/crossplane-contrib/function-pkl/internal/helper"
 	"github.com/crossplane/function-sdk-go/logging"
 	"sigs.k8s.io/yaml"
 )

@@ -1,4 +1,4 @@
-module github.com/avarei/function-pkl
+module github.com/crossplane-contrib/function-pkl
 
 go 1.22.1
 
