@@ -18,9 +18,9 @@ spec:
         type: inline
         # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
         inline: |
-          amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.28#/CompositionResponse.pkl"
-          import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.28#/Resource.pkl"
-          import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.28#/Crossplane.pkl"
+          amends "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.29#/CompositionResponse.pkl"
+          import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.29#/Resource.pkl"
+          import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane@0.0.29#/Crossplane.pkl"
 
           import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.18#/crds/XR.pkl"
           import "package://pkg.pkl-lang.org/github.com/avarei/function-pkl/crossplane-example@0.1.18#/crds/Object.pkl"

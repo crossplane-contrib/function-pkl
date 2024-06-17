@@ -54,8 +54,9 @@ class Resources {
   items: Listing<Resource?>
 }
 
-function getExtraResources(name: String): Listing<Resource?> =
-  extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<Resource?> {}
+function getExtraResources(name: String): Listing<Resource> =
+  let (listingWithNil = extraResources.getOrNull(name).ifNonNull((it: Resources) -> it.items) ?? new Listing<Resource?> {})
+    listingWithNil.toList().filter((n) -> n != null).toListing() as Listing<Resource>
 
 function getExtraResource(name: String, index: Int):Resource? =
     getExtraResources(name).toList().getOrNull(index)
