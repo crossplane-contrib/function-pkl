@@ -32,9 +32,10 @@ package {
     """
 }
 dependencies {
+  ["crossplane.contrib"] = import("../crossplane.contrib/PklProject")
+  ["crossplane.contrib.xrd"] = import("../crossplane.contrib.xrd/PklProject")
+
   ["k8s"] {
     uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
   }
-  ["crossplane.contrib"] = import("../crossplane.contrib/PklProject")
-  ["crossplane.contrib.xrd"] = import("../crossplane.contrib.xrd/PklProject")
 }

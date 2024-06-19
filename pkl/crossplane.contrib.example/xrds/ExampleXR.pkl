@@ -1,1 +1,31 @@
-amends "@crossplane.contrib.xrd/C"
+amends "@crossplane.contrib.xrd/CompositeResourceDefinition.pkl"
+
+metadata {
+  name = "XRD"
+}
+
+spec {
+  group = "example.crossplane.io"
+  names {
+    kind = "XR"
+    plural = "xrs"
+  }
+  versions {
+    new {
+      name = "v1"
+      served = true
+      referenceable = true
+      schema {
+        openAPIV3Schema {
+          type = "object"
+          properties {
+            ["spec"] {
+              type = "object"
+              properties {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

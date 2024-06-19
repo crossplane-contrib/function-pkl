@@ -1,6 +1,6 @@
-amends "crossplane.contrib/CompositionResponse.pkl"
-import "crossplane.contrib/Resource.pkl"
-import "crossplane.contrib/crossplane.pkl"
+amends "@crossplane.contrib/CompositionResponse.pkl"
+import "@crossplane.contrib/Resource.pkl"
+import "@crossplane.contrib/crossplane.pkl"
 
 import "crds/XR.pkl"
 import "crds/Object.pkl"
@@ -81,6 +81,5 @@ context {
 }
 
 meta = if (request.meta != null) new ResponseMeta {
-  tag = request.meta.tag
   ttl = 60.s
 } else null
