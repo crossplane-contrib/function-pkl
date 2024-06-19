@@ -10,7 +10,7 @@ module io.crossplane.apiextensions.v1.CompositeResourceDefinition
 extends "@k8s/K8sResource.pkl"
 
 import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
-import "@openapiv3/Schema.pkl" as Openapiv3Schema
+import "@k8s/apiextensions-apiserver/pkg/apis/apiextensions/v1/CustomResourceDefinition.pkl"
 
 fixed apiVersion: "apiextensions.crossplane.io/v1"
 
@@ -320,7 +320,7 @@ class AdditionalPrinterColumn {
 /// schema results in a schema that contains only the fields required by all composite resources.
 class Schema {
   /// OpenAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning.
-  openAPIV3Schema: Openapiv3Schema?
+  openAPIV3Schema: CustomResourceDefinition.JSONSchemaProps?
 }
 
 /// CompositeResourceDefinitionStatus shows the observed state of the definition.

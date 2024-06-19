@@ -1,0 +1,1 @@
+amends "@crossplane.contrib.xrd/C"

@@ -15,7 +15,6 @@ context: Mapping<String, Any>?
 requirements: Requirements?
 
 class ResponseMeta {
-  tag: String
   ttl: Duration
 }
 

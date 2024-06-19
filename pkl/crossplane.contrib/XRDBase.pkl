@@ -1,0 +1,83 @@
+abstract module crossplane.XRDResource
+
+extends "@k8s/K8sResource.pkl"
+
+spec: Spec
+
+status: Status
+
+abstract class Spec {
+  compositionRef: CompositionRef?
+  compositionSelector: CompositionSelector?
+  compositionRevisionRef: CompositionRevisionRef?
+  compositionRevisionSelector: CompositionRevisionSelector?
+  compositionUpdatePolicy: CompositionUpdatePolicy?
+  claimRef: ClaimRef?
+  environmentConfigRefs: Listing<EnvironmentConfigRef>
+  publishConnectionDetailsTo: PublishConnectionDetailsTo?
+  resourceRefs: Listing<ResourceRef>?
+  writeConnectionSecretToRef: WriteConnectionSecretToRef?
+}
+
+class CompositionRef {
+  name: String
+}
+class CompositionSelector {
+  matchLabels: Mapping<String, String>
+}
+class CompositionRevisionRef {
+  name: String
+}
+class CompositionRevisionSelector {
+  matchLabels: Mapping<String, String>
+}
+typealias CompositionUpdatePolicy = "Automatic"|"Manual"
+class ClaimRef {
+  apiVersion: String
+  kind: String
+  namespace: String
+  name: String
+}
+class EnvironmentConfigRef {
+  apiVersion: String
+  kind: String
+  name: String?
+}
+class ResourceRef {
+  apiVersion: String
+  kind: String
+  name: String?
+}
+class PublishConnectionDetailsTo {
+  name: String
+  configRef: ConfigRef?
+  metadata: Metadata?
+}
+class ConfigRef {
+  name: String = "default"
+}
+class Metadata {
+  labels: Mapping<String, String>?
+  annotations: Mapping<String, String>
+  type: String
+}
+class WriteConnectionSecretToRef {
+  name: String
+  namespace: String
+}
+
+abstract class Status {
+  conditions: Listing<Conditions>?
+  connectionDetails: ConnectionDetails?
+}
+
+class Conditions {
+  lastTransitionTime: String // TODO convert to Pkl Time
+  message: String?
+  reason: String
+  status: String
+  type: String
+}
+class ConnectionDetails {
+  lastPublishedTime: String? // TODO convert to Pkl Time
+}

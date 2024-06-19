@@ -35,11 +35,83 @@ spec:
       spec:
         type: uri
         # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
-        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19#/full.pkl"
+        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/full.pkl"
 ```
 
 ### Example
 see [examples](./example/)
+
+### Building a new Composition Function from Scratch
+
+#### Create a XRD
+If you already have an XRD skip this and the next section.
+
+Create a new Pkl file
+```pkl
+amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crospslane.contrib.xrd@1.0.0#/CompositeResourceDefinition.pkl"
+```
+the Pkl file can be rendered as Yaml using `pkl eval <nameOfYourPklFile>.pkl`
+
+#### Create a Module of your XRD
+To Convert the XRD.pkl to Pkl Module a small helper file `xrd2module.pkl` is needed:
+```pkl
+amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crospslane.contrib.xrd@1.0.0#/generate.pkl"
+
+crds {
+  import("XR.pkl")
+}
+
+k8sImportPath = "@k8s"
+crossplaneImportPath = "@crossplane.contrib"
+```
+running `pkl eval generate.pkl -m .` will generate a new Module that can be imported and referenced in the Composition.
+
+#### Create Managed Resources in Pkl
+Import Managed Resources and Preexisting CompositeResourceDefinitions to Pkl
+```bash
+pkl eval "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.7#/generate.pkl" \
+  -m . \
+  -p source="https://raw.githubusercontent.com/crossplane-contrib/provider-kubernetes/main/package/crds/kubernetes.crossplane.io_objects.yaml"
+```
+
+#### Create the Composition Function Logic
+The Function must amend CompositionResponse.pkl.
+
+This is a very minimal example. A more extensive one can be found in `pkl/crossplane.contrib.example`
+```pkl
+amends "crossplane.contrib/CompositionResponse.pkl"
+import "crds/Object.pkl"
+import "@k8s/api/core/v1/ConfigMap.pkl"
+
+desired {
+   resources {
+      ["example"] = new Resource {
+         resource = new Object {
+            metadata {
+               name = "example"
+            }
+            spec {
+               forProvider {
+                  manifest = new ConfigMap {
+                     metadata {
+                        name = "example"
+                        namespace = "crossplane-system"
+                     }
+                     data {
+                        ["hello"] = "world"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+```
+#### Create Composition
+TODO.
+
+
 
 ## Building a Pkl Package
 A Pkl Package can be built in the following steps:
@@ -59,7 +131,7 @@ A Pkl Package can be built in the following steps:
 
 ## Basic Pkl File
 Pkl Files used in this Function **must** amend CompositionRequest.pkl.
-see [here](example/inline/composition.yaml) and [here](pkl/crossplane-example/full.pkl)
+see [here](example/inline/composition.yaml) and [here](pkl/crossplane.contrib.example/full.pkl)
 
 ### Generating Pkl Files and Modules from Manifests
 There are some package to make it easier to convert existing CRDs or Manifests into the Pkl format.

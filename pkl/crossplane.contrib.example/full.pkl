@@ -1,13 +1,13 @@
-amends "@crossplane/CompositionResponse.pkl"
-import "@crossplane/Resource.pkl"
-import "@crossplane/Crossplane.pkl"
+amends "crossplane.contrib/CompositionResponse.pkl"
+import "crossplane.contrib/Resource.pkl"
+import "crossplane.contrib/crossplane.pkl"
 
 import "crds/XR.pkl"
 import "crds/Object.pkl"
 
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
-local request = new Crossplane {
+local request = new crossplane {
   customResourceTemplates = new {
     ["XR"] {
       ["example.crossplane.io/v1"] = XR

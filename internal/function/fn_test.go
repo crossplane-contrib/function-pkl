@@ -32,7 +32,7 @@ import (
 )
 
 var (
-	pklPackage = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19"
+	pklPackage = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0"
 )
 
 func TestRunFunction(t *testing.T) {
