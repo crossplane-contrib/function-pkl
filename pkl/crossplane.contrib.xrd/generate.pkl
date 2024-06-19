@@ -61,12 +61,16 @@ import "pkl:semver"
 
 import "internal/ModuleGenerator.pkl"
 import "CompositeResourceDefinition.pkl"
+import "pkl:platform"
+import "pkl:yaml"
+import "@uri/URI.pkl"
+import "@deepToTyped/deepToTyped.pkl"
 
 /// The version of the Pkl Kubernetes package to import.
 ///
 /// This property is not used if [k8sImportPath] is set directly.
 k8sVersion: String(semver.isValid(this)) = "1.0.1"
-crossplaneVersion: String(semver.isValid(this)) = "0.0.0"
+crossplaneVersion: String(semver.isValid(this)) = "1.0.0"
 
 /// The base path to use for the Kubernetes imports.
 ///
@@ -82,12 +86,37 @@ k8sImportPath: String = "package://pkg.pkl-lang.org/pkl-k8s/k8s@\(k8sVersion)#"
 
 crossplaneImportPath: String = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@\(crossplaneVersion)#"
 
+/// Where to find the CRDs; can be a URI (`https:`, `file:` etc), an absolute file path, or a relative file path
+source: String = read?("prop:source") ?? ""
+
+local sourceUri =
+  if (source.startsWith(Regex(#"\w+:"#))) source      // absolute URI
+  else if (source.startsWith("/")) "file://\(source)" // absolute file path
+  else                                                // relative file path
+    let (pwd = read("env:PWD"))
+      let (path =
+        if (platform.current.operatingSystem.name == "Windows") "/\(pwd)/\(source)".replaceAll("\\", "/")
+        else "\(pwd)/\(source)"
+      )
+        "file://\(URI.encode(path))"
+
+/// The CRD's source contents, as computed from [source].
+sourceContents: String|Resource = read(URI.encode(sourceUri))
+
 /// Whether to log out every path we find in each CRD to aid in setting converters.
 ///
 /// Default: `false`.
 logPaths: Boolean? = read?("prop:logPaths")?.toBoolean()
 
-crds: Listing<CompositeResourceDefinition>
+crds: Listing<CompositeResourceDefinition> =
+  let (parser = new yaml.Parser { useMapping = true })
+    new {
+      for (crd in parser.parseAll(sourceContents)) {
+        when (crd is Mapping && crd.getOrNull("kind") == CompositeResourceDefinition.kind) {
+          deepToTyped.apply(CompositeResourceDefinition.getClass(), crd) as CompositeResourceDefinition
+        }
+      }
+    }
 
 /// Type conversions when generating property types.
 ///
