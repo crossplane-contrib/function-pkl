@@ -16,6 +16,7 @@ package function
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
@@ -49,30 +50,51 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, nil
 	}
 
-	evaluator, err := f.EvaluatorManager.NewEvaluator(ctx,
-		pkl.PreconfiguredOptions,
-		reader.WithCrossplane(&reader.CrossplaneReader{
-			ReaderScheme: "crossplane",
-			Request: &helper.CompositionRequest{
-				RunFunctionRequest: *req,
-				ExtraResources:     req.GetExtraResources(),
-			},
-			Log: f.Log,
-			Ctx: ctx,
-		}),
-	)
-
-	if err != nil {
-		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluater"))
-		return rsp, nil
-	}
-	defer evaluator.Close()
-
 	moduleSource, err := getModuleSource(in.Spec)
 	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "invalid composition function input"))
 		return rsp, nil
 	}
+
+	var evaluator pkl.Evaluator
+
+	switch in.Spec.Type {
+	case "local":
+		evaluator, err = f.EvaluatorManager.NewProjectEvaluator(ctx, in.Spec.Local.ProjectDir,
+			pkl.PreconfiguredOptions,
+			reader.WithCrossplane(&reader.CrossplaneReader{
+				ReaderScheme: "crossplane",
+				Request: &helper.CompositionRequest{
+					RunFunctionRequest: req,
+					ExtraResources:     req.GetExtraResources(),
+				},
+				Log: f.Log,
+				Ctx: ctx,
+			}))
+	default:
+		evaluator, err = f.EvaluatorManager.NewEvaluator(ctx,
+			pkl.PreconfiguredOptions,
+			reader.WithCrossplane(&reader.CrossplaneReader{
+				ReaderScheme: "crossplane",
+				Request: &helper.CompositionRequest{
+					RunFunctionRequest: req,
+					ExtraResources:     req.GetExtraResources(),
+				},
+				Log: f.Log,
+				Ctx: ctx,
+			}))
+	}
+
+	if err != nil {
+		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluater"))
+		return rsp, nil
+	}
+	defer func(evaluator pkl.Evaluator) {
+		err := evaluator.Close()
+		if err != nil {
+			f.Log.Info("evaluator could not be closed correctly:", err)
+		}
+	}(evaluator)
 
 	renderedManifest, err := evaluator.EvaluateOutputText(ctx, moduleSource)
 	if err != nil {
@@ -80,23 +102,32 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, nil
 	}
 
-	helper := &helper.CompositionResponse{}
-	err = yaml.Unmarshal([]byte(renderedManifest), helper)
+	helperResponse := &helper.CompositionResponse{}
+	err = yaml.Unmarshal([]byte(renderedManifest), helperResponse)
 	if err != nil {
 		return nil, errors.Wrapf(err, "rendered Pkl file was not in expected format. did you amend @crossplane/CompositionResponse.pkl?")
 	}
 
 	fixedRequirements := &fnv1beta1.Requirements{
-		ExtraResources: convertExtraResources(helper.Requirements.ExtraResources),
+		ExtraResources: convertExtraResources(helperResponse.Requirements.ExtraResources),
+	}
+
+	responseMeta := &fnv1beta1.ResponseMeta{
+		Tag: req.GetMeta().GetTag(),
+		Ttl: durationpb.New(response.DefaultTTL),
 	}
 
 	// Note: consider not overwriting rsp and whether it makes a difference.
 	rsp = &fnv1beta1.RunFunctionResponse{
-		Meta:         helper.Meta,
-		Desired:      helper.Desired,
-		Results:      helper.Results,
-		Context:      helper.Context,
+		Meta:         responseMeta,
+		Desired:      helperResponse.Desired,
+		Results:      helperResponse.Results,
+		Context:      helperResponse.Context,
 		Requirements: fixedRequirements,
+	}
+
+	if ttl := helperResponse.GetMeta().GetTtl(); ttl != nil {
+		rsp.Meta.Ttl = ttl
 	}
 
 	return rsp, nil
@@ -138,6 +169,11 @@ func getModuleSource(pklSpec v1beta1.PklSpec) (*pkl.ModuleSource, error) {
 			return nil, errors.New("manifest type is inline but inline is empty")
 		}
 		return pkl.TextSource(pklSpec.Inline), nil
+	case "local":
+		if pklSpec.Local == nil {
+			return nil, errors.New("manifest type is file but uri is empty")
+		}
+		return pkl.FileSource(pklSpec.Local.File), nil
 	default:
 		return nil, errors.New("unknown pklSpec type")
 	}

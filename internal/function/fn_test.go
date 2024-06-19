@@ -16,6 +16,8 @@ package function
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/apple/pkl-go/pkl"
@@ -32,7 +34,9 @@ import (
 )
 
 var (
-	pklPackage = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0"
+	//pklPackage = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#"
+	workdir, _ = os.Getwd()
+	pklPackage = fmt.Sprintf("%s/../../pkl/crossplane.contrib.example", workdir)
 )
 
 func TestRunFunction(t *testing.T) {
@@ -59,8 +63,11 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
 					Input: resource.MustStructObject(&v1beta1.Pkl{
 						Spec: v1beta1.PklSpec{
-							Type: "uri",
-							Uri:  pklPackage + "#/full.pkl",
+							Type: "local",
+							Local: &v1beta1.Local{
+								ProjectDir: pklPackage,
+								File:       pklPackage + "/full.pkl",
+							},
 						},
 					}),
 					Context: resource.MustStructJSON(`{
@@ -175,7 +182,12 @@ func TestRunFunction(t *testing.T) {
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
 			evaluatorManager := pkl.NewEvaluatorManager()
-			defer evaluatorManager.Close()
+			defer func(evaluatorManager pkl.EvaluatorManager) {
+				err := evaluatorManager.Close()
+				if err != nil {
+					t.Error(err)
+				}
+			}(evaluatorManager)
 			f := &Function{Log: logging.NewNopLogger(), EvaluatorManager: evaluatorManager}
 			rsp, err := f.RunFunction(tc.args.ctx, tc.args.req)
 

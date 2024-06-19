@@ -43,10 +43,21 @@ spec:
               inline:
                 description: Contains a stringified Pkl file
                 type: string
+              local:
+                description: Reference to a Pklfile and Project
+                properties:
+                  file:
+                    description: Path to file relative from the Project Dir
+                    type: string
+                  projectDir:
+                    description: Path to the Project containing a Pklfile
+                    type: string
+                type: object
               type:
                 enum:
                 - uri
                 - inline
+                - local
                 type: string
               uri:
                 description: Use URI Scheme to load Project/Package

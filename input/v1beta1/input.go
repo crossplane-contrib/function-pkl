@@ -38,11 +38,22 @@ type Pkl struct {
 }
 
 type PklSpec struct {
-	// +kubebuilder:validation:Enum=uri;inline
+	// +kubebuilder:validation:Enum=uri;inline;local
 	Type string `json:"type,omitempty"`
 
 	// Use URI Scheme to load Project/Package
 	Uri string `json:"uri,omitempty"`
 	// Contains a stringified Pkl file
 	Inline string `json:"inline,omitempty"`
+
+	// Reference to a Pklfile and Project
+	Local *Local `json:"local,omitempty"`
+}
+
+// Local contains Reference to a Local Pkl Project and a Pkl file within it
+type Local struct {
+	// Path to file relative from the Project Dir
+	File string `json:"file,omitempty"`
+	// Path to the Project containing a Pklfile
+	ProjectDir string `json:"projectDir,omitempty"`
 }
