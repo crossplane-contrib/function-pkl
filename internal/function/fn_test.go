@@ -30,11 +30,9 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/resource"
-	//objectv1alpha2 "github.com/crossplane-contrib/provider-kubernetes/apis/object/v1alpha2"
 )
 
 var (
-	//pklPackage = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#"
 	workdir, _ = os.Getwd()
 	pklPackage = fmt.Sprintf("%s/../../pkl/crossplane.contrib.example", workdir)
 )

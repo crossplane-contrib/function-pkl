@@ -86,7 +86,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	}
 
 	if err != nil {
-		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluater"))
+		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluator"))
 		return rsp, nil
 	}
 	defer func(evaluator pkl.Evaluator) {
