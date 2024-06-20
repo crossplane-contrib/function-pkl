@@ -16,18 +16,20 @@ package function
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
-	"github.com/crossplane-contrib/function-pkl/internal/helper"
-	"github.com/crossplane-contrib/function-pkl/internal/pkl/reader"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"sigs.k8s.io/yaml"
+
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
-	"sigs.k8s.io/yaml"
+
+	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
+	"github.com/crossplane-contrib/function-pkl/internal/helper"
+	"github.com/crossplane-contrib/function-pkl/internal/pkl/reader"
 )
 
 // Function returns whatever response you ask it to.

@@ -20,9 +20,11 @@ import (
 	"net/url"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/crossplane-contrib/function-pkl/internal/helper"
-	"github.com/crossplane/function-sdk-go/logging"
 	"sigs.k8s.io/yaml"
+
+	"github.com/crossplane/function-sdk-go/logging"
+
+	"github.com/crossplane-contrib/function-pkl/internal/helper"
 )
 
 type CrossplaneReader struct {
