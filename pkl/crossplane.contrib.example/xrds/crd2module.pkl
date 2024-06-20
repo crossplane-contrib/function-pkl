@@ -1,0 +1,16 @@
+amends "@k8s.contrib.crd/generate.pkl"
+
+import "@k8s/K8sResource.pkl"
+
+source = "https://raw.githubusercontent.com/crossplane-contrib/provider-kubernetes/main/package/crds/kubernetes.crossplane.io_objects.yaml"
+
+// These Converters Provide Type Safety on the Object resource. Without them manifest would be of type "Dynamic"
+converters {
+  ["objects.kubernetes.crossplane.io"] {
+    [List("spec", "forProvider", "manifest")] = K8sResource
+    [List("status", "atProvider", "manifest")] = K8sResource
+  }
+}
+
+// The Package references to be used within the new Module
+k8sImportPath = "@k8s" // package://pkg.pkl-lang.org/pkl-k8s/k8s@<version>#

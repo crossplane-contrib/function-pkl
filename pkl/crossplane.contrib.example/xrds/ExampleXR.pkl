@@ -23,6 +23,14 @@ spec {
               type = "object"
               properties {}
             }
+            ["status"] {
+              type = "object"
+              properties {
+                ["someStatus"] {
+                  type = "string"
+                }
+              }
+            }
           }
         }
       }

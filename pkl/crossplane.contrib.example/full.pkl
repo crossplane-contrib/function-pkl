@@ -18,7 +18,7 @@ local request = new crossplane {
   }
 }.Request
 
-local observedCompositeResource: XR = request.observed.composite.resource as XR
+local observedCompositeResource: XR? = request.observed.composite.resource as XR?
 local extraResource: Object? = request.getExtraResource("ineed", 0)?.resource as Object?
 
 requirements {
@@ -62,14 +62,13 @@ desired {
           }
         }
       }
-      ready = Ready_READY_TRUE
+      ready = READY_TRUE
     }
-
   }
 }
 results {
   new {
-    severity = Severity_SEVERITY_NORMAL
+    severity = SEVERITY_NORMAL
     message = "welcome"
   }
 }

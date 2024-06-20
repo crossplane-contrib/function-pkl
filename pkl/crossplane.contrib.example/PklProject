@@ -38,4 +38,7 @@ dependencies {
   ["k8s"] {
     uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
   }
+  ["k8s.contrib.crd"] {
+    uri = "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.7"
+  }
 }
