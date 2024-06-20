@@ -142,7 +142,7 @@ func convertExtraResources(extraResources map[string]*helper.ResourceSelector) m
 			ApiVersion: fixedrs.APIVersion,
 			Kind:       fixedrs.Kind,
 		}
-		if fixedrs.Match.MatchLabels != nil && len(fixedrs.Match.MatchLabels.Labels) > 0 {
+		if fixedrs.Match.MatchLabels != nil && len(fixedrs.Match.MatchLabels.GetLabels()) > 0 {
 			rs.Match = &fnv1beta1.ResourceSelector_MatchLabels{
 				MatchLabels: &fnv1beta1.MatchLabels{
 					Labels: fixedrs.Match.MatchLabels.GetLabels(),
