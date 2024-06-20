@@ -32,7 +32,7 @@ type CompositionResponse struct {
 
 // Requirements is a drop-in for the version provided by fnv1beta1
 type Requirements struct {
-	//fnv1beta1.Requirements
+	// fnv1beta1.Requirements
 
 	ExtraResources map[string]*ResourceSelector `protobuf:"bytes,1,rep,name=extra_resources,json=extraResources,proto3" json:"extraResources,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
