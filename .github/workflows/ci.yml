@@ -64,6 +64,11 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
+      - name: Install pkl
+        uses: pkl-community/setup-pkl@v0
+        with:
+          pkl-version: 0.26.0
+
       - name: Run Unit Tests
         run: go test -v -cover ./...
 
