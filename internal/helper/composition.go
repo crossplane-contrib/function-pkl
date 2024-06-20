@@ -12,6 +12,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package helper contains hacky alternative implementations of resources that would otherwise not be able to be converted to yaml
 package helper
 
 import fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
