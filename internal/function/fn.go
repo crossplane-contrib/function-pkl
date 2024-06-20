@@ -92,8 +92,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, nil
 	}
 	defer func(evaluator pkl.Evaluator) {
-		err := evaluator.Close()
-		if err != nil {
+		if err := evaluator.Close(); err != nil {
 			f.Log.Info("evaluator could not be closed correctly:", err)
 		}
 	}(evaluator)
@@ -139,7 +138,7 @@ func convertExtraResources(extraResources map[string]*helper.ResourceSelector) m
 	out := make(map[string]*fnv1beta1.ResourceSelector)
 	for name, fixedrs := range extraResources {
 		rs := &fnv1beta1.ResourceSelector{
-			ApiVersion: fixedrs.ApiVersion,
+			ApiVersion: fixedrs.APIVersion,
 			Kind:       fixedrs.Kind,
 		}
 		if fixedrs.Match.MatchLabels != nil && len(fixedrs.Match.MatchLabels.Labels) > 0 {
@@ -161,10 +160,10 @@ func convertExtraResources(extraResources map[string]*helper.ResourceSelector) m
 func getModuleSource(pklSpec v1beta1.PklSpec) (*pkl.ModuleSource, error) {
 	switch pklSpec.Type {
 	case "uri":
-		if pklSpec.Uri == "" {
+		if pklSpec.URI == "" {
 			return nil, errors.New("manifest type is uri but uri is empty")
 		}
-		return pkl.UriSource(pklSpec.Uri), nil
+		return pkl.UriSource(pklSpec.URI), nil
 
 	case "inline":
 		if pklSpec.Inline == "" {

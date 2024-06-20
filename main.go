@@ -22,7 +22,6 @@ import (
 	"github.com/crossplane/function-sdk-go"
 
 	fn "github.com/crossplane-contrib/function-pkl/internal/function"
-	"github.com/crossplane-contrib/function-pkl/internal/pkl/reader"
 )
 
 // CLI of this Function.
@@ -43,8 +42,11 @@ func (c *CLI) Run() error {
 	}
 
 	evaluatorManager := pkl.NewEvaluatorManager()
-	defer evaluatorManager.Close()
-	defer reader.Close()
+	defer func(evaluatorManager pkl.EvaluatorManager) {
+		if err := evaluatorManager.Close(); err != nil {
+			log.Info("error closing evaluatorManager", err)
+		}
+	}(evaluatorManager)
 
 	return function.Serve(&fn.Function{Log: log, EvaluatorManager: evaluatorManager},
 		function.Listen(c.Network, c.Address),

@@ -27,6 +27,7 @@ import (
 	"github.com/crossplane-contrib/function-pkl/internal/helper"
 )
 
+// CrossplaneReader implements the "crossplane" scheme
 type CrossplaneReader struct {
 	Request      *helper.CompositionRequest
 	ReaderScheme string
@@ -34,14 +35,17 @@ type CrossplaneReader struct {
 	Ctx          context.Context
 }
 
+// Scheme implements the https://pkg.go.dev/github.com/apple/pkl-go/pkl#Reader interface
 func (f *CrossplaneReader) Scheme() string {
 	return f.ReaderScheme
 }
 
+// IsGlobbable implements https://pkg.go.dev/github.com/apple/pkl-go/pkl#Reader
 func (f *CrossplaneReader) IsGlobbable() bool {
 	return false
 }
 
+// HasHierarchicalUris implements https://pkg.go.dev/github.com/apple/pkl-go/pkl#Reader
 func (f *CrossplaneReader) HasHierarchicalUris() bool {
 	return false
 }
@@ -64,17 +68,12 @@ type crossplaneModuleReader struct {
 	*CrossplaneReader
 }
 
+// IsLocal implements https://pkg.go.dev/github.com/apple/pkl-go/pkl#ModuleReader
 func (f crossplaneModuleReader) IsLocal() bool {
 	return true
 }
 
-var evaluatorManager pkl.EvaluatorManager = pkl.NewEvaluatorManager()
-
-// TODO find better solution
-func Close() error {
-	return evaluatorManager.Close()
-}
-
+// WithCrossplane activates the CrossplaneReader for the Evaluator
 var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.EvaluatorOptions) {
 	return func(opts *pkl.EvaluatorOptions) {
 		reader := crossplaneReader
@@ -83,6 +82,7 @@ var WithCrossplane = func(crossplaneReader *CrossplaneReader) func(opts *pkl.Eva
 	}
 }
 
+// BaseRead contains the business logic of what happens when the scheme gets a request
 func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	switch url.Opaque {
 	case "request":
@@ -98,7 +98,7 @@ func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 	}
 }
 
-// Expects an URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file
+// Read Expects a URL like /observed/composition/resource and evaluates the RunFunctionRequest for the state of the desired field and returns it as a pkl file
 func (f crossplaneModuleReader) Read(url url.URL) (string, error) {
 	out, err := f.BaseRead(url)
 	if err != nil {
@@ -113,6 +113,7 @@ type crossplaneResourceReader struct {
 	*CrossplaneReader
 }
 
+// Read implements https://pkg.go.dev/github.com/apple/pkl-go/pkl#ResourceReader
 func (f crossplaneResourceReader) Read(url url.URL) ([]byte, error) {
 	out, err := f.BaseRead(url)
 	if err != nil {

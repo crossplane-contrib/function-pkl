@@ -182,8 +182,7 @@ func TestRunFunction(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			evaluatorManager := pkl.NewEvaluatorManager()
 			defer func(evaluatorManager pkl.EvaluatorManager) {
-				err := evaluatorManager.Close()
-				if err != nil {
+				if err := evaluatorManager.Close(); err != nil {
 					t.Error(err)
 				}
 			}(evaluatorManager)

@@ -18,10 +18,12 @@ import (
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 )
 
+// ExtraResourceSelectors allows selecting resources
 type ExtraResourceSelectors struct {
 	ExtraResources map[string]*ExtraResourceSelector `json:"extraResourceSelectors,omitempty"`
 }
 
+// ToResourceSelectors converts this to the upstream format
 func (e *ExtraResourceSelectors) ToResourceSelectors() map[string]*fnv1beta1.ResourceSelector {
 	out := map[string]*fnv1beta1.ResourceSelector{}
 	for name, extraResourceSelector := range e.ExtraResources {
@@ -30,16 +32,18 @@ func (e *ExtraResourceSelectors) ToResourceSelectors() map[string]*fnv1beta1.Res
 	return out
 }
 
+// ExtraResourceSelector allows setting a selector to lookup ExtraResources
 type ExtraResourceSelector struct {
-	ApiVersion  string            `json:"apiVersion"`
+	APIVersion  string            `json:"apiVersion"`
 	Kind        string            `json:"kind"`
 	MatchLabels map[string]string `json:"matchLabels,omitempty"`
 	Name        string            `json:"name,omitempty"`
 }
 
+// ToResourceSelector converts this to the upstream format
 func (e *ExtraResourceSelector) ToResourceSelector() *fnv1beta1.ResourceSelector {
 	out := &fnv1beta1.ResourceSelector{
-		ApiVersion: e.ApiVersion,
+		ApiVersion: e.APIVersion,
 		Kind:       e.Kind,
 	}
 	if len(e.MatchLabels) == 0 {
