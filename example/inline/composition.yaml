@@ -18,12 +18,12 @@ spec:
         type: inline
         # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
         inline: |
-          amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@0.0.29#/CompositionResponse.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@0.0.29#/Resource.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@0.0.29#/Crossplane.pkl"
+          amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@1.0.0#/CompositionResponse.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@1.0.0#/Resource.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@1.0.0#/Crossplane.pkl"
 
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19#/crds/XR.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19#/crds/Object.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/crds/XR.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/crds/Object.pkl"
 
           import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 

@@ -1,0 +1,12 @@
+amends "@crossplane.contrib.xrd/generate.pkl"
+// To convert from a Yaml file uncomment the following section
+// source = "xrds/examplexr.yaml"
+
+// To convert from a Pkl file uncomment the following section
+crds {
+  import("ExampleXR.pkl")
+}
+
+// The Package references to be used within the new Module
+k8sImportPath = "@k8s" // package://pkg.pkl-lang.org/pkl-k8s/k8s@<version>#
+crossplaneImportPath = "@crossplane.contrib" // package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@<version>#

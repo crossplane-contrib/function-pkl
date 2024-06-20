@@ -18,24 +18,21 @@
 amends "pkl:Project"
 
 package {
-  name = "crossplane-example"
+  name = "crossplane.contrib"
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
-  version = "0.1.19"
+  version = "1.0.0"
   baseUri = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/\(name)"
   packageZipUrl = "https://github.com/crossplane-contrib/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
   sourceCode = "https://github.com/crossplane-contrib/function-pkl"
   license = "Apache-2.0"
   description = """
-    Example for using the [Composition Functions](https://docs.crossplane.io/latest/concepts/composition-functions/).
+    Templates for reading and configuring [Composition Functions](https://docs.crossplane.io/latest/concepts/composition-functions/).
     """
 }
 dependencies {
   ["k8s"] {
     uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
-  }
-  ["crossplane"] {
-    uri = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@0.0.29"
   }
 }

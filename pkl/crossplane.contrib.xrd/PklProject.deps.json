@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "resolvedDependencies": {
+    "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.deepToTyped@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.deepToTyped@1.0.2",
+      "checksums": {
+        "sha256": "0746fe618d59187b15ca3e589caf359a285c74efadd8c796da86aaa08202d542"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/org.json_schema.contrib@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/org.json_schema.contrib@1.0.8",
+      "checksums": {
+        "sha256": "b76f2ea3fd7252b7d6ec4ac7331dea197b4ce9846adc86c3853c13c48b358d13"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.syntax@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.syntax@1.0.2",
+      "checksums": {
+        "sha256": "83ad123a9de2e1e559dbf72370ec8d0353b8d017f37823cdd4ab71f0ce04eb18"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.uri@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.uri@1.0.3",
+      "checksums": {
+        "sha256": "0b1db5755fa0c7651d5c62e0d5ef8a9ed4ed6411fe31769d06714600162e1589"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/org.json_schema@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/org.json_schema@1.0.4",
+      "checksums": {
+        "sha256": "7a11e61df5248c81b9256cae11ae333c13aa5a05101aff1d7b26d7a2e825df96"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-k8s/k8s@1": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1",
+      "checksums": {
+        "sha256": "75c6d66d94c335417a3c502e107aaeadf7a60b4e1d34b2c979afe11193205a1a"
+      }
+    },
+    "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.1.1",
+      "checksums": {
+        "sha256": "a3ce491d0e504c14d456d599f988bbb4a2b77915696450dfd65b8e4cef7c9522"
+      }
+    },
+    "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1": {
+      "type": "local",
+      "uri": "projectpackage://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0",
+      "path": "../crossplane.contrib"
+    }
+  }
+}

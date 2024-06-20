@@ -35,61 +35,14 @@ spec:
       spec:
         type: uri
         # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
-        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.1.19#/full.pkl"
+        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/full.pkl"
 ```
 
 ### Example
 see [examples](./example/)
 
-## Building a Pkl Package
-A Pkl Package can be built in the following steps:
-1. Create Pkl files in a directory
-    > Note: you can [convert CRDs and Manifests](#generating-pkl-files-and-modules-from-manifests) to Pkl
-1. Create a PklProject file (take a look at pkl/crossplane-example/PklProject for reference)
-    * Make sure that `\(baseUri)@\(version)` is the url where the package metadata can be downloaded from
-    * Likewise `\(baseUri)@\(version).zip` is the path where the content will be expected.
-    > Note: The PklProjects in this repository use pkg.pkl-lang.org, as they redirect to the download
-        * the path https://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@x.y.z
-        * redirects to https://github.com/crossplane-contrib/function-pkl/releases/download/crossplane@x.y.z/crossplane@x.y.z
-1. Run `pkl project resolve` to resolve the dependencies of the PklProject
-1. Run `pkl project package` to package the Project into the files and make them ready for the upload.
-1. Publish the Package
-    * This can be done by uploading the files created by the previous command to the place defined in step 2.
-    * in github this can be done by creating a release and uploading the files to it.
-
-## Basic Pkl File
-Pkl Files used in this Function **must** amend CompositionRequest.pkl.
-see [here](example/inline/composition.yaml) and [here](pkl/crossplane-example/full.pkl)
-
-### Generating Pkl Files and Modules from Manifests
-There are some package to make it easier to convert existing CRDs or Manifests into the Pkl format.
-> [!NOTE]
-> There is currently no module to convert from CompositeResourceDefinitions (XRDs) to Pkl.
-> Crossplane Creates CRDs from the XRDs. These CRDs can be converted instead.
-> If direct conversion would be useful to you - please create an issue.
-
-In this example we'll implement the [Object][provider-kubernetes-object] resource from [provider-kubernetes][provider-kubernetes].
-
-1. First we will generate a Pkl Module from the Object CRD.
-   ```bash
-   pkl eval "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.4#/generate.pkl" -m . -p source="https://raw.githubusercontent.com/crossplane-contrib/provider-kubernetes/main/package/crds/kubernetes.crossplane.io_objects.yaml"
-   ```
-   This should create a `Object.pkl` file.
-
-1. Create a small Pkl file which adds context for the converter about the CRDs.
-   ```pkl
-   amends "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib@1.0.1#/convert.pkl"
-   customResourceTemplates {
-     ["Object"] {
-       ["kubernetes.crossplane.io/v1alpha2"] = import("Object.pkl")
-     }
-   }
-   ```
-
-1. Convert a object manifest to pkl
-   ```bash
-   pkl eval -p "input=https://raw.githubusercontent.com/crossplane-contrib/provider-kubernetes/main/examples/object/object.yaml" -o example-object.pkl <CONVERT-FILE-FROM-PREVIOUS-STEP>.pkl
-   ```
+## Creating a new Composition Function
+see [pkl/crossplane.contrib.example/README.md](pkl/crossplane.contrib.example/README.md)
 
 ## Development
 This function uses [Go][go], [Docker][docker], the [Crossplane CLI][cli], and the [Pkl CLI][pkl cli] to build functions

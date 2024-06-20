@@ -17,7 +17,7 @@ package helper
 import fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 
 type CompositionRequest struct {
-	fnv1beta1.RunFunctionRequest
+	*fnv1beta1.RunFunctionRequest
 
 	ExtraResources map[string]*fnv1beta1.Resources `protobuf:"bytes,6,rep,name=extra_resources,json=extraResources,proto3" json:"extraResources,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }

@@ -1,7 +1,7 @@
 /// A Object is an provider Kubernetes API type
 ///
 /// This module was generated from the CustomResourceDefinition at
-/// <https://raw.githubusercontent.com/crossplane-contrib/provider-kubernetes/v0.13.0/package/crds/kubernetes.crossplane.io_objects.yaml>.
+/// <https://raw.githubusercontent.com/crossplane-contrib/provider-kubernetes/main/package/crds/kubernetes.crossplane.io_objects.yaml>.
 module io.crossplane.kubernetes.v1alpha2.Object
 
 extends "@k8s/K8sResource.pkl"
@@ -71,6 +71,14 @@ class Spec {
   readiness: Readiness?
 
   references: Listing<Reference>?
+
+  /// Watch enables watching the referenced or managed kubernetes resources.
+  ///
+  /// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored unless "watches" feature
+  /// gate is enabled, and may be changed or removed without notice.
+  ///
+  /// Default if undefined: `false`
+  watch: Boolean?
 
   /// WriteConnectionSecretToReference specifies the namespace and name of a Secret to which any
   /// connection details for this managed resource should be written. Connection details frequently
@@ -197,10 +205,19 @@ class Metadata {
 /// Readiness defines how the object's readiness condition should be computed, if not specified it will
 /// be considered ready as soon as the underlying external resource is considered up-to-date.
 class Readiness {
+  /// CelQuery defines a cel query to evaluate the readiness. The observed object is passed to the cel
+  /// query with the word `object`. Cel macros are available to be used, see
+  /// https://github.com/google/cel-spec/blob/master/doc/langdef.md#macros for more information.
+  /// Examples: `object.status.isReady == true`: checks for a boolean field called isReady on status.
+  /// `object.status.conditions.all(x, x.status == "True")` mimics the behavior of the AllTrue readiness
+  /// policy `object.status.conditions.exists(c, c.type == "condition1" && c.status == "True" )` checks
+  /// just one condition
+  celQuery: String?
+
   /// Policy defines how the Object's readiness condition should be computed.
   ///
   /// Default if undefined: `"SuccessfulCreate"`
-  policy: ("SuccessfulCreate"|"DeriveFromObject"|"AllTrue")?
+  policy: ("SuccessfulCreate"|"DeriveFromObject"|"AllTrue"|"DeriveFromCelQuery")?
 }
 
 /// Reference refers to an Object or arbitrary Kubernetes resource and optionally patch values from that
@@ -280,6 +297,10 @@ class Status {
 
   /// Conditions of the resource.
   conditions: Listing<Condition>?
+
+  /// ObservedGeneration is the latest metadata.generation which resulted in either a ready state, or
+  /// stalled due to error it can not recover from without human intervention.
+  observedGeneration: Int?
 }
 
 /// ObjectObservation are the observable fields of a Object.
@@ -296,6 +317,11 @@ class Condition {
   /// A Message containing details about this condition's last transition from one status to another, if
   /// any.
   message: String?
+
+  /// ObservedGeneration represents the .metadata.generation that the condition was set based upon. For
+  /// instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration
+  /// is 9, the condition is out of date with respect to the current state of the instance.
+  observedGeneration: Int?
 
   /// A Reason for this condition's last transition from one status to another.
   reason: String
