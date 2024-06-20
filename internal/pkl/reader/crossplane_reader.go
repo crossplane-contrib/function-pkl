@@ -51,7 +51,7 @@ func (f *CrossplaneReader) HasHierarchicalUris() bool {
 // available values.
 //
 // This method is only called if it is hierarchical and local, or if it is globbable.
-func (f *CrossplaneReader) ListElements(url url.URL) ([]pkl.PathElement, error) {
+func (f *CrossplaneReader) ListElements(_ url.URL) ([]pkl.PathElement, error) {
 	out := []pkl.PathElement{
 		pkl.NewPathElement("request", false),
 	}
