@@ -4,37 +4,68 @@ module CompositionResponse
 import "Resource.pkl"
 // import "pkl:protobuf"
 
+/// Metadata pertaining to this response.
 meta: ResponseMeta?
 
+/// Desired state according to a Function pipeline. Functions may add desired
+/// state, and may mutate or delete any part of the desired state they are
+/// concerned with. A Function must pass through any part of the desired state
+/// that it is not concerned with.
+///
+/// Note that the desired state must be a partial object with only the fields
+/// that this function (and its predecessors in the pipeline) wants to have
+/// set in the object. Copying a non-partial observed state to desired is most
+/// likely not what you want to do. Leaving out fields that had been returned
+/// as desired before will result in them being deleted from the objects in the
+/// cluster.
 desired: State?
 
+/// Results of the Function run. Results are used for observability purposes.
 results: Listing<Result?>
 
+/// Optional context to be passed to the next Function in the pipeline as part
+/// of the RunFunctionRequest. Dropped on the last function in the pipeline.
 context: Mapping<String, Any>?
 
+/// Requirements that must be satisfied for this Function to run successfully.
 requirements: Requirements?
 
 class ResponseMeta {
+
+  /// Time-to-live of this response. Deterministic Functions with no side-effects
+  /// (e.g. simple templating Functions) may specify a TTL. Crossplane may choose
+  /// to cache responses until the TTL expires.
   ttl: Duration
 }
 
+/// A Result of running a Function.
 class Result {
+  /// Severity of this result.
   severity: Severity
+
+  /// Human-readable details about the result.
   message: String
 
-  hidden const Severity_SEVERITY_UNSPECIFIED: Severity = 0
-  hidden const Severity_SEVERITY_FATAL: Severity = 1
-  hidden const Severity_SEVERITY_WARNING: Severity = 2
-  hidden const Severity_SEVERITY_NORMAL: Severity = 3
+  hidden const SEVERITY_UNSPECIFIED: Severity = 0
+  hidden const SEVERITY_FATAL: Severity = 1
+  hidden const SEVERITY_WARNING: Severity = 2
+  hidden const SEVERITY_NORMAL: Severity = 3
 }
 typealias Severity = Int(isBetween(0,3))
 
 class State {
+  /// The state of the composite resource (XR).
   composite: Resource
+
+  /// The state of any composed resources.
   resources: Mapping<String, Resource>
 }
 
+/// Requirements that must be satisfied for a Function to run successfully.
 class Requirements {
+
+  // Extra resources that this Function requires.
+  // The map key uniquely identifies the group of resources.
   extraResources: Mapping<String, ResourceSelector?>
 }
 class ResourceSelector {
