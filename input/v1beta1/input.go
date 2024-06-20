@@ -25,7 +25,7 @@ import (
 // This isn't a custom resource, in the sense that we never install its CRD.
 // It is a KRM-like object, so we generate a CRD to describe its schema.
 
-// Input can be used to provide input to this Function.
+// Pkl struct can be used to provide input to this Function.
 // +kubebuilder:object:root=true
 // +kubebuilder:storageversion
 // +kubebuilder:resource:categories=crossplane
@@ -37,12 +37,13 @@ type Pkl struct {
 	Spec PklSpec `json:"spec,omitempty"`
 }
 
+// PklSpec specifies references for the function
 type PklSpec struct {
 	// +kubebuilder:validation:Enum=uri;inline;local
 	Type string `json:"type,omitempty"`
 
 	// Use URI Scheme to load Project/Package
-	Uri string `json:"uri,omitempty"`
+	URI string `json:"uri,omitempty"`
 	// Contains a stringified Pkl file
 	Inline string `json:"inline,omitempty"`
 

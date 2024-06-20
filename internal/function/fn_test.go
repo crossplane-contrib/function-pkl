@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -30,6 +29,8 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/resource"
+
+	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
 )
 
 var (
@@ -181,8 +182,7 @@ func TestRunFunction(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			evaluatorManager := pkl.NewEvaluatorManager()
 			defer func(evaluatorManager pkl.EvaluatorManager) {
-				err := evaluatorManager.Close()
-				if err != nil {
+				if err := evaluatorManager.Close(); err != nil {
 					t.Error(err)
 				}
 			}(evaluatorManager)

@@ -12,22 +12,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package function package handles the gRPC calls
 package function
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/apple/pkl-go/pkl"
-	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
-	"github.com/crossplane-contrib/function-pkl/internal/helper"
-	"github.com/crossplane-contrib/function-pkl/internal/pkl/reader"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"sigs.k8s.io/yaml"
+
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
 	"github.com/crossplane/function-sdk-go/request"
 	"github.com/crossplane/function-sdk-go/response"
-	"sigs.k8s.io/yaml"
+
+	"github.com/crossplane-contrib/function-pkl/input/v1beta1"
+	"github.com/crossplane-contrib/function-pkl/internal/helper"
+	"github.com/crossplane-contrib/function-pkl/internal/pkl/reader"
 )
 
 // Function returns whatever response you ask it to.
@@ -90,8 +93,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, nil
 	}
 	defer func(evaluator pkl.Evaluator) {
-		err := evaluator.Close()
-		if err != nil {
+		if err := evaluator.Close(); err != nil {
 			f.Log.Info("evaluator could not be closed correctly:", err)
 		}
 	}(evaluator)
@@ -137,10 +139,10 @@ func convertExtraResources(extraResources map[string]*helper.ResourceSelector) m
 	out := make(map[string]*fnv1beta1.ResourceSelector)
 	for name, fixedrs := range extraResources {
 		rs := &fnv1beta1.ResourceSelector{
-			ApiVersion: fixedrs.ApiVersion,
+			ApiVersion: fixedrs.APIVersion,
 			Kind:       fixedrs.Kind,
 		}
-		if fixedrs.Match.MatchLabels != nil && len(fixedrs.Match.MatchLabels.Labels) > 0 {
+		if fixedrs.Match.MatchLabels != nil && len(fixedrs.Match.MatchLabels.GetLabels()) > 0 {
 			rs.Match = &fnv1beta1.ResourceSelector_MatchLabels{
 				MatchLabels: &fnv1beta1.MatchLabels{
 					Labels: fixedrs.Match.MatchLabels.GetLabels(),
@@ -159,10 +161,10 @@ func convertExtraResources(extraResources map[string]*helper.ResourceSelector) m
 func getModuleSource(pklSpec v1beta1.PklSpec) (*pkl.ModuleSource, error) {
 	switch pklSpec.Type {
 	case "uri":
-		if pklSpec.Uri == "" {
+		if pklSpec.URI == "" {
 			return nil, errors.New("manifest type is uri but uri is empty")
 		}
-		return pkl.UriSource(pklSpec.Uri), nil
+		return pkl.UriSource(pklSpec.URI), nil
 
 	case "inline":
 		if pklSpec.Inline == "" {

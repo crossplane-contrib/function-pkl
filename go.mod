@@ -1,8 +1,6 @@
 module github.com/crossplane-contrib/function-pkl
 
-go 1.22.1
-
-toolchain go1.22.3
+go 1.22.4
 
 require (
 	github.com/alecthomas/kong v0.9.0
