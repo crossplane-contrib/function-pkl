@@ -1,9 +1,6 @@
 REPO =? github.com/crossplane-contrib/function-pkl
 CONTAINER_IMAGE =? ghcr.io/crossplane-contrib/function-pkl
 
-# Branch used for Pkl Package Releases
-BRANCH =? $(shell git branch --show-current)
-
 .PHONY: pkl-resolve
 pkl-resolve:
 	pkl project resolve ./pkl/*/
@@ -23,7 +20,7 @@ pkl-release: check-tag pkl-resolve
 	gh release create ${TAG} \
 	-t ${TAG} \
 	-n "" \
-	--target ${BRANCH} \
+	--target ${TAG} \
 	--prerelease \
 	--draft \
 	$(RELEASE_FILES)
