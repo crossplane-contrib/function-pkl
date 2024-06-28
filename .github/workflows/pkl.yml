@@ -9,7 +9,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Setup Pkl
-        uses: pkl-community/setup-pkl@v0.0.1
+        uses: pkl-community/setup-pkl@v0
+        with:
+          pkl-version: 0.26.1
       - name: Login to GH
         run: echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
       - name: Package and Create GitHub Release
