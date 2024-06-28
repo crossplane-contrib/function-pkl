@@ -16,6 +16,8 @@ jobs:
           pkl-version: 0.26.1
       - name: Login to GH
         run: echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+      - name: Get Tag Name
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Package and Create GitHub Release
         id: create_package
-        run: make pkl-release
+        run: make pkl-release TAG=$TAG_NAME

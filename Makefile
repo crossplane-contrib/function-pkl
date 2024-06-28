@@ -8,9 +8,12 @@ BRANCH =? $(shell git branch --show-current)
 pkl-resolve:
 	pkl project resolve ./pkl/*/
 
+.PHONY: check-tag
+check-tag:
+	@[ "${TAG}" ] || (echo "TAG is not specified" && exit 1)
+
 .PHONY: pkl-release
-pkl-release:
-	@[ "${TAG}" ] || (error TAG is not specified && exit 1)
+pkl-release: check-tag pkl-resolve
 	$(eval RELEASE_FILES := $(shell pkl project package ./pkl/*/ | grep ${TAG}))
 	@if [ -z "$(RELEASE_FILES)" ]; then \
 		echo "No release files found for tag ${TAG}."; \
