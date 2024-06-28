@@ -1,0 +1,17 @@
+name: "Pkl"
+on:
+  push:
+    tags:
+      - 'crossplane.contrib*.*.*'
+
+jobs:
+  pkl:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Setup Pkl
+        uses: pkl-community/setup-pkl@v0.0.1
+      - name: Login to GH
+        run: echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+      - name: Package and Create GitHub Release
+        id: create_package
+        run: make pkl-release
