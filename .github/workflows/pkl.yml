@@ -8,6 +8,8 @@ jobs:
   pkl:
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
       - name: Setup Pkl
         uses: pkl-community/setup-pkl@v0
         with:
