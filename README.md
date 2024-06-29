@@ -40,9 +40,9 @@ spec:
 
 ### Example
 see [examples](./example/)
-
+and see [pkl/crossplane.contrib.example/DEPLOY.md](pkl/crossplane.contrib.example/DEPLOY.md) on instructions how to deploy it.
 ## Creating a new Composition Function
-see [pkl/crossplane.contrib.example/README.md](pkl/crossplane.contrib.example/README.md)
+see [pkl/crossplane.contrib.example/DEVELOP.md](pkl/crossplane.contrib.example/DEVELOP.md)
 
 ## Development
 This function uses [Go][go], [Docker][docker], the [Crossplane CLI][cli], and the [Pkl CLI][pkl cli] to build functions
