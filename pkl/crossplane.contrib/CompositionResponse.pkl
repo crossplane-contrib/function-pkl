@@ -41,7 +41,7 @@ class ResponseMeta {
 /// A Result of running a Function.
 class Result {
   /// Severity of this result.
-  severity: Severity
+  severity: Severity = SEVERITY_UNSPECIFIED
 
   /// Human-readable details about the result.
   message: String
