@@ -16,14 +16,14 @@ spec:
       kind: Pkl
       spec:
         type: inline
-        # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
+        # This pkl file is at `pkl/crossplane.contrib.example/full.pkl` in this repo
         inline: |
-          amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@1.0.0#/CompositionResponse.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@1.0.0#/Resource.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane@1.0.0#/Crossplane.pkl"
+          amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0#/CompositionResponse.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0#/Resource.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0#/Crossplane.pkl"
 
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/crds/XR.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/crds/Object.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@1.0.0#/crds/XR.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@1.0.0#/crds/Object.pkl"
 
           import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
 
@@ -101,6 +101,5 @@ spec:
           }
 
           meta = if (request.meta != null) new ResponseMeta {
-            tag = request.meta.tag
             ttl = 60.s
           } else null
