@@ -77,3 +77,28 @@ context {
 meta = if (request.meta != null) new {
   ttl = 60.s
 } else null
+
+local observedObj: Object? = request.observed.resources.getOrNull("cm-one").resource as Object?
+local observedObjSyncedCondition: Object.Condition? = observedObj.ifNonNull(
+  (obj: Object) -> obj.status.conditions.toList().findOrNull(
+    (cond: Object.Condition) -> cond.type == "Synced"
+  )
+)
+
+conditions {
+  if (observedObjSyncedCondition != null && observedObjSyncedCondition.message.contains("connect failed: cannot get provider config"))
+    new {
+      target = TARGET_COMPOSITE_AND_CLAIM
+      status = STATUS_CONDITION_FALSE
+      message = "The ProviderConfig 'default' is missing"
+      reason = "ProviderConfig"
+      type = "Healthy"
+    }
+  else
+    new {
+      target = TARGET_COMPOSITE_AND_CLAIM
+      status = STATUS_CONDITION_TRUE
+      reason = "TestsPassed"
+      type = "Healthy"
+    }
+}
