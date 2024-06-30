@@ -64,15 +64,25 @@ $ crossplane xpkg build -f package --embed-runtime-image=runtime
 $ crossplane xpkg push -f function-pkl*.xpkg ghcr.io/crossplane-contrib/function-pkl
 
 # Resolve Pkl Project Dependencies
-$ pkl project resolve
+$ pkl project resolve ./pkl/*/
 
 # Package the Pkl Project
-$ pkl project package
+$ pkl project package ./pkl/*/
 
 # Debugging this function
 # While a Debugging session is running run on the same host:
 $ crossplane beta render xr.yaml composition.yaml functions.yaml --verbose
 ```
+
+### Creating a new Release
+#### Composition Function
+Run the [CI action](https://github.com/crossplane-contrib/function-pkl/actions/workflows/ci.yml) and provide a Package version.
+#### Pkl Packages
+Update `PklProject.package.version` of the relevant Package in ./pkl/
+
+Create a Tag in the style of <PklProject.package.name>@<PklProject.package.version> e.g. `git tag crossplane.contrib@0.0.1`
+
+Push it `git push --tags`
 
 ### Pkl Function Flow
 This Chart illustrates how what happens, when Crossplane Triggers this Composition Function.
