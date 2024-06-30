@@ -78,9 +78,9 @@ meta = if (request.meta != null) new {
   ttl = 60.s
 } else null
 
-local observedObj: Object? = request.observed.resources.getOrNull("cm-one").resource as Object?
-local observedObjSyncedCondition: Object.Condition? = observedObj.ifNonNull(
-  (obj: Object) -> obj.status.conditions.toList().findOrNull(
+local observedObj: Object? = request.observed.resources.getOrNull("cm-one")?.resource as Object?
+local observedObjSyncedCondition: Object.Condition? = observedObj?.status?.conditions?.ifNonNull(
+  (conds: Listing<Condition>) -> conds.toList().findOrNull(
     (cond: Object.Condition) -> cond.type == "Synced"
   )
 )
