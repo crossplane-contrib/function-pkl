@@ -34,15 +34,15 @@ spec:
       kind: Pkl
       spec:
         type: uri
-        # This pkl file is at `pkl/crossplane-example/full.pkl` in this repo
-        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/full.pkl"
+        # This pkl file is at `pkl/crossplane.contrib.example/full.pkl` in this repo
+        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@1.0.0#/full.pkl"
 ```
 
 ### Example
 see [examples](./example/)
-
+and see [pkl/crossplane.contrib.example/DEPLOY.md](pkl/crossplane.contrib.example/DEPLOY.md) on instructions how to deploy it.
 ## Creating a new Composition Function
-see [pkl/crossplane.contrib.example/README.md](pkl/crossplane.contrib.example/README.md)
+see [pkl/crossplane.contrib.example/DEVELOP.md](pkl/crossplane.contrib.example/DEVELOP.md)
 
 ## Development
 This function uses [Go][go], [Docker][docker], the [Crossplane CLI][cli], and the [Pkl CLI][pkl cli] to build functions

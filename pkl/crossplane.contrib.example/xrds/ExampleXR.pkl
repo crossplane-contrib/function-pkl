@@ -1,7 +1,7 @@
 amends "@crossplane.contrib.xrd/CompositeResourceDefinition.pkl"
 
 metadata {
-  name = "XRD"
+  name = spec.names.plural + "." + spec.group
 }
 
 spec {
