@@ -87,7 +87,6 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 				Ctx: ctx,
 			}))
 	}
-
 	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "could not create Pkl Evaluator"))
 		return rsp, nil
@@ -104,34 +103,43 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return rsp, nil
 	}
 
-	helperResponse := &helper.CompositionResponse{}
-	err = yaml.Unmarshal([]byte(renderedManifest), helperResponse)
+	rsp, err = toResponse(renderedManifest, req.GetMeta().GetTag())
+	if err != nil {
+		response.Fatal(rsp, errors.Wrap(err, "error while converting Pkl file"))
+		return rsp, nil
+	}
+
+	return rsp, nil
+}
+
+func toResponse(renderedManifest, tag string) (*fnv1beta1.RunFunctionResponse, error) {
+	rspHelper := &helper.CompositionResponse{}
+	err := yaml.Unmarshal([]byte(renderedManifest), rspHelper)
 	if err != nil {
 		return nil, errors.Wrapf(err, "rendered Pkl file was not in expected format. did you amend @crossplane/CompositionResponse.pkl?")
 	}
 
 	responseMeta := &fnv1beta1.ResponseMeta{
-		Tag: req.GetMeta().GetTag(),
+		Tag: tag,
 		Ttl: durationpb.New(response.DefaultTTL),
 	}
-	if ttl := helperResponse.GetMeta().GetTtl(); ttl != nil {
+	if ttl := rspHelper.GetMeta().GetTtl(); ttl != nil {
 		responseMeta.Ttl = ttl
 	}
 
 	// Note: consider not overwriting rsp and whether it makes a difference.
-	rsp = &fnv1beta1.RunFunctionResponse{
+	rsp := &fnv1beta1.RunFunctionResponse{
 		Meta:    responseMeta,
-		Desired: helperResponse.Desired,
-		Results: helperResponse.Results,
-		Context: helperResponse.Context,
+		Desired: rspHelper.Desired,
+		Results: rspHelper.Results,
+		Context: rspHelper.Context,
 	}
 
-	if helperResponse.Requirements != nil && helperResponse.Requirements.ExtraResources != nil {
+	if rspHelper.Requirements != nil && rspHelper.Requirements.ExtraResources != nil {
 		rsp.Requirements = &fnv1beta1.Requirements{
-			ExtraResources: convertExtraResources(helperResponse.Requirements.ExtraResources),
+			ExtraResources: convertExtraResources(rspHelper.Requirements.ExtraResources),
 		}
 	}
-
 	return rsp, nil
 }
 
