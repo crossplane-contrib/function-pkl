@@ -34,7 +34,7 @@ typealias Ready = Int(isBetween(0,2))
 ///
 ///   - A Function should not set this field in a RunFunctionResponse to indicate
 ///     that the desired composite resource is ready. This will be ignored.
-ready: Ready?
+ready: Ready? = READY_UNSPECIFIED
 
 /// The resource's connection details.
 ///
