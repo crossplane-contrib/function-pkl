@@ -20,7 +20,7 @@ amends "pkl:Project"
 local repo = "github.com/crossplane-contrib/function-pkl"
 
 package {
-  name = "crospslane.contrib.xrd"
+  name = "crossplane.contrib.xrd"
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
