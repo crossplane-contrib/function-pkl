@@ -1,5 +1,4 @@
 amends "@crossplane.contrib/CompositionResponse.pkl"
-import "@crossplane.contrib/Resource.pkl"
 import "@crossplane.contrib/crossplane.pkl"
 
 import "crds/XR.pkl"
@@ -42,7 +41,7 @@ desired {
     }
   }
   resources {
-    ["cm-one"] = new Resource {
+    ["cm-one"] = new {
       resource = new Object {
         metadata {
           name = "cm-one"
