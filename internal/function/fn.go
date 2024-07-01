@@ -110,26 +110,26 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 		return nil, errors.Wrapf(err, "rendered Pkl file was not in expected format. did you amend @crossplane/CompositionResponse.pkl?")
 	}
 
-	fixedRequirements := &fnv1beta1.Requirements{
-		ExtraResources: convertExtraResources(helperResponse.Requirements.ExtraResources),
-	}
-
 	responseMeta := &fnv1beta1.ResponseMeta{
 		Tag: req.GetMeta().GetTag(),
 		Ttl: durationpb.New(response.DefaultTTL),
 	}
+	if ttl := helperResponse.GetMeta().GetTtl(); ttl != nil {
+		responseMeta.Ttl = ttl
+	}
 
 	// Note: consider not overwriting rsp and whether it makes a difference.
 	rsp = &fnv1beta1.RunFunctionResponse{
-		Meta:         responseMeta,
-		Desired:      helperResponse.Desired,
-		Results:      helperResponse.Results,
-		Context:      helperResponse.Context,
-		Requirements: fixedRequirements,
+		Meta:    responseMeta,
+		Desired: helperResponse.Desired,
+		Results: helperResponse.Results,
+		Context: helperResponse.Context,
 	}
 
-	if ttl := helperResponse.GetMeta().GetTtl(); ttl != nil {
-		rsp.Meta.Ttl = ttl
+	if helperResponse.Requirements != nil && helperResponse.Requirements.ExtraResources != nil {
+		rsp.Requirements = &fnv1beta1.Requirements{
+			ExtraResources: convertExtraResources(helperResponse.Requirements.ExtraResources),
+		}
 	}
 
 	return rsp, nil

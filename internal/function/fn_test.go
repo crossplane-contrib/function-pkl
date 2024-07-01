@@ -17,6 +17,7 @@ package function
 import (
 	"context"
 	"fmt"
+	"github.com/crossplane/function-sdk-go/response"
 	"os"
 	"testing"
 
@@ -54,6 +55,71 @@ func TestRunFunction(t *testing.T) {
 		args   args
 		want   want
 	}{
+		"Minimal": {
+			reason: "The Function should create a single resource",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							Type: "local",
+							Local: &v1beta1.Local{
+								ProjectDir: pklPackage,
+								File:       pklPackage + "/minimal.pkl",
+							},
+						},
+					}),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+								"apiVersion": "example.crossplane.io/v1",
+								"kind": "XR",
+								"metadata": {
+									"name": "example-xr"
+								},
+								"spec": {}
+							}`),
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Meta: &fnv1beta1.ResponseMeta{
+						Ttl: durationpb.New(response.DefaultTTL),
+					},
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{},
+						Resources: map[string]*fnv1beta1.Resource{
+							"cm-minimal": {
+								Resource: resource.MustStructJSON(`{
+									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
+									"kind": "Object",
+									"metadata": {
+										"name": "cm-one"
+									},
+									"spec": {
+										"forProvider": {
+											"manifest": {
+												"apiVersion": "v1",
+												"kind": "ConfigMap",
+												"metadata": {
+													"name": "cm-minimal",
+													"namespace": "crossplane-system"
+												},
+												"data": {
+													"foo": "bar"
+												}
+											}
+										}
+									}
+								}`),
+							},
+						},
+					},
+				},
+			},
+		},
 		"Full": {
 			reason: "The Function should create a full functionResult",
 			args: args{
