@@ -18,21 +18,30 @@ pkl-resolve:
 		-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
  		./pkl/*/
 
+.PHONY: pkl-package
+pkl-package: pkl-resolve
+	$(eval PACKAGE_FILES  := $(shell \
+    		pkl project package \
+    		 	-e REPOSITORY="$(REPO)" \
+    			-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)" \
+    			-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)" \
+    			-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
+    		 ./pkl/*/ ))
+
 # Ensures the TAG Variable is set.
 .PHONY: check-tag
 check-tag:
 	@[ "${TAG}" ] || (echo "TAG is not specified" && exit 1)
 
+# Initializes Empty Array
+RELEASE_FILES :=
+
 # Packages all Projects with the latest tags for each before Pushing the one referenced in TAG
 .PHONY: pkl-release
-pkl-release: check-tag pkl-resolve
-	$(eval RELEASE_FILES  := $(shell \
-		pkl project package \
-		 	-e REPOSITORY="$(REPO)" \
-			-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)" \
-			-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)" \
-			-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
-		 ./pkl/*/ | grep ${TAG}))
+pkl-release: check-tag pkl-package
+	$(foreach file,$(PACKAGE_FILES), \
+		$(if $(findstring ${TAG},$(file)), \
+			$(eval RELEASE_FILES += $(file))))
 	@if [ -z "$(RELEASE_FILES)" ]; then \
 		echo "No release files found for tag ${TAG}."; \
 		exit 1; \
