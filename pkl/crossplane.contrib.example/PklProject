@@ -17,15 +17,18 @@
 /// Templates for configuring [Kubernetes](https://kubernetes.io).
 amends "pkl:Project"
 
+local repo = read?("env:REPOSITORY") ?? "github.com/crossplane-contrib/function-pkl"
+local packageVersion: String = read?("env:CROSSPLANE_CONTRIB_EXAMPLE_VERSION") ?? "0.0.0"
+
 package {
   name = "crossplane.contrib.example"
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
-  version = "1.0.0"
-  baseUri = "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/\(name)"
-  packageZipUrl = "https://github.com/crossplane-contrib/function-pkl/releases/download/\(name)@\(version)/\(name)@\(version).zip"
-  sourceCode = "https://github.com/crossplane-contrib/function-pkl"
+  version = packageVersion
+  baseUri = "package://pkg.pkl-lang.org/\(repo)/\(name)"
+  packageZipUrl = "https://\(repo)/releases/download/\(name)@\(version)/\(name)@\(version).zip"
+  sourceCode = "https://\(repo)"
   license = "Apache-2.0"
   description = """
     Example for using the [Composition Functions](https://docs.crossplane.io/latest/concepts/composition-functions/).
@@ -36,7 +39,7 @@ dependencies {
   ["crossplane.contrib.xrd"] = import("../crossplane.contrib.xrd/PklProject")
 
   ["k8s"] {
-    uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1"
+    uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.1.0"
   }
   ["k8s.contrib.crd"] {
     uri = "package://pkg.pkl-lang.org/pkl-pantry/k8s.contrib.crd@1.0.7"

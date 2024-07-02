@@ -1,20 +1,38 @@
-REPO =? github.com/crossplane-contrib/function-pkl
-CONTAINER_IMAGE =? ghcr.io/crossplane-contrib/function-pkl
+REPO ?= github.com/crossplane-contrib/function-pkl
+CONTAINER_IMAGE ?= ghcr.io/crossplane-contrib/function-pkl
 
 # Target used for Pkl Package Releases
 TARGET =? $(shell git branch --show-current)
 
+LATEST_CORE    := $(shell git tag -l "crossplane.contrib@*.*.*" --sort=-v:refname | head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+LATEST_EXAMPLE := $(shell git tag -l "crossplane.contrib.example@*.*.*" --sort=-v:refname | head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+LATEST_XRD     := $(shell git tag -l "crossplane.contrib.xrd@*.*.*" --sort=-v:refname | head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+
+# This Resolves the Dependencies and sets the versions of our packages to the Latest ones for the package in Git
 .PHONY: pkl-resolve
 pkl-resolve:
-	pkl project resolve ./pkl/*/
+	pkl project resolve \
+		-e REPOSITORY="$(REPO)" \
+ 		-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)" \
+		-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)" \
+		-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
+ 		./pkl/*/
 
+# Ensures the TAG Variable is set.
 .PHONY: check-tag
 check-tag:
 	@[ "${TAG}" ] || (echo "TAG is not specified" && exit 1)
 
+# Packages all Projects with the latest tags for each before Pushing the one referenced in TAG
 .PHONY: pkl-release
 pkl-release: check-tag pkl-resolve
-	$(eval RELEASE_FILES := $(shell pkl project package ./pkl/*/ | grep ${TAG}))
+	$(eval RELEASE_FILES  := $(shell \
+		pkl project package \
+		 	-e REPOSITORY="$(REPO)" \
+			-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)" \
+			-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)" \
+			-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
+		 ./pkl/*/ | grep ${TAG}))
 	@if [ -z "$(RELEASE_FILES)" ]; then \
 		echo "No release files found for tag ${TAG}."; \
 		exit 1; \
