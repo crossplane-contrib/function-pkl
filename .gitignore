@@ -25,3 +25,6 @@ go.work
 
 # Temporary Debug Binaries
 __debug_bin*
+
+# Pkl
+*PklProject.deps.json

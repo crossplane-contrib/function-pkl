@@ -17,6 +17,10 @@ XRD_PARAM      := $(if $(LATEST_XRD),-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST
 pkl-resolve:
 	pkl project resolve $(REPO_PARAM) $(CORE_PARAM) $(EXAMPLE_PARAM) $(XRD_PARAM) ./pkl/*/
 
+.PHONY: pkl-resolve-hack
+pkl-resolve-hack:
+	pkl project resolve ./hack/pklcrd/
+
 .PHONY: pkl-package
 pkl-package: pkl-resolve
 	$(eval PACKAGE_FILES  := $(shell \
@@ -49,7 +53,7 @@ pkl-release: check-tag pkl-package
 
 PROJECT_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
 .PHONY: generate
-generate: pkl-resolve
+generate: pkl-resolve pkl-resolve-hack
 	go generate ./...
 	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module.pkl
 	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module-composition-fix.pkl
