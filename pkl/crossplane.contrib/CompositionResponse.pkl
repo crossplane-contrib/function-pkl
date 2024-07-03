@@ -110,3 +110,8 @@ local class protobufDuration {
   seconds: Int // int64 not available in pkl
   nanos: Int
 }
+
+// Convert to a pretty printed Pcf file
+function toPrettyString(): String = new PcfRenderer {
+  omitNullProperties = true
+}.renderDocument(this)

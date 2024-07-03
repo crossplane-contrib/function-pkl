@@ -1,0 +1,636 @@
+/// A Composition defines a collection of managed resources or functions that Crossplane uses to create
+/// and manage new composite resources.
+///
+/// Read the Crossplane documentation for [more information about
+/// Compositions](https://docs.crossplane.io/latest/concepts/compositions).
+///
+/// This module was generated from the CustomResourceDefinition at
+/// <https://raw.githubusercontent.com/crossplane/crossplane/v1.16.0/cluster/crds/apiextensions.crossplane.io_compositions.yaml>.
+module io.crossplane.apiextensions.v1.Composition
+
+extends "@k8s/K8sResource.pkl"
+
+import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+import "@k8s/K8sResource.pkl"
+
+fixed apiVersion: "apiextensions.crossplane.io/v1"
+
+fixed kind: "Composition"
+
+/// Standard object's metadata.
+///
+/// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>.
+metadata: ObjectMeta?
+
+/// CompositionSpec specifies desired state of a composition.
+spec: Spec?
+
+/// CompositionSpec specifies desired state of a composition.
+class Spec {
+  /// CompositeTypeRef specifies the type of composite resource that this composition is compatible with.
+  compositeTypeRef: SpecCompositeTypeRef
+
+  /// Environment configures the environment in which resources are rendered.
+  ///
+  /// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored unless the relevant
+  /// Crossplane feature flag is enabled, and may be changed or removed without notice.
+  environment: SpecEnvironment?
+
+  /// Mode controls what type or "mode" of Composition will be used.
+  ///
+  /// "Resources" (the default) indicates that a Composition uses what is commonly referred to as "Patch
+  /// & Transform" or P&T composition. This mode of Composition uses an array of resources, each a
+  /// template for a composed resource.
+  ///
+  /// "Pipeline" indicates that a Composition specifies a pipeline of Composition Functions, each of
+  /// which is responsible for producing composed resources that Crossplane should create or update. THE
+  /// PIPELINE MODE IS A BETA FEATURE. It is not honored if the relevant Crossplane feature flag is
+  /// disabled.
+  ///
+  /// Default if undefined: `"Resources"`
+  mode: ("Resources"|"Pipeline")?
+
+  /// PatchSets define a named set of patches that may be included by any resource in this Composition.
+  /// PatchSets cannot themselves refer to other PatchSets.
+  ///
+  /// PatchSets are only used by the "Resources" mode of Composition. They are ignored by other modes.
+  patchSets: Listing<SpecPatchSetsPatchSet>?
+
+  /// Pipeline is a list of composition function steps that will be used when a composite resource
+  /// referring to this composition is created. One of resources and pipeline must be specified - you
+  /// cannot specify both.
+  ///
+  /// The Pipeline is only used by the "Pipeline" mode of Composition. It is ignored by other modes.
+  ///
+  /// THIS IS A BETA FIELD. It is not honored if the relevant Crossplane feature flag is disabled.
+  pipeline: Listing<SpecPipelinePipeline>?
+
+  /// PublishConnectionDetailsWithStoreConfig specifies the secret store config with which the connection
+  /// details of composite resources dynamically provisioned using this composition will be published.
+  ///
+  /// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored unless the relevant
+  /// Crossplane feature flag is enabled, and may be changed or removed without notice.
+  ///
+  /// Default if undefined: `{ ["name"] = "default" }`
+  publishConnectionDetailsWithStoreConfigRef: SpecPublishConnectionDetailsWithStoreConfigRef?
+
+  /// Resources is a list of resource templates that will be used when a composite resource referring to
+  /// this composition is created.
+  ///
+  /// Resources are only used by the "Resources" mode of Composition. They are ignored by other modes.
+  resources: Listing<SpecResourcesResource>?
+
+  /// WriteConnectionSecretsToNamespace specifies the namespace in which the connection secrets of
+  /// composite resource dynamically provisioned using this composition will be created. This field is
+  /// planned to be replaced in a future release in favor of PublishConnectionDetailsWithStoreConfigRef.
+  /// Currently, both could be set independently and connection details would be published to both
+  /// without affecting each other as long as related fields at MR level specified.
+  writeConnectionSecretsToNamespace: String?
+}
+
+/// CompositeTypeRef specifies the type of composite resource that this composition is compatible with.
+class SpecCompositeTypeRef {
+  /// APIVersion of the type.
+  apiVersion: String
+
+  /// Kind of the type.
+  kind: String
+}
+
+/// Environment configures the environment in which resources are rendered.
+///
+/// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored unless the relevant Crossplane
+/// feature flag is enabled, and may be changed or removed without notice.
+class SpecEnvironment {
+  /// DefaultData statically defines the initial state of the environment. It has the same schema-less
+  /// structure as the data field in environment configs. It is overwritten by the selected environment
+  /// configs.
+  defaultData: Mapping<String, Any>?
+
+  /// EnvironmentConfigs selects a list of `EnvironmentConfig`s. The resolved resources are stored in the
+  /// composite resource at `spec.environmentConfigRefs` and is only updated if it is null.
+  ///
+  /// The list of references is used to compute an in-memory environment at compose time. The data of all
+  /// object is merged in the order they are listed, meaning the values of EnvironmentConfigs with a
+  /// larger index take priority over ones with smaller indices.
+  ///
+  /// The computed environment can be accessed in a composition using `FromEnvironmentFieldPath` and
+  /// `CombineFromEnvironment` patches.
+  environmentConfigs: Listing<SpecEnvironmentEnvironmentConfigsEnvironmentConfig>?
+
+  /// Patches is a list of environment patches that are executed before a composition's resources are
+  /// composed.
+  patches: Listing<SpecEnvironmentPatchesPatch>?
+
+  /// Policy represents the Resolve and Resolution policies which apply to all
+  /// EnvironmentSourceReferences in EnvironmentConfigs list.
+  policy: SpecEnvironmentPolicy?
+}
+
+/// EnvironmentSource selects a EnvironmentConfig resource.
+class SpecEnvironmentEnvironmentConfigsEnvironmentConfig {
+  /// Ref is a named reference to a single EnvironmentConfig. Either Ref or Selector is required.
+  ref: SpecEnvironmentEnvironmentConfigsEnvironmentConfigRef?
+
+  /// Selector selects EnvironmentConfig(s) via labels.
+  selector: SpecEnvironmentEnvironmentConfigsEnvironmentConfigSelector?
+
+  /// Type specifies the way the EnvironmentConfig is selected. Default is `Reference`
+  ///
+  /// Default if undefined: `"Reference"`
+  type: ("Reference"|"Selector")?
+}
+
+/// Ref is a named reference to a single EnvironmentConfig. Either Ref or Selector is required.
+class SpecEnvironmentEnvironmentConfigsEnvironmentConfigRef {
+  /// The name of the object.
+  name: String
+}
+
+/// Selector selects EnvironmentConfig(s) via labels.
+class SpecEnvironmentEnvironmentConfigsEnvironmentConfigSelector {
+  /// MatchLabels ensures an object with matching labels is selected.
+  matchLabels: Listing<SpecEnvironmentEnvironmentConfigsEnvironmentConfigSelectorMatchLabelsMatchLabel>?
+
+  /// MaxMatch specifies the number of extracted EnvironmentConfigs in Multiple mode, extracts all if
+  /// nil.
+  maxMatch: Int?
+
+  /// MinMatch specifies the required minimum of extracted EnvironmentConfigs in Multiple mode.
+  minMatch: Int?
+
+  /// Mode specifies retrieval strategy: "Single" or "Multiple".
+  ///
+  /// Default if undefined: `"Single"`
+  mode: ("Single"|"Multiple")?
+
+  /// SortByFieldPath is the path to the field based on which list of EnvironmentConfigs is
+  /// alphabetically sorted.
+  ///
+  /// Default if undefined: `"metadata.name"`
+  sortByFieldPath: String?
+}
+
+/// An EnvironmentSourceSelectorLabelMatcher acts like a k8s label selector but can draw the label value
+/// from a different path.
+class SpecEnvironmentEnvironmentConfigsEnvironmentConfigSelectorMatchLabelsMatchLabel {
+  /// FromFieldPathPolicy specifies the policy for the valueFromFieldPath. The default is Required,
+  /// meaning that an error will be returned if the field is not found in the composite resource.
+  /// Optional means that if the field is not found in the composite resource, that label pair will just
+  /// be skipped. N.B. other specified label matchers will still be used to retrieve the desired
+  /// environment config, if any.
+  ///
+  /// Default if undefined: `"Required"`
+  fromFieldPathPolicy: ("Optional"|"Required")?
+
+  /// Key of the label to match.
+  key: String
+
+  /// Type specifies where the value for a label comes from.
+  ///
+  /// Default if undefined: `"FromCompositeFieldPath"`
+  type: ("FromCompositeFieldPath"|"Value")?
+
+  /// Value specifies a literal label value.
+  value: String?
+
+  /// ValueFromFieldPath specifies the field path to look for the label value.
+  valueFromFieldPath: String?
+}
+
+/// EnvironmentPatch is a patch for a Composition environment.
+class SpecEnvironmentPatchesPatch {
+  /// Combine is the patch configuration for a CombineFromComposite or CombineToComposite patch.
+  combine: SpecEnvironmentPatchesPatchCombine?
+
+  /// FromFieldPath is the path of the field on the resource whose value is to be used as input. Required
+  /// when type is FromCompositeFieldPath or ToCompositeFieldPath.
+  fromFieldPath: String?
+
+  /// Policy configures the specifics of patching behaviour.
+  policy: SpecResourcesResourcePatchesPatchPolicy?
+
+  /// ToFieldPath is the path of the field on the resource whose value will be changed with the result of
+  /// transforms. Leave empty if you'd like to propagate to the same path as fromFieldPath.
+  toFieldPath: String?
+
+  /// Transforms are the list of functions that are used as a FIFO pipe for the input to be transformed.
+  transforms: Listing<SpecResourcesResourcePatchesPatchTransformsTransform>?
+
+  /// Type sets the patching behaviour to be used. Each patch type may require its own fields to be set
+  /// on the Patch object.
+  ///
+  /// Default if undefined: `"FromCompositeFieldPath"`
+  type: ("FromCompositeFieldPath"|"ToCompositeFieldPath"|"CombineFromComposite"|"CombineToComposite")?
+}
+
+/// Combine is the patch configuration for a CombineFromComposite or CombineToComposite patch.
+class SpecEnvironmentPatchesPatchCombine {
+  /// Strategy defines the strategy to use to combine the input variable values. Currently only string is
+  /// supported.
+  strategy: "string"
+
+  /// String declares that input variables should be combined into a single string, using the relevant
+  /// settings for formatting purposes.
+  string: SpecResourcesResourcePatchesPatchCombineString?
+
+  /// Variables are the list of variables whose values will be retrieved and combined.
+  variables: Listing<SpecResourcesResourcePatchesPatchCombineVariablesVariable>(!isEmpty)
+}
+
+/// String declares that input variables should be combined into a single string, using the relevant
+/// settings for formatting purposes.
+class SpecResourcesResourcePatchesPatchCombineString {
+  /// Format the input using a Go format string. See https://golang.org/pkg/fmt/ for details.
+  fmt: String
+}
+
+/// A CombineVariable defines the source of a value that is combined with others to form and patch an
+/// output value. Currently, this only supports retrieving values from a field path.
+class SpecResourcesResourcePatchesPatchCombineVariablesVariable {
+  /// FromFieldPath is the path of the field on the source whose value is to be used as input.
+  fromFieldPath: String
+}
+
+/// Policy configures the specifics of patching behaviour.
+class SpecResourcesResourcePatchesPatchPolicy {
+  /// FromFieldPath specifies how to patch from a field path. The default is 'Optional', which means the
+  /// patch will be a no-op if the specified fromFieldPath does not exist. Use 'Required' if the patch
+  /// should fail if the specified path does not exist.
+  fromFieldPath: ("Optional"|"Required")?
+
+  /// MergeOptions Specifies merge options on a field path.
+  mergeOptions: SpecResourcesResourcePatchesPatchPolicyMergeOptions?
+}
+
+/// MergeOptions Specifies merge options on a field path.
+class SpecResourcesResourcePatchesPatchPolicyMergeOptions {
+  /// Specifies that already existing elements in a merged slice should be preserved
+  appendSlice: Boolean?
+
+  /// Specifies that already existing values in a merged map should be preserved
+  keepMapValues: Boolean?
+}
+
+/// Transform is a unit of process whose input is transformed into an output with the supplied
+/// configuration.
+class SpecResourcesResourcePatchesPatchTransformsTransform {
+  /// Convert is used to cast the input into the given output type.
+  convert: SpecResourcesResourcePatchesPatchTransformsTransformConvert?
+
+  /// Map uses the input as a key in the given map and returns the value.
+  map: Mapping<String, Any>?
+
+  /// Match is a more complex version of Map that matches a list of patterns.
+  match: SpecResourcesResourcePatchesPatchTransformsTransformMatch?
+
+  /// Math is used to transform the input via mathematical operations such as multiplication.
+  math: SpecResourcesResourcePatchesPatchTransformsTransformMath?
+
+  /// String is used to transform the input into a string or a different kind of string. Note that the
+  /// input does not necessarily need to be a string.
+  string: SpecResourcesResourcePatchesPatchTransformsTransformString?
+
+  /// Type of the transform to be run.
+  type: "map"|"match"|"math"|"string"|"convert"
+}
+
+/// Convert is used to cast the input into the given output type.
+class SpecResourcesResourcePatchesPatchTransformsTransformConvert {
+  /// The expected input format.
+  ///
+  /// * `quantity` - parses the input as a K8s
+  /// [`resource.Quantity`](https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity). Only used
+  /// during `string -> float64` conversions. * `json` - parses the input as a JSON string. Only used
+  /// during `string -> object` or `string -> list` conversions.
+  ///
+  /// If this property is null, the default conversion is applied.
+  format: ("none"|"quantity"|"json")?
+
+  /// ToType is the type of the output of this transform.
+  toType: "string"|"int"|"int64"|"bool"|"float64"|"object"|"array"
+}
+
+/// Match is a more complex version of Map that matches a list of patterns.
+class SpecResourcesResourcePatchesPatchTransformsTransformMatch {
+  /// Determines to what value the transform should fallback if no pattern matches.
+  ///
+  /// Default if undefined: `"Value"`
+  fallbackTo: ("Value"|"Input")?
+
+  /// The fallback value that should be returned by the transform if now pattern matches.
+  fallbackValue: Any?
+
+  /// The patterns that should be tested against the input string. Patterns are tested in order. The
+  /// value of the first match is used as result of this transform.
+  patterns: Listing<SpecResourcesResourcePatchesPatchTransformsTransformMatchPatternsPattern>?
+}
+
+/// MatchTransformPattern is a transform that returns the value that matches a pattern.
+class SpecResourcesResourcePatchesPatchTransformsTransformMatchPatternsPattern {
+  /// Literal exactly matches the input string (case sensitive). Is required if `type` is `literal`.
+  literal: String?
+
+  /// Regexp to match against the input string. Is required if `type` is `regexp`.
+  regexp: String?
+
+  /// The value that is used as result of the transform if the pattern matches.
+  result: Any
+
+  /// Type specifies how the pattern matches the input.
+  ///
+  /// * `literal` - the pattern value has to exactly match (case sensitive) the input string. This is the
+  /// default.
+  ///
+  /// * `regexp` - the pattern treated as a regular expression against which the input string is tested.
+  /// Crossplane will throw an error if the key is not a valid regexp.
+  ///
+  /// Default if undefined: `"literal"`
+  type: "literal"|"regexp"
+}
+
+/// Math is used to transform the input via mathematical operations such as multiplication.
+class SpecResourcesResourcePatchesPatchTransformsTransformMath {
+  /// ClampMax makes sure that the value is not bigger than the given value.
+  clampMax: Int?
+
+  /// ClampMin makes sure that the value is not smaller than the given value.
+  clampMin: Int?
+
+  /// Multiply the value.
+  multiply: Int?
+
+  /// Type of the math transform to be run.
+  ///
+  /// Default if undefined: `"Multiply"`
+  type: ("Multiply"|"ClampMin"|"ClampMax")?
+}
+
+/// String is used to transform the input into a string or a different kind of string. Note that the
+/// input does not necessarily need to be a string.
+class SpecResourcesResourcePatchesPatchTransformsTransformString {
+  /// Optional conversion method to be specified. `ToUpper` and `ToLower` change the letter case of the
+  /// input string. `ToBase64` and `FromBase64` perform a base64 conversion based on the input string.
+  /// `ToJson` converts any input value into its raw JSON representation. `ToSha1`, `ToSha256` and
+  /// `ToSha512` generate a hash value based on the input converted to JSON. `ToAdler32` generate a
+  /// addler32 hash based on the input string.
+  convert: ("ToUpper"|"ToLower"|"ToBase64"|"FromBase64"|"ToJson"|"ToSha1"|"ToSha256"|"ToSha512"|"ToAdler32")?
+
+  /// Format the input using a Go format string. See https://golang.org/pkg/fmt/ for details.
+  fmt: String?
+
+  /// Join defines parameters to join a slice of values to a string.
+  join: SpecResourcesResourcePatchesPatchTransformsTransformStringJoin?
+
+  /// Extract a match from the input using a regular expression.
+  regexp: SpecResourcesResourcePatchesPatchTransformsTransformStringRegexp?
+
+  /// Trim the prefix or suffix from the input
+  trim: String?
+
+  /// Type of the string transform to be run.
+  ///
+  /// Default if undefined: `"Format"`
+  type: ("Format"|"Convert"|"TrimPrefix"|"TrimSuffix"|"Regexp"|"Join")?
+}
+
+/// Join defines parameters to join a slice of values to a string.
+class SpecResourcesResourcePatchesPatchTransformsTransformStringJoin {
+  /// Separator defines the character that should separate the values from each other in the joined
+  /// string.
+  separator: String
+}
+
+/// Extract a match from the input using a regular expression.
+class SpecResourcesResourcePatchesPatchTransformsTransformStringRegexp {
+  /// Group number to match. 0 (the default) matches the entire expression.
+  group: Int?
+
+  /// Match string. May optionally include submatches, aka capture groups. See https://pkg.go.dev/regexp/
+  /// for details.
+  match: String
+}
+
+/// Policy represents the Resolve and Resolution policies which apply to all EnvironmentSourceReferences
+/// in EnvironmentConfigs list.
+class SpecEnvironmentPolicy {
+  /// Resolution specifies whether resolution of this reference is required. The default is 'Required',
+  /// which means the reconcile will fail if the reference cannot be resolved. 'Optional' means this
+  /// reference will be a no-op if it cannot be resolved.
+  ///
+  /// Default if undefined: `"Required"`
+  resolution: ("Required"|"Optional")?
+
+  /// Resolve specifies when this reference should be resolved. The default is 'IfNotPresent', which will
+  /// attempt to resolve the reference only when the corresponding field is not present. Use 'Always' to
+  /// resolve the reference on every reconcile.
+  resolve: ("Always"|"IfNotPresent")?
+}
+
+/// A PatchSet is a set of patches that can be reused from all resources within a Composition.
+class SpecPatchSetsPatchSet {
+  /// Name of this PatchSet.
+  name: String
+
+  /// Patches will be applied as an overlay to the base resource.
+  patches: Listing<SpecResourcesResourcePatchesPatch>
+}
+
+/// Patch objects are applied between composite and composed resources. Their behaviour depends on the
+/// Type selected. The default Type, FromCompositeFieldPath, copies a value from the composite resource
+/// to the composed resource, applying any defined transformers.
+class SpecResourcesResourcePatchesPatch {
+  /// Combine is the patch configuration for a CombineFromComposite, CombineFromEnvironment,
+  /// CombineToComposite or CombineToEnvironment patch.
+  combine: SpecResourcesResourcePatchesPatchCombine?
+
+  /// FromFieldPath is the path of the field on the resource whose value is to be used as input. Required
+  /// when type is FromCompositeFieldPath, FromEnvironmentFieldPath, ToCompositeFieldPath,
+  /// ToEnvironmentFieldPath.
+  fromFieldPath: String?
+
+  /// PatchSetName to include patches from. Required when type is PatchSet.
+  patchSetName: String?
+
+  /// Policy configures the specifics of patching behaviour.
+  policy: SpecResourcesResourcePatchesPatchPolicy?
+
+  /// ToFieldPath is the path of the field on the resource whose value will be changed with the result of
+  /// transforms. Leave empty if you'd like to propagate to the same path as fromFieldPath.
+  toFieldPath: String?
+
+  /// Transforms are the list of functions that are used as a FIFO pipe for the input to be transformed.
+  transforms: Listing<SpecResourcesResourcePatchesPatchTransformsTransform>?
+
+  /// Type sets the patching behaviour to be used. Each patch type may require its own fields to be set
+  /// on the Patch object.
+  ///
+  /// Default if undefined: `"FromCompositeFieldPath"`
+  type: (
+    "FromCompositeFieldPath"
+    |"FromEnvironmentFieldPath"
+    |"PatchSet"
+    |"ToCompositeFieldPath"
+    |"ToEnvironmentFieldPath"
+    |"CombineFromEnvironment"
+    |"CombineFromComposite"
+    |"CombineToComposite"
+    |"CombineToEnvironment")?
+}
+
+/// Combine is the patch configuration for a CombineFromComposite, CombineFromEnvironment,
+/// CombineToComposite or CombineToEnvironment patch.
+class SpecResourcesResourcePatchesPatchCombine {
+  /// Strategy defines the strategy to use to combine the input variable values. Currently only string is
+  /// supported.
+  strategy: "string"
+
+  /// String declares that input variables should be combined into a single string, using the relevant
+  /// settings for formatting purposes.
+  string: SpecResourcesResourcePatchesPatchCombineString?
+
+  /// Variables are the list of variables whose values will be retrieved and combined.
+  variables: Listing<SpecResourcesResourcePatchesPatchCombineVariablesVariable>(!isEmpty)
+}
+
+/// A PipelineStep in a Composition Function pipeline.
+class SpecPipelinePipeline {
+  /// Credentials are optional credentials that the Composition Function needs.
+  credentials: Listing<SpecPipelinePipelineCredentialsCredential>?
+
+  /// FunctionRef is a reference to the Composition Function this step should execute.
+  functionRef: SpecPipelinePipelineFunctionRef
+
+  /// Input is an optional, arbitrary Kubernetes resource (i.e. a resource with an apiVersion and kind)
+  /// that will be passed to the Composition Function as the 'input' of its RunFunctionRequest.
+  input: K8sResource?
+
+  /// Step name. Must be unique within its Pipeline.
+  step: String
+}
+
+/// FunctionCredentials are optional credentials that a Composition Function needs to run.
+class SpecPipelinePipelineCredentialsCredential {
+  /// Name of this set of credentials.
+  name: String
+
+  /// A SecretRef is a reference to a secret containing credentials that should be supplied to the
+  /// function.
+  secretRef: SpecPipelinePipelineCredentialsCredentialSecretRef?
+
+  /// Source of the function credentials.
+  source: "None"|"Secret"
+}
+
+/// A SecretRef is a reference to a secret containing credentials that should be supplied to the
+/// function.
+class SpecPipelinePipelineCredentialsCredentialSecretRef {
+  /// Name of the secret.
+  name: String
+
+  /// Namespace of the secret.
+  namespace: String
+}
+
+/// FunctionRef is a reference to the Composition Function this step should execute.
+class SpecPipelinePipelineFunctionRef {
+  /// Name of the referenced Function.
+  name: String
+}
+
+/// PublishConnectionDetailsWithStoreConfig specifies the secret store config with which the connection
+/// details of composite resources dynamically provisioned using this composition will be published.
+///
+/// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored unless the relevant Crossplane
+/// feature flag is enabled, and may be changed or removed without notice.
+///
+/// Default if undefined: `{ ["name"] = "default" }`
+class SpecPublishConnectionDetailsWithStoreConfigRef {
+  /// Name of the referenced StoreConfig.
+  name: String
+}
+
+/// ComposedTemplate is used to provide information about how the composed resource should be processed.
+class SpecResourcesResource {
+  /// Base is the target resource that the patches will be applied on.
+  base: Dynamic
+
+  /// ConnectionDetails lists the propagation secret keys from this target resource to the composition
+  /// instance connection secret.
+  connectionDetails: Listing<SpecResourcesResourceConnectionDetailsConnectionDetail>?
+
+  /// A Name uniquely identifies this entry within its Composition's resources array. Names are optional
+  /// but *strongly* recommended. When all entries in the resources array are named entries may added,
+  /// deleted, and reordered as long as their names do not change. When entries are not named the length
+  /// and order of the resources array should be treated as immutable. Either all or no entries must be
+  /// named.
+  name: String?
+
+  /// Patches will be applied as overlay to the base resource.
+  patches: Listing<SpecResourcesResourcePatchesPatch>?
+
+  /// ReadinessChecks allows users to define custom readiness checks. All checks have to return true in
+  /// order for resource to be considered ready. The default readiness check is to have the "Ready"
+  /// condition to be "True".
+  ///
+  /// Default if undefined: `{ new { ["matchCondition"] { ["status"] = "True" ["type"] = "Ready" }
+  /// ["type"] = "MatchCondition" } }`
+  readinessChecks: Listing<SpecResourcesResourceReadinessChecksReadinessCheck>?
+}
+
+/// ConnectionDetail includes the information about the propagation of the connection information from
+/// one secret to another.
+class SpecResourcesResourceConnectionDetailsConnectionDetail {
+  /// FromConnectionSecretKey is the key that will be used to fetch the value from the composed
+  /// resource's connection secret.
+  fromConnectionSecretKey: String?
+
+  /// FromFieldPath is the path of the field on the composed resource whose value to be used as input.
+  /// Name must be specified if the type is FromFieldPath.
+  fromFieldPath: String?
+
+  /// Name of the connection secret key that will be propagated to the connection secret of the
+  /// composition instance. Leave empty if you'd like to use the same key name.
+  name: String?
+
+  /// Type sets the connection detail fetching behaviour to be used. Each connection detail type may
+  /// require its own fields to be set on the ConnectionDetail object. If the type is omitted Crossplane
+  /// will attempt to infer it based on which other fields were specified. If multiple fields are
+  /// specified the order of precedence is: 1. FromValue 2. FromConnectionSecretKey 3. FromFieldPath
+  type: ("FromConnectionSecretKey"|"FromFieldPath"|"FromValue")?
+
+  /// Value that will be propagated to the connection secret of the composite resource. May be set to
+  /// inject a fixed, non-sensitive connection secret value, for example a well-known port.
+  value: String?
+}
+
+/// ReadinessCheck is used to indicate how to tell whether a resource is ready for consumption.
+class SpecResourcesResourceReadinessChecksReadinessCheck {
+  /// FieldPath shows the path of the field whose value will be used.
+  fieldPath: String?
+
+  /// MatchCondition specifies the condition you'd like to match if you're using "MatchCondition" type.
+  matchCondition: SpecResourcesResourceReadinessChecksReadinessCheckMatchCondition?
+
+  /// MatchInt is the value you'd like to match if you're using "MatchInt" type.
+  matchInteger: Int?
+
+  /// MatchString is the value you'd like to match if you're using "MatchString" type.
+  matchString: String?
+
+  /// Type indicates the type of probe you'd like to use.
+  type: "MatchString"|"MatchInteger"|"NonEmpty"|"MatchCondition"|"MatchTrue"|"MatchFalse"|"None"
+}
+
+/// MatchCondition specifies the condition you'd like to match if you're using "MatchCondition" type.
+class SpecResourcesResourceReadinessChecksReadinessCheckMatchCondition {
+  /// Status is the status of the condition you'd like to match.
+  ///
+  /// Default if undefined: `"True"`
+  status: String
+
+  /// Type indicates the type of condition you'd like to use.
+  ///
+  /// Default if undefined: `"Ready"`
+  type: String
+}

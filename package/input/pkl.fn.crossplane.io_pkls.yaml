@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.15.0
-  name: pkls.template.fn.crossplane.io
+  name: pkls.pkl.fn.crossplane.io
 spec:
-  group: template.fn.crossplane.io
+  group: pkl.fn.crossplane.io
   names:
     categories:
     - crossplane
@@ -19,7 +19,7 @@ spec:
   - name: v1beta1
     schema:
       openAPIV3Schema:
-        description: Input can be used to provide input to this Function.
+        description: Pkl struct can be used to provide input to this Function.
         properties:
           apiVersion:
             description: |-
@@ -39,6 +39,7 @@ spec:
           metadata:
             type: object
           spec:
+            description: PklSpec specifies references for the function
             properties:
               inline:
                 description: Contains a stringified Pkl file

@@ -14,7 +14,7 @@ limitations under the License.
 
 // Package v1beta1 contains the input type for this Function
 // +kubebuilder:object:generate=true
-// +groupName=template.fn.crossplane.io
+// +groupName=pkl.fn.crossplane.io
 // +versionName=v1beta1
 package v1beta1
 

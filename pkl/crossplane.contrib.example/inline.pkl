@@ -1,0 +1,40 @@
+amends "@crossplane.contrib/Composition.pkl"
+
+import "crds/XR.pkl"
+import "@crossplane.contrib/Pkl.pkl"
+import "@crossplane.contrib/CompositionResponse.pkl"
+
+local renderer = new PcfRenderer{
+  omitNullProperties = true
+}
+
+metadata {
+  name = "inline-example"
+}
+spec {
+  compositeTypeRef {
+    apiVersion = XR.apiVersion
+    kind = XR.kind
+  }
+  mode = "Pipeline"
+  pipeline {
+    new {
+      step = "pkl-template"
+      functionRef {
+        name = "function-pkl"
+      }
+      input = new Pkl {
+        spec {
+          type = "inline"
+          inline = new CompositionResponse {
+            results {
+              new {
+                message = "hi"
+              }
+            }
+          }.toPrettyString()
+        }
+      }
+    }
+  }
+}

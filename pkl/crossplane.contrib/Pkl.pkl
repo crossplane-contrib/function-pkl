@@ -1,0 +1,44 @@
+/// Pkl struct can be used to provide input to this Function.
+///
+/// This module was generated from the CustomResourceDefinition at
+/// <file:///Users/tim/IdeaProjects/function-pkl/package/input/template.fn.crossplane.io_pkls.yaml>.
+module io.crossplane.fn.template.v1beta1.Pkl
+
+extends "@k8s/K8sResource.pkl"
+
+import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+
+fixed apiVersion: "template.fn.crossplane.io/v1beta1"
+
+fixed kind: "Pkl"
+
+/// Standard object's metadata.
+///
+/// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>.
+metadata: ObjectMeta?
+
+/// PklSpec specifies references for the function
+spec: Spec?
+
+/// PklSpec specifies references for the function
+class Spec {
+  /// Contains a stringified Pkl file
+  inline: String?
+
+  /// Reference to a Pklfile and Project
+  `local`: Local?
+
+  type: ("uri"|"inline"|"local")?
+
+  /// Use URI Scheme to load Project/Package
+  uri: String?
+}
+
+/// Reference to a Pklfile and Project
+class Local {
+  /// Path to file relative from the Project Dir
+  file: String?
+
+  /// Path to the Project containing a Pklfile
+  projectDir: String?
+}

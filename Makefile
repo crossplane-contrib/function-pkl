@@ -7,26 +7,20 @@ TARGET =? $(shell git branch --show-current)
 LATEST_CORE    := $(shell git tag -l "crossplane.contrib@*.*.*" --sort=-v:refname | head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 LATEST_EXAMPLE := $(shell git tag -l "crossplane.contrib.example@*.*.*" --sort=-v:refname | head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 LATEST_XRD     := $(shell git tag -l "crossplane.contrib.xrd@*.*.*" --sort=-v:refname | head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+REPO_PARAM     := $(if $(REPO),-e REPOSITORY="$(REPO)")
+CORE_PARAM     := $(if $(LATEST_CORE),-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)")
+EXAMPLE_PARAM  := $(if $(LATEST_EXAMPLE),-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)")
+XRD_PARAM      := $(if $(LATEST_XRD),-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)")
 
 # This Resolves the Dependencies and sets the versions of our packages to the Latest ones for the package in Git
 .PHONY: pkl-resolve
 pkl-resolve:
-	pkl project resolve \
-		-e REPOSITORY="$(REPO)" \
- 		-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)" \
-		-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)" \
-		-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
- 		./pkl/*/
+	pkl project resolve $(REPO_PARAM) $(CORE_PARAM) $(EXAMPLE_PARAM) $(XRD_PARAM) ./pkl/*/
 
 .PHONY: pkl-package
 pkl-package: pkl-resolve
 	$(eval PACKAGE_FILES  := $(shell \
-    		pkl project package \
-    		 	-e REPOSITORY="$(REPO)" \
-    			-e CROSSPLANE_CONTRIB_VERSION="$(LATEST_CORE)" \
-    			-e CROSSPLANE_CONTRIB_EXAMPLE_VERSION="$(LATEST_EXAMPLE)" \
-    			-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST_XRD)" \
-    		 ./pkl/*/ ))
+    		pkl project package $(REPO_PARAM) $(CORE_PARAM) $(EXAMPLE_PARAM) $(XRD_PARAM) ./pkl/*/ ))
 
 # Ensures the TAG Variable is set.
 .PHONY: check-tag
@@ -52,6 +46,14 @@ pkl-release: check-tag pkl-package
 	-n "" \
 	--target ${TARGET} \
 	$(RELEASE_FILES)
+
+PROJECT_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
+.PHONY: generate
+generate: pkl-resolve
+	go generate ./...
+	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module.pkl
+	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module-composition-fix.pkl
+
 
 .PHONY: build-image
 build-image:
