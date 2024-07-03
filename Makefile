@@ -51,8 +51,6 @@ pkl-release: check-tag pkl-package
 	-t ${TAG} \
 	-n "" \
 	--target ${TARGET} \
-	--prerelease \
-	--draft \
 	$(RELEASE_FILES)
 
 .PHONY: build-image
