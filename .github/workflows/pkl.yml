@@ -22,4 +22,4 @@ jobs:
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Package and Create GitHub Release
         id: create_package
-        run: make pkl-release TAG=$TAG_NAME TARGET=${{ github.sha }}
+        run: make pkl-release REPO=github.com/${{ github.repository}} TAG=$TAG_NAME TARGET=${{ github.sha }}
