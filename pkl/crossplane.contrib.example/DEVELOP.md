@@ -7,7 +7,7 @@ Either can be converted to a Pkl Module.
 ## Create XRD
 When Creating a Pkl file ensure it amends CompositeResourceDefinition
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crospslane.contrib.xrd@1.0.0#/CompositeResourceDefinition.pkl"
+amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crospslane.contrib.xrd@<version>#/CompositeResourceDefinition.pkl"
 ```
 
 view [xrds/ExampleXR.pkl](xrds/ExampleXR.pkl) for more details on how to Build it.

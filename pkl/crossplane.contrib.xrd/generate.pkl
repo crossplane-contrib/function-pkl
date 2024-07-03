@@ -69,8 +69,8 @@ import "@deepToTyped/deepToTyped.pkl"
 /// The version of the Pkl Kubernetes package to import.
 ///
 /// This property is not used if [k8sImportPath] is set directly.
-k8sVersion: String(semver.isValid(this)) = "1.0.1"
-crossplaneVersion: String(semver.isValid(this)) = "1.0.0"
+k8sVersion: String(semver.isValid(this)) = "1.1.0"
+crossplaneVersion: String(semver.isValid(this)) = "0.0.1"
 
 /// The base path to use for the Kubernetes imports.
 ///

@@ -17,4 +17,4 @@ spec:
         spec:
           type: uri
           # This pkl file is at `pkl/crossplane-example/minimal.pkl` in this repo
-          uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@1.0.0#/minimal.pkl"
+          uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane-example@0.0.1#/minimal.pkl"
