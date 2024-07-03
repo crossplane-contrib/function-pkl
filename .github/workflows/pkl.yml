@@ -10,14 +10,14 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-        with:
-          fetch-tags: true
       - name: Setup Pkl
         uses: pkl-community/setup-pkl@v0
         with:
           pkl-version: 0.26.1
       - name: Login to GH
         run: echo ${{ github.token }} | gh auth login --with-token
+      - name: Fetch Tags
+        run: git fetch --tags
       - name: Get Tag Name
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Package and Create GitHub Release
