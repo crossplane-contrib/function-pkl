@@ -1,0 +1,6 @@
+amends "@k8s.contrib.crd/generate.pkl"
+
+source = "package/input/pkl.fn.crossplane.io_pkls.yaml"
+
+// The Package references to be used within the new Module
+k8sImportPath = "@k8s" // package://pkg.pkl-lang.org/pkl-k8s/k8s@<version>#

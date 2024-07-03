@@ -1,0 +1,15 @@
+amends "generate.pkl"
+
+import "@k8s/K8sResource.pkl"
+
+source = "https://raw.githubusercontent.com/crossplane/crossplane/v1.16.0/cluster/crds/apiextensions.crossplane.io_compositions.yaml"
+
+// These Converters Provide Type Safety on the Object resource. Without them manifest would be of type "Dynamic"
+converters {
+  ["compositions.apiextensions.crossplane.io"] {
+    [List("spec", "pipeline", "pipeline", "input")] = K8sResource
+  }
+}
+
+// The Package references to be used within the new Module
+k8sImportPath = "@k8s" // package://pkg.pkl-lang.org/pkl-k8s/k8s@<version>#

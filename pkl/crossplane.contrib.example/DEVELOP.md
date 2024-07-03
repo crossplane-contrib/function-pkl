@@ -7,7 +7,7 @@ Either can be converted to a Pkl Module.
 ## Create XRD
 When Creating a Pkl file ensure it amends CompositeResourceDefinition
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crospslane.contrib.xrd@1.0.0#/CompositeResourceDefinition.pkl"
+amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crospslane.contrib.xrd@<version>#/CompositeResourceDefinition.pkl"
 ```
 
 view [xrds/ExampleXR.pkl](xrds/ExampleXR.pkl) for more details on how to Build it.
@@ -51,6 +51,10 @@ local request = new crossplane {
 }.Request
 ```
 To Parse the Request automatically into Pkl Language all K8sResources used must be declared in customResourceTemplates in the specified form.
+
+## Create a Composition
+The Composition itself can be created in [yaml](../../example/full/composition.yaml) or in [pkl](composition-inline.pkl). The latter is especially useful, if the the function is used with an inline Pkl file.
+
 
 ## Create PklProject
 [PklProject](PklProject) contains the dependencies of the Project as well as Metadata on where it will be Published, version and name.

@@ -12,9 +12,9 @@ spec:
     functionRef:
       name: function-pkl
     input:
-      apiVersion: template.fn.crossplane.io/v1beta1
+      apiVersion: pkl.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
         type: uri
         # This pkl file is at `pkl/crossplane.contrib.example/full.pkl` in this repo
-        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@1.0.0#/full.pkl"
+        uri: "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@0.0.1#/full.pkl"
