@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - name: Setup Pkl
         uses: pkl-community/setup-pkl@v0
         with:
