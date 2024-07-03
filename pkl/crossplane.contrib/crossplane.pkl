@@ -135,8 +135,8 @@ local function convert(value: Any, type: reflect.Type?): Any =
         let (template = getResourceTemplate(value, customResourceTemplates)) // TODO: replace customResourceTemplate with actual val
           value
             .toMap()
-            .map((k, v) -> Pair(k, convert(v, reflect.Class(template.getClass()).properties.getOrNull(k)?.type)))
-            .toTyped(template.getClass())
+            .map((k, v) -> Pair(k, convert(v, reflect.Class(pkl.getClass()).properties.getOrNull(k)?.type)))
+            .toTyped(pkl.getClass())
       else if (value is Mapping && referent is reflect.Class && referent.isSubclassOf(typedClass))
         value
           .toMap()

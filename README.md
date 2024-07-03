@@ -30,7 +30,7 @@ spec:
     functionRef:
       name: function-pkl
     input:
-      apiVersion: template.fn.crossplane.io/v1beta1
+      apiVersion: pkl.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
         type: uri

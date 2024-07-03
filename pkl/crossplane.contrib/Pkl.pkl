@@ -1,14 +1,14 @@
 /// Pkl struct can be used to provide input to this Function.
 ///
 /// This module was generated from the CustomResourceDefinition at
-/// <file:///Users/tim/IdeaProjects/function-pkl/package/input/template.fn.crossplane.io_pkls.yaml>.
-module io.crossplane.fn.template.v1beta1.Pkl
+/// <file:///Users/tim/IdeaProjects/function-pkl/package/input/pkl.fn.crossplane.io_pkls.yaml>.
+module io.crossplane.fn.pkl.v1beta1.Pkl
 
 extends "@k8s/K8sResource.pkl"
 
 import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
 
-fixed apiVersion: "template.fn.crossplane.io/v1beta1"
+fixed apiVersion: "pkl.fn.crossplane.io/v1beta1"
 
 fixed kind: "Pkl"
 
