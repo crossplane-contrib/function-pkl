@@ -57,7 +57,7 @@ generate: pkl-resolve pkl-resolve-hack
 	go generate ./...
 	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module.pkl
 	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module-composition-fix.pkl
-
+	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example composition-inline.pkl > $(PROJECT_DIR)example/inline/composition.yaml
 
 .PHONY: build-image
 build-image:

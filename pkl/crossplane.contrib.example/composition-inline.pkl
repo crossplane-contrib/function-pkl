@@ -2,11 +2,6 @@ amends "@crossplane.contrib/Composition.pkl"
 
 import "crds/XR.pkl"
 import "@crossplane.contrib/Pkl.pkl"
-import "@crossplane.contrib/CompositionResponse.pkl"
-
-local renderer = new PcfRenderer{
-  omitNullProperties = true
-}
 
 metadata {
   name = "inline-example"
@@ -26,13 +21,7 @@ spec {
       input = new Pkl {
         spec {
           type = "inline"
-          inline = new CompositionResponse {
-            results {
-              new {
-                message = "hi"
-              }
-            }
-          }.toPrettyString()
+          inline = read("minimal-no-project.pkl").text
         }
       }
     }

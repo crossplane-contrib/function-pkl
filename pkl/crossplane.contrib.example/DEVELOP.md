@@ -52,6 +52,10 @@ local request = new crossplane {
 ```
 To Parse the Request automatically into Pkl Language all K8sResources used must be declared in customResourceTemplates in the specified form.
 
+## Create a Composition
+The Composition itself can be created in [yaml](../../example/full/composition.yaml) or in [pkl](composition-inline.pkl). The latter is especially useful, if the the function is used with an inline Pkl file.
+
+
 ## Create PklProject
 [PklProject](PklProject) contains the dependencies of the Project as well as Metadata on where it will be Published, version and name.
 

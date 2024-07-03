@@ -1,68 +1,27 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: function-pkl
+  name: inline-example
 spec:
   compositeTypeRef:
     apiVersion: example.crossplane.io/v1
     kind: XR
   mode: Pipeline
   pipeline:
-  - step: run-the-template
-    functionRef:
+  - functionRef:
       name: function-pkl
     input:
       apiVersion: pkl.fn.crossplane.io/v1beta1
       kind: Pkl
       spec:
-        type: inline
-        # This pkl file is at `pkl/crossplane.contrib.example/full.pkl` in this repo
         inline: |
-          amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0#/CompositionResponse.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0#/Resource.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@1.0.0#/Crossplane.pkl"
-
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@1.0.0#/crds/XR.pkl"
-          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@1.0.0#/crds/Object.pkl"
-
-          import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1#/api/core/v1/ConfigMap.pkl"
-
-          local request = new Crossplane {
-            customResourceTemplates = new {
-              ["XR"] {
-                ["example.crossplane.io/v1"] = XR
-              }
-              ["Object"] {
-                ["kubernetes.crossplane.io/v1alpha2"] = Object
-              }
-            }
-          }.Request
-
-          local observedCompositeResource: XR = request.observed.composite.resource as XR
-          local extraResource: Object? = request.getExtraResource("ineed", 0)?.resource as Object?
-
-          requirements {
-            extraResources {
-              ["ineed"] {
-                apiVersion = Object.apiVersion
-                kind = Object.kind
-                match {
-                  matchName = "required"
-                }
-              }
-            }
-          }
+          amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@0.0.1#/CompositionResponse.pkl"
+          import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@0.0.1#/crds/Object.pkl"
+          import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.1.0#/api/core/v1/ConfigMap.pkl"
 
           desired {
-            composite {
-              resource = new XR {
-                status {
-                  someStatus = "pretty status"
-                }
-              }
-            }
             resources {
-              ["cm-one"] = new Resource {
+              ["cm-minimal"] = new {
                 resource = new Object {
                   metadata {
                     name = "cm-one"
@@ -71,35 +30,18 @@ spec:
                     forProvider {
                       manifest = new ConfigMap {
                         metadata {
-                          name = "cm-one"
+                          name = "cm-minimal"
                           namespace = "crossplane-system"
                         }
                         data {
-                          ["foo"] = observedCompositeResource?.metadata?.name ?? throw("Composite could not find observed composite name")
-                          ["required"] = extraResource?.metadata?.name ?? "i could not find what I needed..."
+                          ["foo"] = "bar"
                         }
                       }
                     }
                   }
                 }
-                ready = Ready_READY_TRUE
               }
-
             }
           }
-          results {
-            new {
-              severity = Severity_SEVERITY_NORMAL
-              message = "welcome"
-            }
-          }
-          context {
-            ["greetings"] = "with <3 from function-pkl"
-            when (request.context.containsKey("apiextensions.crossplane.io/environment")) {
-              ["apiextensions.crossplane.io/environment"] = request.context.getOrNull("apiextensions.crossplane.io/environment")
-            }
-          }
-
-          meta = if (request.meta != null) new ResponseMeta {
-            ttl = 60.s
-          } else null
+        type: inline
+    step: pkl-template
