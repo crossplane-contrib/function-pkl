@@ -64,10 +64,15 @@ $ crossplane xpkg build -f package --embed-runtime-image=runtime
 $ crossplane xpkg push -f function-pkl*.xpkg ghcr.io/crossplane-contrib/function-pkl
 
 # Resolve Pkl Project Dependencies
-$ pkl project resolve ./pkl/*/
+$ make pkl-resolve
 
 # Package the Pkl Project
-$ pkl project package ./pkl/*/
+$ make pkl-package
+
+# Release a Pkl Project
+$ git tag crossplane.contrib@x.y.z
+$ git push --tags
+$ make pkl-release TAG=crossplane.contrib@x.y.z
 
 # Debugging this function
 # While a Debugging session is running run on the same host:

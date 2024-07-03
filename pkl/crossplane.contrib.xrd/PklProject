@@ -17,14 +17,15 @@
 /// Templates for configuring [Kubernetes](https://kubernetes.io).
 amends "pkl:Project"
 
-local repo = "github.com/crossplane-contrib/function-pkl"
+local repo = read?("env:REPOSITORY") ?? "github.com/crossplane-contrib/function-pkl"
+local packageVersion: String = read?("env:CROSSPLANE_CONTRIB_XRD_VERSION") ?? "0.0.0"
 
 package {
   name = "crossplane.contrib.xrd"
   authors {
     "Tim Geimer <32556895+Avarei@users.noreply.github.com>"
   }
-  version = "1.0.0"
+  version = packageVersion
   baseUri = "package://pkg.pkl-lang.org/\(repo)/\(name)"
   packageZipUrl = "https://\(repo)/releases/download/\(name)@\(version)/\(name)@\(version).zip"
   sourceCode = "https://\(repo)"
@@ -43,5 +44,5 @@ dependencies {
   ["syntax"] { uri = "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.syntax@1.0.2" }
   ["openapiv3"] { uri = "package://pkg.pkl-lang.org/pkl-pantry/org.openapis.v3@2.1.1" }
 
-  ["k8s"] { uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.0.1" }
+  ["k8s"] { uri = "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.1.0" }
 }
