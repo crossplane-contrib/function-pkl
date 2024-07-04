@@ -153,8 +153,12 @@ jobs:
         run: "curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh"
 
       - name: Login to Upbound
+        uses: docker/login-action@v3
         if: env.XPKG_ACCESS_ID != ''
-        run: "./crossplane --verbose xpkg login --username=${{ secrets.XPKG_ACCESS_ID }} --password=${{ secrets.XPKG_TOKEN }}"
+        with:
+          registry: xpkg.upbound.io
+          username: ${{ secrets.XPKG_ACCESS_ID }}
+          password: ${{ secrets.XPKG_TOKEN }}
 
       # If a version wasn't explicitly passed as a workflow_dispatch input we
       # default to version v0.0.0-<git-commit-date>-<git-short-sha>, for example
