@@ -65,6 +65,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	case "local":
 		evaluator, err = f.EvaluatorManager.NewProjectEvaluator(ctx, in.Spec.Local.ProjectDir,
 			pkl.PreconfiguredOptions,
+			pkl.WithDefaultCacheDir,
 			reader.WithCrossplane(&reader.CrossplaneReader{
 				ReaderScheme: "crossplane",
 				Request: &helper.CompositionRequest{
@@ -77,6 +78,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 	default:
 		evaluator, err = f.EvaluatorManager.NewEvaluator(ctx,
 			pkl.PreconfiguredOptions,
+			pkl.WithDefaultCacheDir,
 			reader.WithCrossplane(&reader.CrossplaneReader{
 				ReaderScheme: "crossplane",
 				Request: &helper.CompositionRequest{

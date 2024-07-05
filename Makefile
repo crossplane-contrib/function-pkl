@@ -61,7 +61,7 @@ generate: pkl-resolve pkl-resolve-hack
 
 .PHONY: build-image
 build-image:
-	docker build --build-arg -t runtime .
+	docker build -t runtime .
 	crossplane xpkg build -f package --embed-runtime-image=runtime -o .out/function-pkl.xpkg
 
 .PHONY: push-image
