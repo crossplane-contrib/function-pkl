@@ -1,11 +1,10 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionResponse
 
-import "Resource.pkl"
-// import "pkl:protobuf"
+import "RunFunction.pkl"
 
 /// Metadata pertaining to this response.
-meta: ResponseMeta?
+meta: RunFunction.ResponseMeta?
 
 /// Desired state according to a Function pipeline. Functions may add desired
 /// state, and may mutate or delete any part of the desired state they are
@@ -18,74 +17,19 @@ meta: ResponseMeta?
 /// likely not what you want to do. Leaving out fields that had been returned
 /// as desired before will result in them being deleted from the objects in the
 /// cluster.
-desired: State?
+desired: RunFunction.State?
 
 /// Results of the Function run. Results are used for observability purposes.
-results: Listing<Result?>
+results: Listing<RunFunction.Result?>
 
 /// Optional context to be passed to the next Function in the pipeline as part
 /// of the RunFunctionRequest. Dropped on the last function in the pipeline.
 context: Mapping<String, Any>?
 
 /// Requirements that must be satisfied for this Function to run successfully.
-requirements: Requirements?
-
-class ResponseMeta {
-
-  /// Time-to-live of this response. Deterministic Functions with no side-effects
-  /// (e.g. simple templating Functions) may specify a TTL. Crossplane may choose
-  /// to cache responses until the TTL expires.
-  ttl: Duration
-}
-
-/// A Result of running a Function.
-class Result {
-  /// Severity of this result.
-  severity: Severity = SEVERITY_UNSPECIFIED
-
-  /// Human-readable details about the result.
-  message: String
-
-  hidden const SEVERITY_UNSPECIFIED: Severity = 0
-  hidden const SEVERITY_FATAL: Severity = 1
-  hidden const SEVERITY_WARNING: Severity = 2
-  hidden const SEVERITY_NORMAL: Severity = 3
-}
-typealias Severity = Int(isBetween(0,3))
-
-class State {
-  /// The state of the composite resource (XR).
-  composite: Resource
-
-  /// The state of any composed resources.
-  resources: Mapping<String, Resource>
-}
-
-/// Requirements that must be satisfied for a Function to run successfully.
-class Requirements {
-
-  // Extra resources that this Function requires.
-  // The map key uniquely identifies the group of resources.
-  extraResources: Mapping<String, ResourceSelector?>
-}
-class ResourceSelector {
-  apiVersion: String
-  kind: String
-  match: Match
-}
-
-class Match {
-  matchName: String?
-  matchLabels: MatchLabels?
-}
-
-class MatchLabels {
-  labels: Mapping<String, String>
-}
+requirements: RunFunction.Requirements?
 
 output {
-  // renderer = new protobuf.Renderer {}
-
   renderer = new YamlRenderer {
     converters {
       [DataSize] = (size: DataSize) ->
