@@ -1,0 +1,30 @@
+amends "@crossplane.contrib/Composition.pkl"
+
+import "../crds/XR.pkl"
+import "@crossplane.contrib/Pkl.pkl"
+import ".../PklProject"
+
+metadata {
+  name = "pkl-uri-example"
+}
+spec {
+  compositeTypeRef {
+    apiVersion = XR.apiVersion
+    kind = XR.kind
+  }
+  mode = "Pipeline"
+  pipeline {
+    new {
+      step = "pkl-template"
+      functionRef {
+        name = "function-pkl"
+      }
+      input = new Pkl {
+        spec {
+          type = "uri"
+          uri = Pkl.getUri(PklProject, "/compositions/steps/full.pkl")
+        }
+      }
+    }
+  }
+}

@@ -242,6 +242,60 @@ func TestRunFunction(t *testing.T) {
 				},
 			},
 		},
+		"Event": {
+			reason: "Testing correct paththrough of req.desired to res.desired",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							Type: "local",
+							Local: &v1beta1.Local{
+								ProjectDir: pklPackage,
+								File:       pklPackage + "/compositions/steps/event.pkl",
+							},
+						},
+					}),
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+								"apiVersion": "example.crossplane.io/v1",
+								"kind": "XR",
+								"status": {
+									"someStatus": "pretty status"
+								}
+							}`),
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(`{
+								"apiVersion": "example.crossplane.io/v1",
+								"kind": "XR",
+								"status": {
+									"someStatus": "pretty status"
+								}
+							}`),
+						},
+					},
+					Results: []*fnv1beta1.Result{
+						{
+							Severity: fnv1beta1.Severity_SEVERITY_WARNING,
+							Message:  "I am an Event from Pkl!",
+						},
+					},
+					Meta: &fnv1beta1.ResponseMeta{
+						Ttl: &durationpb.Duration{
+							Seconds: 60,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for name, tc := range cases {
