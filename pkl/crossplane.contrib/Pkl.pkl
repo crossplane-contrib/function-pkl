@@ -7,6 +7,7 @@ module io.crossplane.fn.pkl.v1beta1.Pkl
 extends "@k8s/K8sResource.pkl"
 
 import "@k8s/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+import "pkl:Project"
 
 fixed apiVersion: "pkl.fn.crossplane.io/v1beta1"
 
@@ -33,6 +34,9 @@ class Spec {
   /// Use URI Scheme to load Project/Package
   uri: String?
 }
+
+function getUri(project: Project, path: String(startsWith("/"))): String =
+  project.package.baseUri + "@" + project.package.version + "#" + path
 
 /// Reference to a Pklfile and Project
 class Local {
