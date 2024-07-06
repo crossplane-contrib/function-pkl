@@ -1,7 +1,7 @@
 # Deploying this Example
 
 ## Prerequirements
-* pkl cli
+* [pkl cli](https://pkl-lang.org/main/current/pkl-cli/index.html#installation)
 * crossplane in a cluster
 * function-pkl deployed (see [here](../../README.md))
 * provider-kubernetes deployed

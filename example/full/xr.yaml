@@ -1,6 +1,7 @@
-# Replace this with your XR!
 apiVersion: example.crossplane.io/v1
 kind: XR
+spec:
+  compositionRef:
+    name: pkl-uri-example
 metadata:
-  name: example-xr
-spec: {}
+  name: uri-example

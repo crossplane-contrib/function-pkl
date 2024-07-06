@@ -1,0 +1,11 @@
+amends "../crds/XR.pkl"
+
+metadata {
+  name = "inline-example"
+}
+
+spec {
+  compositionRef {
+    name = import("../compositions/inline.pkl").metadata.name!!
+  }
+}

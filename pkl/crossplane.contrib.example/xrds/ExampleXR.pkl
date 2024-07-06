@@ -10,6 +10,9 @@ spec {
     kind = "XR"
     plural = "xrs"
   }
+  defaultCompositionRef {
+    name = import("../compositions/uri.pkl").metadata.name!!
+  }
   versions {
     new {
       name = "v1"

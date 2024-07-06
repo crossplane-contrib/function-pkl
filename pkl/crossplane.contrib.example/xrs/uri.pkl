@@ -1,0 +1,11 @@
+amends "../crds/XR.pkl"
+
+metadata {
+  name = "uri-example"
+}
+
+spec {
+  compositionRef {
+    name = import("../compositions/uri.pkl").metadata.name!!
+  }
+}
