@@ -91,7 +91,6 @@ func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(string(requestYaml))
 
 		return requestYaml, nil
 	default:

@@ -1,0 +1,26 @@
+amends "@crossplane.contrib/CompositionResponse.pkl"
+import "@crossplane.contrib/crossplane.pkl"
+
+import ".../crds/XR.pkl"
+import ".../crds/Object.pkl"
+
+local request = new crossplane {
+  customResourceTemplates = new {
+    ["XR"] {
+      ["example.crossplane.io/v1"] = XR
+    }
+    ["Object"] {
+      ["kubernetes.crossplane.io/v1alpha2"] = Object
+    }
+  }
+}.Request
+
+// Pass through the Desired state from previous pipeline steps
+desired = request.desired
+
+results {
+  new {
+    severity = SEVERITY_WARNING
+    message = "I am an Event from Pkl!"
+  }
+}

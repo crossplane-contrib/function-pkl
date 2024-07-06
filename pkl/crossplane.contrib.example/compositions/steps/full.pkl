@@ -1,8 +1,8 @@
 amends "@crossplane.contrib/CompositionResponse.pkl"
 import "@crossplane.contrib/crossplane.pkl"
 
-import "crds/XR.pkl"
-import "crds/Object.pkl"
+import ".../crds/XR.pkl"
+import ".../crds/Object.pkl"
 
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
@@ -78,6 +78,6 @@ context {
   }
 }
 
-meta = if (request.meta != null) new ResponseMeta {
+meta = if (request.meta != null) new {
   ttl = 60.s
 } else null

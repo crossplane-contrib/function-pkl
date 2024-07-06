@@ -1,5 +1,5 @@
 amends "@crossplane.contrib/CompositionResponse.pkl"
-import "crds/Object.pkl"
+import ".../crds/Object.pkl"
 import "@k8s/api/core/v1/ConfigMap.pkl"
 
 desired {

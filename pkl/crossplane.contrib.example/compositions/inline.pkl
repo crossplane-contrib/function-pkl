@@ -1,6 +1,6 @@
 amends "@crossplane.contrib/Composition.pkl"
 
-import "crds/XR.pkl"
+import "../crds/XR.pkl"
 import "@crossplane.contrib/Pkl.pkl"
 
 metadata {
@@ -21,7 +21,7 @@ spec {
       input = new Pkl {
         spec {
           type = "inline"
-          inline = read("minimal-no-project.pkl").text
+          inline = read("steps/minimal-no-project.pkl").text
         }
       }
     }

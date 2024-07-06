@@ -33,7 +33,7 @@ pkl eval xrds/crd2module.pkl -m crds
 ## Create Pkl file for the Pipeline Step
 The Pkl file referenced in the Composition must amend `CompositionResponse.pkl`.
 
-The example at [full.pkl](full.pkl) gives an overview of what can be done.
+The example at [full.pkl](compositions/steps/full.pkl) gives an overview of what can be done.
 
 [CompositionResponse.pkl](../crossplane.contrib/CompositionResponse.pkl) contains documentation on what the individual fields do.
 
@@ -53,7 +53,7 @@ local request = new crossplane {
 To Parse the Request automatically into Pkl Language all K8sResources used must be declared in customResourceTemplates in the specified form.
 
 ## Create a Composition
-The Composition itself can be created in [yaml](../../example/full/composition.yaml) or in [pkl](composition-inline.pkl). The latter is especially useful, if the the function is used with an inline Pkl file.
+The Composition itself can be created in [yaml](../../example/full/composition.yaml) or in [pkl](compositions/inline.pkl). The latter is especially useful, if the the function is used with an inline Pkl file.
 
 
 ## Create PklProject

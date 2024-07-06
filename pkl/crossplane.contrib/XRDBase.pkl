@@ -13,7 +13,7 @@ abstract class Spec {
   compositionRevisionSelector: CompositionRevisionSelector?
   compositionUpdatePolicy: CompositionUpdatePolicy?
   claimRef: ClaimRef?
-  environmentConfigRefs: Listing<EnvironmentConfigRef>
+  environmentConfigRefs: Listing<EnvironmentConfigRef>?
   publishConnectionDetailsTo: PublishConnectionDetailsTo?
   resourceRefs: Listing<ResourceRef>?
   writeConnectionSecretToRef: WriteConnectionSecretToRef?
