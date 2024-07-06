@@ -68,10 +68,6 @@ class Resource {
   ///     the desired connection details of a composed resource. This will be
   ///     ignored.
   connectionDetails: Mapping<String, String>?
-
-  output {
-    renderer = (K8sResource.output.renderer as YamlRenderer) {}
-  }
 }
 typealias Ready = Int(isBetween(0,2))
 

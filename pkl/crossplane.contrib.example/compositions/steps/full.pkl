@@ -78,6 +78,6 @@ context {
   }
 }
 
-meta = if (request.meta != null) new ResponseMeta {
+meta = if (request.meta != null) new {
   ttl = 60.s
 } else null
