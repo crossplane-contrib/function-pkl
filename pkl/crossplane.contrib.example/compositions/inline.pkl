@@ -2,7 +2,6 @@ amends "@crossplane.contrib/Composition.pkl"
 
 import "../crds/XR.pkl"
 import "@crossplane.contrib/Pkl.pkl"
-import "pkl:reflect"
 
 metadata {
   name = "inline-example"
