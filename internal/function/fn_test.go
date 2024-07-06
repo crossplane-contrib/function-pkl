@@ -65,7 +65,7 @@ func TestRunFunction(t *testing.T) {
 							Type: "local",
 							Local: &v1beta1.Local{
 								ProjectDir: pklPackage,
-								File:       pklPackage + "/minimal.pkl",
+								File:       pklPackage + "/compositions/steps/minimal.pkl",
 							},
 						},
 					}),
@@ -131,7 +131,7 @@ func TestRunFunction(t *testing.T) {
 							Type: "local",
 							Local: &v1beta1.Local{
 								ProjectDir: pklPackage,
-								File:       pklPackage + "/full.pkl",
+								File:       pklPackage + "/compositions/steps/full.pkl",
 							},
 						},
 					}),
