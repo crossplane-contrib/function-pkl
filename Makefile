@@ -17,13 +17,16 @@ XRD_PARAM      := $(if $(LATEST_XRD),-e CROSSPLANE_CONTRIB_XRD_VERSION="$(LATEST
 pkl-resolve:
 	pkl project resolve ./pkl/*/
 
+.PHONY: pkl-resolve-with-tags
+pkl-resolve-with-tags: check-tag
+	pkl project resolve $(REPO_PARAM) $(CORE_PARAM) $(EXAMPLE_PARAM) $(XRD_PARAM) ./pkl/*/
+
 .PHONY: pkl-resolve-hack
 pkl-resolve-hack:
 	pkl project resolve ./hack/pklcrd/
 
 .PHONY: pkl-package
-pkl-package:
-	pkl project resolve $(REPO_PARAM) $(CORE_PARAM) $(EXAMPLE_PARAM) $(XRD_PARAM) ./pkl/*/
+pkl-package: pkl-resolve-with-tags
 	$(eval PACKAGE_FILES  := $(shell \
     		pkl project package $(REPO_PARAM) $(CORE_PARAM) $(EXAMPLE_PARAM) $(XRD_PARAM) ./pkl/*/ ))
 
