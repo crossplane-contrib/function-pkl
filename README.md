@@ -14,7 +14,7 @@ spec:
 ```
 
 ## Usage
-To use this function create add the following to your composition:
+To use this function add the following to your composition:
 ```yaml
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
