@@ -9,16 +9,15 @@
 
 ## Deploy XRD
 ```shell
-cd pkl/pkl/crossplane.contrib.example
-pkl eval xrds/ExampleXR.pkl | kubectl apply -f -
+pkl eval package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@0.0.1#/xrds/ExampleXR.pkl | kubectl apply -f -
 ```
 ## Deploy Composition
 ```shell
-pkl eval compositions/uri.pkl | kubectl apply -f -
+pkl eval package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@0.0.1#/compositions/uri.pkl | kubectl apply -f -
 ```
 ## Deploy XR
 ```shell
-pkl eval xrs/uri.pkl | kubectl apply -f -
+pkl eval package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib.example@0.0.1#/xrs/uri.pkl | kubectl apply -f -
 ```
 
 ## Check the Resource
