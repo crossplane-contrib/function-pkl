@@ -49,16 +49,13 @@ This function uses [Go][go], [Docker][docker], the [Crossplane CLI][cli], and th
 
 ```shell
 # Run code generation - see input/generate.go
-$ go generate ./...
+$ make generate
 
 # Run tests - see fn_test.go
 $ go test ./...
 
-# Build the function's runtime image - see Dockerfile
-$ docker build . --tag=runtime
-
-# Build a function package - see package/crossplane.yaml
-$ crossplane xpkg build -f package --embed-runtime-image=runtime
+# Build the function's runtime image and package it - see Dockerfile and package/crossplane.yaml
+$ make build-image
 
 # Push the Package to a registry
 $ crossplane xpkg push -f function-pkl*.xpkg ghcr.io/crossplane-contrib/function-pkl
@@ -66,12 +63,14 @@ $ crossplane xpkg push -f function-pkl*.xpkg ghcr.io/crossplane-contrib/function
 # Resolve Pkl Project Dependencies
 $ make pkl-resolve
 
-# Package the Pkl Project
-$ make pkl-package
-
 # Release a Pkl Project
 $ git tag crossplane.contrib@x.y.z
 $ git push --tags
+
+# Packages the Pkl Projects. Uses the latest existing git tags to version them.
+$ make pkl-package
+
+# Manually release a Pkl Package on github
 $ make pkl-release TAG=crossplane.contrib@x.y.z
 
 # Debugging this function
@@ -83,21 +82,19 @@ $ crossplane beta render xr.yaml composition.yaml functions.yaml --verbose
 #### Composition Function
 Run the [CI action](https://github.com/crossplane-contrib/function-pkl/actions/workflows/ci.yml) and provide a Package version.
 #### Pkl Packages
-Update `PklProject.package.version` of the relevant Package in ./pkl/
-
-Create a Tag in the style of <PklProject.package.name>@<PklProject.package.version> e.g. `git tag crossplane.contrib@0.0.1`
+Create a git tag in the style of <PklProject.package.name>@<PklProject.package.version> e.g. `git tag crossplane.contrib@0.0.1`
 
 Push it `git push --tags`
 
 ### Pkl Function Flow
-This Chart illustrates how what happens, when Crossplane Triggers this Composition Function.
+This Chart illustrates the intereactions between the function and Pkl, when Crossplane Triggers this Composition Function.
 
 ```mermaid
 sequenceDiagram
     participant fun as RunFunction
     box rgb(20, 100, 60) Pkl Files
         participant full.pkl as full.pkl
-        participant c.pkl as Crossplane.pkl
+        participant c.pkl as crossplane.pkl
     end
     box rgb(20,60,100) CrossplaneReader
         participant c.r as crossplane:request
@@ -116,7 +113,6 @@ sequenceDiagram
     full.pkl->>fun: Function Respone
     deactivate fun
 ```
-
 
 [functions]: https://docs.crossplane.io/latest/concepts/composition-functions
 [go]: https://go.dev
