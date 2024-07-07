@@ -2,7 +2,9 @@ amends "@crossplane.contrib/Composition.pkl"
 import "@crossplane.contrib/Pkl.pkl"
 
 import "../crds/XR.pkl"
-import ".../PklProject"
+import "steps/full.pkl"
+
+import "pkl:reflect"
 
 metadata {
   name = "pkl-uri-example"
@@ -22,7 +24,7 @@ spec {
       input = new Pkl {
         spec {
           type = "uri"
-          uri = PklProject.package.baseUri + "@" + PklProject.package.version + "#/compositions/steps/full.pkl"
+          uri = reflect.Module(full).uri
         }
       }
     }
