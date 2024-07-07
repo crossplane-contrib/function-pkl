@@ -43,14 +43,10 @@ desired {
   resources {
     ["cm-one"] = new {
       resource = new Object {
-        metadata {
-          name = "cm-one"
-        }
         spec {
           forProvider {
             manifest = new ConfigMap {
               metadata {
-                name = "cm-one"
                 namespace = "crossplane-system"
               }
               data {
