@@ -10,7 +10,7 @@ kind: Function
 metadata:
   name: function-pkl
 spec:
-  package: ghcr.io/crossplane-contrib/function-pkl:v0.0.1
+  package: xpkg.upbound.io/crossplane-contrib/function-pkl:v0.0.1
 ```
 
 ## Usage
