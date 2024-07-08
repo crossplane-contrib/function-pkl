@@ -95,16 +95,12 @@ func TestRunFunction(t *testing.T) {
 								Resource: resource.MustStructJSON(`{
 									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 									"kind": "Object",
-									"metadata": {
-										"name": "cm-one"
-									},
 									"spec": {
 										"forProvider": {
 											"manifest": {
 												"apiVersion": "v1",
 												"kind": "ConfigMap",
 												"metadata": {
-													"name": "cm-minimal",
 													"namespace": "crossplane-system"
 												},
 												"data": {
@@ -186,16 +182,12 @@ func TestRunFunction(t *testing.T) {
 								Resource: resource.MustStructJSON(`{
 									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
 									"kind": "Object",
-									"metadata": {
-										"name": "cm-one"
-									},
 									"spec": {
 										"forProvider": {
 											"manifest": {
 												"apiVersion": "v1",
 												"kind": "ConfigMap",
 												"metadata": {
-													"name": "cm-one",
 													"namespace": "crossplane-system"
 												},
 												"data": {
