@@ -6,14 +6,10 @@ desired {
   resources {
     ["cm-minimal"] = new {
       resource = new Object {
-        metadata {
-          name = "cm-one"
-        }
         spec {
           forProvider {
             manifest = new ConfigMap {
               metadata {
-                name = "cm-minimal"
                 namespace = "crossplane-system"
               }
               data {
