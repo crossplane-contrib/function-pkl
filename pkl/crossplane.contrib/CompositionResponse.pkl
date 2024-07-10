@@ -2,9 +2,18 @@
 module CompositionResponse
 
 import "RunFunction.pkl"
+import "Resource.pkl"
 
 /// Metadata pertaining to this response.
-meta: RunFunction.ResponseMeta?
+meta: ResponseMeta?
+
+/// ResponseMeta contains metadata pertaining to a RunFunctionResponse.
+class ResponseMeta {
+  /// Time-to-live of this response. Deterministic Functions with no side-effects
+  /// (e.g. simple templating Functions) may specify a TTL. Crossplane may choose
+  /// to cache responses until the TTL expires.
+  ttl: Duration
+}
 
 /// Desired state according to a Function pipeline. Functions may add desired
 /// state, and may mutate or delete any part of the desired state they are
@@ -17,17 +26,50 @@ meta: RunFunction.ResponseMeta?
 /// likely not what you want to do. Leaving out fields that had been returned
 /// as desired before will result in them being deleted from the objects in the
 /// cluster.
-desired: RunFunction.State?
+desired: Resource.DesiredState?
 
 /// Results of the Function run. Results are used for observability purposes.
-results: Listing<RunFunction.Result?>
+results: List<Result>?
+
+/// A Result of running a Function.
+class Result {
+  /// Severity of this result.
+  severity: Severity = "Unspecified"
+  /// Human-readable details about the result.
+  message: String
+}
+typealias Severity = "Normal"|"Warning"|"Fatal"|"Unspecified"
 
 /// Optional context to be passed to the next Function in the pipeline as part
 /// of the RunFunctionRequest. Dropped on the last function in the pipeline.
 context: Mapping<String, Any>?
 
 /// Requirements that must be satisfied for this Function to run successfully.
-requirements: RunFunction.Requirements?
+requirements: Requirements?
+
+class Requirements {
+  extraResources: Mapping<String, ResourceSelector?>
+}
+
+/// ResourceSelector selects a group of resources, either by name or by label.
+class ResourceSelector {
+  apiVersion: String
+  kind: String
+  match: Match
+}
+
+class Match {
+  /// Match the resource with this name.
+  /// Note: matchLabels takes precedence if both are defined.
+  matchName: String?
+  /// Match all resources with these labels.
+  matchLabels: MatchLabels?
+}
+
+/// MatchLabels defines a set of labels to match resources against.
+class MatchLabels {
+  labels: Mapping<String, String>
+}
 
 output {
   renderer = new YamlRenderer {
@@ -46,6 +88,43 @@ output {
                 seconds = secs
                 nanos = ns.toUnit("ns").value.toInt()
               }
+      [Resource.DesiredComposed] = (dc: Resource.DesiredComposed) ->
+          if (dc.ready == "True")
+            new RunFunction.Resource {
+              resource = dc.resource
+              ready = READY_TRUE
+            }
+          else if (dc.ready == "False")
+            new RunFunction.Resource {
+              resource = dc.resource
+              ready = READY_FALSE
+            }
+          else
+            new RunFunction.Resource {
+              resource = dc.resource
+              ready = READY_UNSPECIFIED
+            }
+      [Result] = (res: Result) ->
+          if (res.severity == "Normal")
+            new RunFunction.Result {
+              message = res.message
+              severity = SEVERITY_NORMAL
+            }
+          else if (res.severity == "Warning")
+            new RunFunction.Result {
+              message = res.message
+              severity = SEVERITY_WARNING
+            }
+          else if (res.severity == "Fatal")
+            new RunFunction.Result {
+              message = res.message
+              severity = SEVERITY_FATAL
+            }
+          else
+            new RunFunction.Result {
+              message = res.message
+              severity = SEVERITY_UNSPECIFIED
+            }
     }
   }
 }

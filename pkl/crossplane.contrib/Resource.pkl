@@ -1,0 +1,47 @@
+@ModuleInfo { minPklVersion = "0.25.1" }
+module Resource
+
+import "@k8s/K8sResource.pkl"
+
+/// ConnectionDetails created or updated during an operation on an external
+/// resource, for example usernames, passwords, endpoints, ports, etc.
+typealias ConnectionDetails = Mapping<String, String>
+
+/// A Composite resource - aka an XR.
+class Composite {
+  resource: K8sResource?
+  connectionDetails: ConnectionDetails
+}
+
+/// A Name uniquely identifies a composed resource within a Composition Function
+/// pipeline. It's not the resource's metadata.name.
+typealias Name = String
+
+/// State of the composite resource (XR) and any composed resources.
+class DesiredState {
+  /// The state of the composite resource (XR).
+  composite: Composite?
+
+  /// The state of any composed resources.
+  resources: Mapping<Name, DesiredComposed>?
+}
+
+/// DesiredComposed reflects the desired state of a composed resource.
+class DesiredComposed {
+  resource: K8sResource?
+  ready: Ready = "Unspecified"
+}
+
+/// ObservedComposed reflects the observed state of a composed resource.
+class ObservedComposed {
+  resource: K8sResource?
+  connectionDetails: ConnectionDetails
+}
+
+/// Extra is a resource requested by a Function.
+class Extra {
+  resource: K8sResource?
+}
+
+/// Ready indicates whether a composed resource should be considered ready.
+typealias Ready = "Unspecified"|"True"|"False"

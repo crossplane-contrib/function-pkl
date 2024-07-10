@@ -12,11 +12,6 @@ class State {
   resources: Mapping<String, Resource>
 }
 
-/// RequestMeta contains metadata pertaining to a RunFunctionRequest.
-class RequestMeta {
-  tag: String
-}
-
 /// Resources represents the state of several Crossplane resources.
 class Resources {
   items: Listing<Resource?>
@@ -71,13 +66,6 @@ class Resource {
 }
 typealias Ready = Int(isBetween(0,2))
 
-/// ResponseMeta contains metadata pertaining to a RunFunctionResponse.
-class ResponseMeta {
-  /// Time-to-live of this response. Deterministic Functions with no side-effects
-  /// (e.g. simple templating Functions) may specify a TTL. Crossplane may choose
-  /// to cache responses until the TTL expires.
-  ttl: Duration
-}
 
 /// A Result of running a Function.
 class Result {
@@ -93,31 +81,3 @@ class Result {
   hidden const SEVERITY_NORMAL: Severity = 3
 }
 typealias Severity = Int(isBetween(0,3))
-
-/// Requirements that must be satisfied for a Function to run successfully.
-class Requirements {
-
-  /// Extra resources that this Function requires.
-  /// The map key uniquely identifies the group of resources.
-  extraResources: Mapping<String, ResourceSelector?>
-}
-
-/// ResourceSelector selects a group of resources, either by name or by label.
-class ResourceSelector {
-  apiVersion: String
-  kind: String
-  match: Match
-}
-
-class Match {
-  /// Match the resource with this name.
-  /// Note: matchLabels takes precedence if both are defined.
-  matchName: String?
-  /// Match all resources with these labels.
-  matchLabels: MatchLabels?
-}
-
-/// MatchLabels defines a set of labels to match resources against.
-class MatchLabels {
-  labels: Mapping<String, String>
-}
