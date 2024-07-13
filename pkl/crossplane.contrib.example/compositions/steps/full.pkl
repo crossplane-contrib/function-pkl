@@ -57,13 +57,13 @@ desired {
           }
         }
       }
-      ready = READY_TRUE
+      ready = true
     }
   }
 }
 results {
   new {
-    severity = SEVERITY_NORMAL
+    severity = "Normal"
     message = "welcome"
   }
 }
