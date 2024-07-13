@@ -43,7 +43,7 @@ type Function struct {
 
 // RunFunction runs the Function.
 func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRequest) (*fnv1beta1.RunFunctionResponse, error) {
-	f.Log.Info("Running function", "tag", req.GetMeta().GetTag())
+	f.Log.Debug("Running function", "tag", req.GetMeta().GetTag())
 
 	rsp := response.To(req, response.DefaultTTL)
 
@@ -101,6 +101,7 @@ func (f *Function) RunFunction(ctx context.Context, req *fnv1beta1.RunFunctionRe
 
 	renderedManifest, err := evaluator.EvaluateOutputText(ctx, moduleSource)
 	if err != nil {
+		f.Log.Debug("Error parsing Pkl file", "error", err)
 		response.Fatal(rsp, errors.Wrap(err, "error while parsing the Pkl file"))
 		return rsp, nil
 	}

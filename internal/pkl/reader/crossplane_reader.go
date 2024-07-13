@@ -92,6 +92,7 @@ func (f *CrossplaneReader) BaseRead(url url.URL) ([]byte, error) {
 			return nil, err
 		}
 
+		f.Log.Debug("compositionRequest", "request", requestYaml)
 		return requestYaml, nil
 	default:
 		return nil, fmt.Errorf("unsupported path")
