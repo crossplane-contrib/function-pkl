@@ -162,6 +162,72 @@ func TestRunFunction(t *testing.T) {
 				},
 			},
 		},
+		"FullCantFindRequirement": {
+			reason: "The Function should create a full functionResult",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							Type: "local",
+							Local: &v1beta1.Local{
+								ProjectDir: pklPackage,
+								File:       pklPackage + "/compositions/steps/full.pkl",
+							},
+						},
+					}),
+					Context: resource.MustStructJSON(environmentConfig),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(xr),
+						},
+					},
+					ExtraResources: map[string]*fnv1beta1.Resources{
+						"ineed": {},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(xrStatus),
+						},
+						Resources: map[string]*fnv1beta1.Resource{
+							"cm-one": {
+								Resource: resource.MustStructJSON(objectWithoutRequired),
+								Ready:    fnv1beta1.Ready_READY_TRUE,
+							},
+						},
+					},
+					Requirements: &fnv1beta1.Requirements{
+						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
+							"ineed": {
+								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
+								Kind:       "Object",
+								Match: &fnv1beta1.ResourceSelector_MatchName{
+									MatchName: "required",
+								},
+							},
+						},
+					},
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: &durationpb.Duration{
+							Seconds: 60,
+						},
+					},
+					Context: resource.MustStructJSON(environmentConfig),
+					Results: []*fnv1beta1.Result{
+						{
+							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
+							Message:  "welcome",
+						},
+					},
+				},
+			},
+		},
 		"Full": {
 			reason: "The Function should create a full functionResult",
 			args: args{

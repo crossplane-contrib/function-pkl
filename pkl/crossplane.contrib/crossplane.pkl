@@ -168,10 +168,12 @@ local function convert(value: Any, type: reflect.Type?): Any =
             extraResources = new {
               for (k, v in value["extraResources"]) {
                 [k] = new {
-                  for (i in v["items"]) {
-                    new {
-                      when (i.containsKey("resource")) {
-                        resource = MappingToK8sResource(i["resource"])
+                  when (v.containsKey("items")) {
+                    for (i in v["items"]) {
+                      new {
+                        when (i.containsKey("resource")) {
+                          resource = MappingToK8sResource(i["resource"])
+                        }
                       }
                     }
                   }
