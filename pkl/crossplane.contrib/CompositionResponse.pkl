@@ -1,8 +1,8 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionResponse
 
-import "RunFunction.pkl"
 import "Resource.pkl"
+import "@k8s/K8sResource.pkl"
 
 /// Metadata pertaining to this response.
 meta: ResponseMeta?
@@ -90,44 +90,111 @@ output {
               }
       [Resource.DesiredComposed] = (dc: Resource.DesiredComposed) ->
           if (dc.ready == "True")
-            new RunFunction.Resource {
+            new OutputResource {
               resource = dc.resource
               ready = READY_TRUE
             }
           else if (dc.ready == "False")
-            new RunFunction.Resource {
+            new OutputResource {
               resource = dc.resource
               ready = READY_FALSE
             }
           else
-            new RunFunction.Resource {
+            new OutputResource {
               resource = dc.resource
               ready = READY_UNSPECIFIED
             }
       [Result] = (res: Result) ->
           if (res.severity == "Normal")
-            new RunFunction.Result {
+            new OutputResult {
               message = res.message
               severity = SEVERITY_NORMAL
             }
           else if (res.severity == "Warning")
-            new RunFunction.Result {
+            new OutputResult {
               message = res.message
               severity = SEVERITY_WARNING
             }
           else if (res.severity == "Fatal")
-            new RunFunction.Result {
+            new OutputResult {
               message = res.message
               severity = SEVERITY_FATAL
             }
           else
-            new RunFunction.Result {
+            new OutputResult {
               message = res.message
               severity = SEVERITY_UNSPECIFIED
             }
     }
   }
 }
+
+/// A Resource represents the state of a composite or composed resource.
+local class OutputResource {
+  /// The JSON representation of the resource.
+  ///
+  ///   - Crossplane will set this field in a RunFunctionRequest to the entire
+  ///     observed state of a resource - including its metadata, spec, and status.
+  ///
+  ///   - A Function should set this field in a RunFunctionRequest to communicate
+  ///     the desired state of a composite or composed resource.
+  ///
+  ///   - A Function may only specify the desired status of a composite resource -
+  ///     not its metadata or spec. A Function should not return desired metadata
+  ///     or spec for a composite resource. This will be ignored.
+  ///
+  ///   - A Function may not specify the desired status of a composed resource -
+  ///     only its metadata and spec. A Function should not return desired status
+  ///     for a composed resource. This will be ignored.
+  resource: K8sResource?
+
+  /// Ready indicates whether the resource should be considered ready.
+  ///
+  /// * Crossplane will never set this field in a RunFunctionRequest.
+  ///
+  ///   - A Function should set this field to READY_TRUE in a RunFunctionResponse
+  ///     to indicate that a desired composed resource is ready.
+  ///
+  ///   - A Function should not set this field in a RunFunctionResponse to indicate
+  ///     that the desired composite resource is ready. This will be ignored.
+  ready: OutputReady? = READY_UNSPECIFIED
+
+  hidden const READY_UNSPECIFIED: OutputReady = 0
+  hidden const READY_TRUE: OutputReady = 1
+  hidden const READY_FALSE: OutputReady = 2
+
+  /// The resource's connection details.
+  ///
+  ///   - Crossplane will set this field in a RunFunctionRequest to communicate the
+  ///     the observed connection details of a composite or composed resource.
+  ///
+  ///   - A Function should set this field in a RunFunctionResponse to indicate the
+  ///     desired connection details of the composite resource.
+  ///
+  ///   - A Function should not set this field in a RunFunctionResponse to indicate
+  ///     the desired connection details of a composed resource. This will be
+  ///     ignored.
+  connectionDetails: Mapping<String, String>?
+}
+local typealias OutputReady = Int(isBetween(0,2))
+
+
+/// A Result of running a Function.
+local class OutputResult {
+  /// Severity of this result.
+  severity: OutputSeverity = SEVERITY_UNSPECIFIED
+
+  /// Human-readable details about the result.
+  message: String
+
+  hidden const SEVERITY_UNSPECIFIED: OutputSeverity = 0
+  hidden const SEVERITY_FATAL: OutputSeverity = 1
+  hidden const SEVERITY_WARNING: OutputSeverity = 2
+  hidden const SEVERITY_NORMAL: OutputSeverity = 3
+}
+local typealias OutputSeverity = Int(isBetween(0,3))
+
+
 
 local class protobufDuration {
   seconds: Int // int64 not available in pkl
