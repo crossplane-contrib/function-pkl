@@ -29,7 +29,7 @@ class DesiredState {
 /// DesiredComposed reflects the desired state of a composed resource.
 class DesiredComposed {
   resource: K8sResource?
-  ready: Ready = "Unspecified"
+  ready: Boolean?
 }
 
 /// ObservedComposed reflects the observed state of a composed resource.
@@ -43,5 +43,3 @@ class Extra {
   resource: K8sResource?
 }
 
-/// Ready indicates whether a composed resource should be considered ready.
-typealias Ready = "Unspecified"|"True"|"False"

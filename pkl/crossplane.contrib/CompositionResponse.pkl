@@ -29,16 +29,16 @@ class ResponseMeta {
 desired: Resource.DesiredState?
 
 /// Results of the Function run. Results are used for observability purposes.
-results: List<Result>?
+results: Listing<Result>?
 
 /// A Result of running a Function.
 class Result {
   /// Severity of this result.
-  severity: Severity = "Unspecified"
+  severity: Severity?
   /// Human-readable details about the result.
   message: String
 }
-typealias Severity = "Normal"|"Warning"|"Fatal"|"Unspecified"
+typealias Severity = "Normal"|"Warning"|"Fatal"
 
 /// Optional context to be passed to the next Function in the pipeline as part
 /// of the RunFunctionRequest. Dropped on the last function in the pipeline.
@@ -89,42 +89,46 @@ output {
                 nanos = ns.toUnit("ns").value.toInt()
               }
       [Resource.DesiredComposed] = (dc: Resource.DesiredComposed) ->
-          if (dc.ready == "True")
-            new OutputResource {
-              resource = dc.resource
-              ready = READY_TRUE
-            }
-          else if (dc.ready == "False")
-            new OutputResource {
-              resource = dc.resource
-              ready = READY_FALSE
-            }
-          else
-            new OutputResource {
-              resource = dc.resource
-              ready = READY_UNSPECIFIED
-            }
+          let (ready = dc.ready)
+            if (ready == null)
+              new OutputResource {
+                resource = dc.resource
+                ready = READY_UNSPECIFIED
+              }
+            else if (ready == true)
+              new OutputResource {
+                resource = dc.resource
+                ready = READY_TRUE
+              }
+            else
+              new OutputResource {
+                resource = dc.resource
+                ready = READY_FALSE
+              }
       [Result] = (res: Result) ->
-          if (res.severity == "Normal")
-            new OutputResult {
-              message = res.message
-              severity = SEVERITY_NORMAL
-            }
-          else if (res.severity == "Warning")
-            new OutputResult {
-              message = res.message
-              severity = SEVERITY_WARNING
-            }
-          else if (res.severity == "Fatal")
-            new OutputResult {
-              message = res.message
-              severity = SEVERITY_FATAL
-            }
-          else
-            new OutputResult {
-              message = res.message
-              severity = SEVERITY_UNSPECIFIED
-            }
+          let (severity = res.severity)
+            if (severity == null)
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_UNSPECIFIED
+              }
+            else if (severity == "Normal")
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_NORMAL
+              }
+            else if (severity == "Warning")
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_WARNING
+              }
+            else if (severity == "Fatal")
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_FATAL
+              }
+            else
+              throw("unknown result severity \"\(res.severity)\"")
     }
   }
 }
