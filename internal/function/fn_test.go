@@ -37,6 +37,14 @@ import (
 var (
 	workdir, _ = os.Getwd()
 	pklPackage = fmt.Sprintf("%s/../../pkl/crossplane.contrib.example", workdir)
+
+	xr                = `{"apiVersion": "example.crossplane.io/v1","kind": "XR","metadata": {"name": "example-xr"},"spec": {}}`
+	xrStatus          = `{"apiVersion": "example.crossplane.io/v1","kind": "XR","status": {"someStatus": "pretty status"}}`
+	environmentConfig = `{"apiextensions.crossplane.io/environment": {"foo": "bar"}, "greetings": "with <3 from function-pkl"}`
+
+	objectWithRequired    = `{"apiVersion": "kubernetes.crossplane.io/v1alpha2","kind": "Object","spec": {"forProvider": {"manifest": {"apiVersion": "v1","kind": "ConfigMap","metadata": {"namespace": "crossplane-system"},"data": {"foo": "example-xr","required": "required"}}}}}`
+	objectWithoutRequired = `{"apiVersion": "kubernetes.crossplane.io/v1alpha2","kind": "Object","spec": {"forProvider": {"manifest": {"apiVersion": "v1","kind": "ConfigMap","metadata": {"namespace": "crossplane-system"},"data": {"foo": "example-xr","required": "i could not find what I needed..."}}}}}`
+	objectMinimal         = `{"apiVersion": "kubernetes.crossplane.io/v1alpha2","kind": "Object","spec": {"forProvider": {"manifest": {"apiVersion": "v1","kind": "ConfigMap","metadata": {"namespace": "crossplane-system"},"data": {"foo": "bar"}}}}}`
 )
 
 func TestRunFunction(t *testing.T) {
@@ -71,14 +79,7 @@ func TestRunFunction(t *testing.T) {
 					}),
 					Observed: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
-							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1",
-								"kind": "XR",
-								"metadata": {
-									"name": "example-xr"
-								},
-								"spec": {}
-							}`),
+							Resource: resource.MustStructJSON(xr),
 						},
 					},
 				},
@@ -89,28 +90,139 @@ func TestRunFunction(t *testing.T) {
 						Ttl: durationpb.New(response.DefaultTTL),
 					},
 					Desired: &fnv1beta1.State{
-						Composite: &fnv1beta1.Resource{},
 						Resources: map[string]*fnv1beta1.Resource{
 							"cm-minimal": {
-								Resource: resource.MustStructJSON(`{
-									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-									"kind": "Object",
-									"spec": {
-										"forProvider": {
-											"manifest": {
-												"apiVersion": "v1",
-												"kind": "ConfigMap",
-												"metadata": {
-													"namespace": "crossplane-system"
-												},
-												"data": {
-													"foo": "bar"
-												}
-											}
-										}
-									}
-								}`),
+								Resource: resource.MustStructJSON(objectMinimal),
 							},
+						},
+					},
+				},
+			},
+		},
+		"FullFirstRun": {
+			reason: "The Function should create a full functionResult",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							Type: "local",
+							Local: &v1beta1.Local{
+								ProjectDir: pklPackage,
+								File:       pklPackage + "/compositions/steps/full.pkl",
+							},
+						},
+					}),
+					Context: resource.MustStructJSON(environmentConfig),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(xr),
+						},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(xrStatus),
+						},
+						Resources: map[string]*fnv1beta1.Resource{
+							"cm-one": {
+								Resource: resource.MustStructJSON(objectWithoutRequired),
+								Ready:    fnv1beta1.Ready_READY_TRUE,
+							},
+						},
+					},
+					Requirements: &fnv1beta1.Requirements{
+						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
+							"ineed": {
+								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
+								Kind:       "Object",
+								Match: &fnv1beta1.ResourceSelector_MatchName{
+									MatchName: "required",
+								},
+							},
+						},
+					},
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: &durationpb.Duration{
+							Seconds: 60,
+						},
+					},
+					Context: resource.MustStructJSON(environmentConfig),
+					Results: []*fnv1beta1.Result{
+						{
+							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
+							Message:  "welcome",
+						},
+					},
+				},
+			},
+		},
+		"FullCantFindRequirement": {
+			reason: "The Function should create a full functionResult",
+			args: args{
+				ctx: context.TODO(),
+				req: &fnv1beta1.RunFunctionRequest{
+					Meta: &fnv1beta1.RequestMeta{Tag: "extra"},
+					Input: resource.MustStructObject(&v1beta1.Pkl{
+						Spec: v1beta1.PklSpec{
+							Type: "local",
+							Local: &v1beta1.Local{
+								ProjectDir: pklPackage,
+								File:       pklPackage + "/compositions/steps/full.pkl",
+							},
+						},
+					}),
+					Context: resource.MustStructJSON(environmentConfig),
+					Observed: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(xr),
+						},
+					},
+					ExtraResources: map[string]*fnv1beta1.Resources{
+						"ineed": {},
+					},
+				},
+			},
+			want: want{
+				rsp: &fnv1beta1.RunFunctionResponse{
+					Desired: &fnv1beta1.State{
+						Composite: &fnv1beta1.Resource{
+							Resource: resource.MustStructJSON(xrStatus),
+						},
+						Resources: map[string]*fnv1beta1.Resource{
+							"cm-one": {
+								Resource: resource.MustStructJSON(objectWithoutRequired),
+								Ready:    fnv1beta1.Ready_READY_TRUE,
+							},
+						},
+					},
+					Requirements: &fnv1beta1.Requirements{
+						ExtraResources: map[string]*fnv1beta1.ResourceSelector{
+							"ineed": {
+								ApiVersion: "kubernetes.crossplane.io/v1alpha2",
+								Kind:       "Object",
+								Match: &fnv1beta1.ResourceSelector_MatchName{
+									MatchName: "required",
+								},
+							},
+						},
+					},
+					Meta: &fnv1beta1.ResponseMeta{
+						Tag: "extra",
+						Ttl: &durationpb.Duration{
+							Seconds: 60,
+						},
+					},
+					Context: resource.MustStructJSON(environmentConfig),
+					Results: []*fnv1beta1.Result{
+						{
+							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
+							Message:  "welcome",
 						},
 					},
 				},
@@ -169,36 +281,12 @@ func TestRunFunction(t *testing.T) {
 				rsp: &fnv1beta1.RunFunctionResponse{
 					Desired: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
-							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1",
-								"kind": "XR",
-								"status": {
-									"someStatus": "pretty status"
-								}
-							}`),
+							Resource: resource.MustStructJSON(xrStatus),
 						},
 						Resources: map[string]*fnv1beta1.Resource{
 							"cm-one": {
-								Resource: resource.MustStructJSON(`{
-									"apiVersion": "kubernetes.crossplane.io/v1alpha2",
-									"kind": "Object",
-									"spec": {
-										"forProvider": {
-											"manifest": {
-												"apiVersion": "v1",
-												"kind": "ConfigMap",
-												"metadata": {
-													"namespace": "crossplane-system"
-												},
-												"data": {
-													"foo": "example-xr",
-													"required": "required"
-												}
-											}
-										}
-									}
-								}`),
-								Ready: fnv1beta1.Ready_READY_TRUE,
+								Resource: resource.MustStructJSON(objectWithRequired),
+								Ready:    fnv1beta1.Ready_READY_TRUE,
 							},
 						},
 					},
@@ -219,12 +307,7 @@ func TestRunFunction(t *testing.T) {
 							Seconds: 60,
 						},
 					},
-					Context: resource.MustStructJSON(`{
-						"apiextensions.crossplane.io/environment": {
-							"foo": "bar"
-						},
-						"greetings": "with <3 from function-pkl"
-					}`),
+					Context: resource.MustStructJSON(environmentConfig),
 					Results: []*fnv1beta1.Result{
 						{
 							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
@@ -250,13 +333,7 @@ func TestRunFunction(t *testing.T) {
 					}),
 					Desired: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
-							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1",
-								"kind": "XR",
-								"status": {
-									"someStatus": "pretty status"
-								}
-							}`),
+							Resource: resource.MustStructJSON(xrStatus),
 						},
 					},
 				},
@@ -265,13 +342,7 @@ func TestRunFunction(t *testing.T) {
 				rsp: &fnv1beta1.RunFunctionResponse{
 					Desired: &fnv1beta1.State{
 						Composite: &fnv1beta1.Resource{
-							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1",
-								"kind": "XR",
-								"status": {
-									"someStatus": "pretty status"
-								}
-							}`),
+							Resource: resource.MustStructJSON(xrStatus),
 						},
 					},
 					Results: []*fnv1beta1.Result{

@@ -1,10 +1,19 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionResponse
 
-import "RunFunction.pkl"
+import "Resource.pkl"
+import "@k8s/K8sResource.pkl"
 
 /// Metadata pertaining to this response.
-meta: RunFunction.ResponseMeta?
+meta: ResponseMeta?
+
+/// ResponseMeta contains metadata pertaining to a RunFunctionResponse.
+class ResponseMeta {
+  /// Time-to-live of this response. Deterministic Functions with no side-effects
+  /// (e.g. simple templating Functions) may specify a TTL. Crossplane may choose
+  /// to cache responses until the TTL expires.
+  ttl: Duration
+}
 
 /// Desired state according to a Function pipeline. Functions may add desired
 /// state, and may mutate or delete any part of the desired state they are
@@ -17,17 +26,50 @@ meta: RunFunction.ResponseMeta?
 /// likely not what you want to do. Leaving out fields that had been returned
 /// as desired before will result in them being deleted from the objects in the
 /// cluster.
-desired: RunFunction.State?
+desired: Resource.DesiredState?
 
 /// Results of the Function run. Results are used for observability purposes.
-results: Listing<RunFunction.Result?>
+results: Listing<Result>?
+
+/// A Result of running a Function.
+class Result {
+  /// Severity of this result.
+  severity: Severity?
+  /// Human-readable details about the result.
+  message: String
+}
+typealias Severity = "Normal"|"Warning"|"Fatal"
 
 /// Optional context to be passed to the next Function in the pipeline as part
 /// of the RunFunctionRequest. Dropped on the last function in the pipeline.
 context: Mapping<String, Any>?
 
 /// Requirements that must be satisfied for this Function to run successfully.
-requirements: RunFunction.Requirements?
+requirements: Requirements?
+
+class Requirements {
+  extraResources: Mapping<String, ResourceSelector?>
+}
+
+/// ResourceSelector selects a group of resources, either by name or by label.
+class ResourceSelector {
+  apiVersion: String
+  kind: String
+  match: Match
+}
+
+class Match {
+  /// Match the resource with this name.
+  /// Note: matchLabels takes precedence if both are defined.
+  matchName: String?
+  /// Match all resources with these labels.
+  matchLabels: MatchLabels?
+}
+
+/// MatchLabels defines a set of labels to match resources against.
+class MatchLabels {
+  labels: Mapping<String, String>
+}
 
 output {
   renderer = new YamlRenderer {
@@ -46,9 +88,117 @@ output {
                 seconds = secs
                 nanos = ns.toUnit("ns").value.toInt()
               }
+      [Resource.DesiredComposed] = (dc: Resource.DesiredComposed) ->
+          let (ready = dc.ready)
+            if (ready == null)
+              new OutputResource {
+                resource = dc.resource
+                ready = READY_UNSPECIFIED
+              }
+            else if (ready == true)
+              new OutputResource {
+                resource = dc.resource
+                ready = READY_TRUE
+              }
+            else
+              new OutputResource {
+                resource = dc.resource
+                ready = READY_FALSE
+              }
+      [Result] = (res: Result) ->
+          let (severity = res.severity)
+            if (severity == null)
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_UNSPECIFIED
+              }
+            else if (severity == "Normal")
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_NORMAL
+              }
+            else if (severity == "Warning")
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_WARNING
+              }
+            else if (severity == "Fatal")
+              new OutputResult {
+                message = res.message
+                severity = SEVERITY_FATAL
+              }
+            else
+              throw("unknown result severity \"\(res.severity)\"")
     }
   }
 }
+
+/// A Resource represents the state of a composite or composed resource.
+local class OutputResource {
+  /// The JSON representation of the resource.
+  ///
+  ///   - Crossplane will set this field in a RunFunctionRequest to the entire
+  ///     observed state of a resource - including its metadata, spec, and status.
+  ///
+  ///   - A Function should set this field in a RunFunctionRequest to communicate
+  ///     the desired state of a composite or composed resource.
+  ///
+  ///   - A Function may only specify the desired status of a composite resource -
+  ///     not its metadata or spec. A Function should not return desired metadata
+  ///     or spec for a composite resource. This will be ignored.
+  ///
+  ///   - A Function may not specify the desired status of a composed resource -
+  ///     only its metadata and spec. A Function should not return desired status
+  ///     for a composed resource. This will be ignored.
+  resource: K8sResource?
+
+  /// Ready indicates whether the resource should be considered ready.
+  ///
+  /// * Crossplane will never set this field in a RunFunctionRequest.
+  ///
+  ///   - A Function should set this field to READY_TRUE in a RunFunctionResponse
+  ///     to indicate that a desired composed resource is ready.
+  ///
+  ///   - A Function should not set this field in a RunFunctionResponse to indicate
+  ///     that the desired composite resource is ready. This will be ignored.
+  ready: OutputReady? = READY_UNSPECIFIED
+
+  hidden const READY_UNSPECIFIED: OutputReady = 0
+  hidden const READY_TRUE: OutputReady = 1
+  hidden const READY_FALSE: OutputReady = 2
+
+  /// The resource's connection details.
+  ///
+  ///   - Crossplane will set this field in a RunFunctionRequest to communicate the
+  ///     the observed connection details of a composite or composed resource.
+  ///
+  ///   - A Function should set this field in a RunFunctionResponse to indicate the
+  ///     desired connection details of the composite resource.
+  ///
+  ///   - A Function should not set this field in a RunFunctionResponse to indicate
+  ///     the desired connection details of a composed resource. This will be
+  ///     ignored.
+  connectionDetails: Mapping<String, String>?
+}
+local typealias OutputReady = Int(isBetween(0,2))
+
+
+/// A Result of running a Function.
+local class OutputResult {
+  /// Severity of this result.
+  severity: OutputSeverity = SEVERITY_UNSPECIFIED
+
+  /// Human-readable details about the result.
+  message: String
+
+  hidden const SEVERITY_UNSPECIFIED: OutputSeverity = 0
+  hidden const SEVERITY_FATAL: OutputSeverity = 1
+  hidden const SEVERITY_WARNING: OutputSeverity = 2
+  hidden const SEVERITY_NORMAL: OutputSeverity = 3
+}
+local typealias OutputSeverity = Int(isBetween(0,3))
+
+
 
 local class protobufDuration {
   seconds: Int // int64 not available in pkl

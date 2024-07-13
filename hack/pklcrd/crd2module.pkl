@@ -1,6 +1,16 @@
 amends "@k8s.contrib.crd/generate.pkl"
 
-source = "package/input/pkl.fn.crossplane.io_pkls.yaml"
+import "@k8s/apiextensions-apiserver/pkg/apis/apiextensions/v1/CustomResourceDefinition.pkl"
+
+// source = "package/input/pkl.fn.crossplane.io_pkls.yaml"
+
+// These Converters Provide Type Safety on the Object resource. Without them manifest would be of type "Dynamic"
+converters {
+  ["compositeresourcedefinitions.apiextensions.crossplane.io"] {
+    [List("spec", "versions", "version", "schema", "openAPIV3Schema")] = CustomResourceDefinition.JSONSchemaProps
+  }
+}
 
 // The Package references to be used within the new Module
 k8sImportPath = "@k8s" // package://pkg.pkl-lang.org/pkl-k8s/k8s@<version>#
+

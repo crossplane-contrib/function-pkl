@@ -1,15 +1,31 @@
 @ModuleInfo { minPklVersion = "0.25.1" }
 module CompositionRequest
 
-import "RunFunction.pkl"
+import "Resource.pkl"
+import "@k8s/K8sResource.pkl"
+import "Pkl.pkl"
 
 /// Metadata pertaining to this request.
-meta: RunFunction.RequestMeta?
+meta: RequestMeta?
+
+/// RequestMeta contains metadata pertaining to a RunFunctionRequest.
+class RequestMeta {
+  tag: String
+}
 
 /// The observed state prior to invocation of a Function pipeline. State passed
 /// to each Function is fresh as of the time the pipeline was invoked, not as
 /// of the time each Function was invoked.
-observed: RunFunction.State?
+observed: ObservedState?
+
+/// State of the composite resource (XR) and any composed resources.
+class ObservedState {
+  /// The state of the composite resource (XR).
+  composite: Resource.Composite
+
+  /// The state of any composed resources.
+  resources: Mapping<Resource.Name, Resource.ObservedComposed>
+}
 
 /// Desired state according to a Function pipeline. The state passed to a
 /// particular Function may have been accumulated by previous Functions in the
@@ -21,11 +37,12 @@ observed: RunFunction.State?
 /// likely not what you want to do. Leaving out fields that had been returned
 /// as desired before will result in them being deleted from the objects in the
 /// cluster.
-desired: RunFunction.State?
+desired: Resource.DesiredState?
+
 
 /// Optional input specific to this Function invocation. A JSON representation
 /// of the 'input' block of the relevant entry in a Composition's pipeline.
-input: Mapping<String, Any>?
+input: Pkl?
 
 /// Optional context. Crossplane may pass arbitary contextual information to a
 /// Function. A Function may also return context in its RunFunctionResponse,
@@ -39,13 +56,15 @@ context: Mapping<String, Any>?
 /// extra_resources field. If a Function requested extra resources that
 /// did not exist, Crossplane sets the map key to an empty Resources message to
 /// indicate that it attempted to satisfy the request.
-extraResources: Mapping<String, RunFunction.Resources?>
+extraResources: Mapping<String, Listing<Resource.Extra>>?
 
 /// Helper function to Retrieve extraResources that have been requested under a given `name`.
-function getExtraResources(name: String): Listing<RunFunction.Resource> =
-  let (listingWithNil = extraResources.getOrNull(name).ifNonNull((it: RunFunction.Resources) -> it.items) ?? new Listing<RunFunction.Resource?> {})
-    listingWithNil.toList().filter((n) -> n != null).toListing() as Listing<RunFunction.Resource>
+function getExtraResources(name: String): Listing<Resource.Extra> =
+  extraResources.ifNonNull(
+    (extraRes: Mapping<String, Listing<Resource.Extra>>) ->
+      extraRes.getOrNull(name))
+  ?? new Listing<Resource.Extra> {}
 
 /// Helper function to Retrieve a specific resource from extraResources.
-function getExtraResource(name: String, index: Int): RunFunction.Resource? =
+function getExtraResource(name: String, index: Int): Resource.Extra? =
     getExtraResources(name).toList().getOrNull(index)

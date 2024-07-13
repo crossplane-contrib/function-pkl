@@ -1,15 +1,32 @@
+//===----------------------------------------------------------------------===//
+// Copyright © 2024 Apple Inc. and the Pkl project authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import "pkl:reflect"
 import "pkl:yaml"
 import "@k8s/K8sObject.pkl"
 import "@k8s/K8sResource.pkl"
 import "@k8s/k8sSchema.pkl"
 import "@k8s/api/core/v1/ResourceRequirements.pkl"
+import "Pkl.pkl"
 
 import "CompositionRequest.pkl"
+import "Resource.pkl"
 
 local yamlParser = new yaml.Parser { useMapping = true }
 
-local request= read("crossplane:request").text
+local request = read("crossplane:request").text
 
 /// Resource modules keyed by `kind` and `apiVersion`.
 ///
@@ -34,35 +51,24 @@ Request: CompositionRequest = YamlToClass(request, CompositionRequest.getClass()
 /// - Throws an Error if kind and apiVersion cannot be found in k8sSchema.pkl and customResourceTemplates
 function YamlToK8sResource(resource: String): K8sResource =
   let (parsedResource = yamlParser.parse(resource) as Mapping)
-    let (template = getResourceTemplate(parsedResource, customResourceTemplates))
-      let (templateType = reflect.DeclaredType(reflect.Module(template).moduleClass))
-        convert(parsedResource, templateType) as K8sResource
+    MappingToK8sResource(parsedResource)
+
+function MappingToK8sResource(resource: Mapping): K8sResource =
+  let (template = getResourceTemplate(resource, customResourceTemplates))
+    let (templateType = reflect.DeclaredType(reflect.Module(template).moduleClass))
+      convert(resource, templateType) as K8sResource
 
 /// Converts any to an object of the Specified class.
 function YamlToClass(resource: String, clazz: Class): Any =
   let (parsedResource = yamlParser.parse(resource) as Mapping)
-    let (templateType = reflect.DeclaredType(reflect.Class(clazz)))
-      convert(parsedResource, templateType)
+    MappingToClass(parsedResource, clazz)
 
-
+function MappingToClass(resource: Mapping, clazz: Class): Any =
+  let (templateType = reflect.DeclaredType(reflect.Class(clazz)))
+    convert(resource, templateType)
 
 // The Following Section is from https://github.com/apple/pkl-pantry/blob/main/packages/k8s.contrib/convert.pkl
 // It has only been slightly modified to return Actual Types instead of Dynamic.
-
-//===----------------------------------------------------------------------===//
-// Copyright © 2024 Apple Inc. and the Pkl project authors. All rights reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 // https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-memory
 local function convertDataSize(input: K8sObject.Quantity): RenderDirective? =
@@ -130,9 +136,55 @@ local function convert(value: Any, type: reflect.Type?): Any =
             }
           }
         }
+      else if (value is Mapping && referent.reflectee == Resource.DesiredComposed.getClass())
+        new Resource.DesiredComposed {
+          resource = MappingToK8sResource(value["resource"])
+          // ready == 0 is unspecified -> ready = null
+          when (value["ready"] == 1) {
+            ready = true
+          }
+          when (value["ready"] == 2) {
+            ready = false
+          }
+        }
+      else if (value is Mapping && referent.reflectee == CompositionRequest.getClass())
+        new CompositionRequest {
+          when (value.containsKey("meta")) {
+            meta = MappingToClass(value["meta"], CompositionRequest.RequestMeta) as CompositionRequest.RequestMeta
+          }
+          when (value.containsKey("observed")) {
+            observed = MappingToClass(value["observed"], CompositionRequest.ObservedState) as CompositionRequest.ObservedState
+          }
+          when (value.containsKey("desired")) {
+            desired = MappingToClass(value["desired"], Resource.DesiredState) as Resource.DesiredState
+          }
+          when (value.containsKey("input")) {
+            input = MappingToClass(value["input"], Pkl.getClass()) as Pkl
+          }
+          when (value.containsKey("context")) {
+            context = MappingToClass(value["context"], Mapping) as Mapping
+          }
+          when (value.containsKey("extraResources")) {
+            extraResources = new {
+              for (k, v in value["extraResources"]) {
+                [k] = new {
+                  when (v.containsKey("items")) {
+                    for (i in v["items"]) {
+                      new {
+                        when (i.containsKey("resource")) {
+                          resource = MappingToK8sResource(i["resource"])
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       else if (value is Mapping && referent is reflect.Class && referent.reflectee == K8sResource.getClass())
         // K8sResource is abstract. Get correct type from kind and apiVersion.
-        let (template = getResourceTemplate(value, customResourceTemplates)) // TODO: replace customResourceTemplate with actual val
+        let (template = getResourceTemplate(value, customResourceTemplates))
           value
             .toMap()
             .map((k, v) -> Pair(k, convert(v, reflect.Class(template.getClass()).properties.getOrNull(k)?.type)))
