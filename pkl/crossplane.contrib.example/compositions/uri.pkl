@@ -24,7 +24,13 @@ spec {
       input = new Pkl {
         spec {
           type = "uri"
-          uri = reflect.Module(full).uri
+          uri =
+            let (uri = reflect.Module(full).uri)
+            if (uri.startsWith("file:"))
+              let (pkg = import("../PklProject").package)
+              pkg.baseUri + "@" + pkg.version + "#/compositions/steps/full.pkl"
+            else
+              uri
         }
       }
     }

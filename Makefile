@@ -63,7 +63,7 @@ generate: pkl-resolve-hack pkl-resolve
 	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module-composition-fix.pkl
 	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example -m crds xrds/ExampleXR.pkl
 	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example compositions/inline.pkl > $(PROJECT_DIR)example/inline/composition.yaml
-	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example compositions/uri.pkl > $(PROJECT_DIR)example/full/composition.yaml
+	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example $(EXAMPLE_PARAM) compositions/uri.pkl > $(PROJECT_DIR)example/full/composition.yaml
 	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example xrs/inline.pkl > $(PROJECT_DIR)example/inline/xr.yaml
 	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example xrs/uri.pkl > $(PROJECT_DIR)example/full/xr.yaml
 
