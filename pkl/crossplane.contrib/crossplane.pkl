@@ -22,6 +22,7 @@ import "@k8s/api/core/v1/ResourceRequirements.pkl"
 import "Pkl.pkl"
 
 import "CompositionRequest.pkl"
+import "Resource.pkl"
 
 local yamlParser = new yaml.Parser { useMapping = true }
 
@@ -135,17 +136,15 @@ local function convert(value: Any, type: reflect.Type?): Any =
             }
           }
         }
-      else if (value is Mapping && referent.reflectee == CompositionRequest.DesiredResource.getClass())
-        new CompositionRequest.DesiredResource {
-            resource = MappingToK8sResource(value["resource"])
-          when (value["ready"] == 0) {
-            ready = "Unspecified"
-          }
+      else if (value is Mapping && referent.reflectee == Resource.DesiredComposed.getClass())
+        new Resource.DesiredComposed {
+          resource = MappingToK8sResource(value["resource"])
+          // ready == 0 is unspecified -> ready = null
           when (value["ready"] == 1) {
-            ready = "True"
+            ready = true
           }
           when (value["ready"] == 2) {
-            ready = "False"
+            ready = false
           }
         }
       else if (value is Mapping && referent.reflectee == CompositionRequest.getClass())
@@ -157,7 +156,7 @@ local function convert(value: Any, type: reflect.Type?): Any =
             observed = MappingToClass(value["observed"], CompositionRequest.ObservedState) as CompositionRequest.ObservedState
           }
           when (value.containsKey("desired")) {
-            desired = MappingToClass(value["desired"], CompositionRequest.DesiredState) as CompositionRequest.DesiredState
+            desired = MappingToClass(value["desired"], Resource.DesiredState) as Resource.DesiredState
           }
           when (value.containsKey("input")) {
             input = MappingToClass(value["input"], Pkl.getClass()) as Pkl

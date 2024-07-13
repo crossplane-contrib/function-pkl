@@ -89,7 +89,6 @@ func TestRunFunction(t *testing.T) {
 						Ttl: durationpb.New(response.DefaultTTL),
 					},
 					Desired: &fnv1beta1.State{
-						Composite: &fnv1beta1.Resource{},
 						Resources: map[string]*fnv1beta1.Resource{
 							"cm-minimal": {
 								Resource: resource.MustStructJSON(`{

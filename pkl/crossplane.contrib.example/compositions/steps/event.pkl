@@ -20,7 +20,7 @@ desired = request.desired
 
 results {
   new {
-    severity = "Normal"
+    severity = "Warning"
     message = "I am an Event from Pkl!"
   }
 }
