@@ -26,7 +26,7 @@ spec {
           type = "uri"
           uri =
             let (uri = reflect.Module(full).uri)
-            if (uri.startsWith("file:"))
+            if (uri.startsWith("file:")) // This assumes that PklProject is present when run locally. It is not available in the package
               let (pkg = import("../PklProject").package)
               pkg.baseUri + "@" + pkg.version + "#/compositions/steps/full.pkl"
             else
