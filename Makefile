@@ -59,7 +59,8 @@ PROJECT_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
 .PHONY: generate
 generate: pkl-resolve-hack pkl-resolve
 	go generate ./...
-	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module.pkl
+	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module.pkl -p source="package/input/pkl.fn.crossplane.io_pkls.yaml"
+	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib.xrd crd2module.pkl -p source="https://raw.githubusercontent.com/crossplane/crossplane/master/cluster/crds/apiextensions.crossplane.io_compositeresourcedefinitions.yaml"
 	pkl eval --working-dir $(PROJECT_DIR)hack/pklcrd -m ../../pkl/crossplane.contrib crd2module-composition-fix.pkl
 	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example -m crds xrds/ExampleXR.pkl
 	pkl eval --working-dir $(PROJECT_DIR)pkl/crossplane.contrib.example compositions/inline.pkl > $(PROJECT_DIR)example/inline/composition.yaml
