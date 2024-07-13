@@ -4,7 +4,7 @@
 /// CustomResourceDefinitions](https://docs.crossplane.io/latest/concepts/composite-resource-definitions).
 ///
 /// This module was generated from the CustomResourceDefinition at
-/// <https://raw.githubusercontent.com/crossplane/crossplane/master/cluster/crds/apiextensions.crossplane.io_compositeresourcedefinitions.yaml>.
+/// <https://raw.githubusercontent.com/crossplane/crossplane/v1.16.0/cluster/crds/apiextensions.crossplane.io_compositeresourcedefinitions.yaml>.
 module io.crossplane.apiextensions.v1.CompositeResourceDefinition
 
 extends "@k8s/K8sResource.pkl"
