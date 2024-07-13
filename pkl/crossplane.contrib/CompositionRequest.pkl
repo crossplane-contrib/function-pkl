@@ -60,7 +60,10 @@ extraResources: Mapping<String, Listing<Resource.Extra>>?
 
 /// Helper function to Retrieve extraResources that have been requested under a given `name`.
 function getExtraResources(name: String): Listing<Resource.Extra> =
-  extraResources.getOrNull(name) ?? new Listing<Resource.Extra> {}
+  extraResources.ifNonNull(
+    (extraRes: Mapping<String, Listing<Resource.Extra>>) ->
+      extraRes.getOrNull(name))
+  ?? new Listing<Resource.Extra> {}
 
 /// Helper function to Retrieve a specific resource from extraResources.
 function getExtraResource(name: String, index: Int): Resource.Extra? =
