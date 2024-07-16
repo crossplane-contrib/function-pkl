@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cm-one
-  namespace: crossplane-system
-  annotations:
-    crossplane.io/composition-resource-name: cm-one
-data:
-  foo: bar

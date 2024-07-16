@@ -1,0 +1,7 @@
+apiVersion: example.crossplane.io/v1
+kind: XR
+spec:
+  compositionRef:
+    name: pkl-uri-example
+metadata:
+  name: uri-example

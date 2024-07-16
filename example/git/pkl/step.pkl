@@ -1,0 +1,84 @@
+amends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@0.0.1#/CompositionResponse.pkl"
+import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@0.0.1#/crossplane.pkl"
+import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.1.0#/api/core/v1/ConfigMap.pkl"
+
+import "crds/XR.pkl"
+import "crds/Object.pkl"
+
+local request = new crossplane {
+  customResourceTemplates = new {
+    ["XR"] {
+      ["example.crossplane.io/v1"] = XR
+    }
+    ["Object"] {
+      ["kubernetes.crossplane.io/v1alpha2"] = Object
+    }
+  }
+}.Request
+
+local observedCompositeResource: XR? = request.observed.composite.resource as XR?
+local extraResource: Object? = request.getExtraResource("ineed", 0)?.resource as Object?
+
+requirements {
+  extraResources {
+    ["ineed"] {
+      apiVersion = Object.apiVersion
+      kind = Object.kind
+      match {
+        matchName = "required"
+      }
+    }
+  }
+}
+
+desired {
+  composite {
+    resource = new XR {
+      status {
+        someStatus = "pretty status"
+      }
+    }
+  }
+  resources {
+    ["cm-one"] = new {
+      resource = new Object {
+        spec {
+          forProvider {
+            manifest = new ConfigMap {
+              metadata {
+                namespace = "crossplane-system"
+              }
+              data {
+                ["foo"] = observedCompositeResource?.metadata?.name ?? throw("Composite could not find observed composite name")
+                ["required"] = extraResource?.metadata?.name ?? "i could not find what I needed..."
+              }
+            }
+          }
+        }
+      }
+      ready = true
+    }
+  }
+}
+results {
+  new {
+    severity = "Normal"
+    message = "welcome"
+  }
+  when (extraResource?.metadata?.name == null) {
+    new {
+      severity = "Warning"
+      message = "the extra resource is missing!"
+    }
+  }
+}
+context {
+  ["greetings"] = "with <3 from function-pkl"
+  when (request.context.containsKey("apiextensions.crossplane.io/environment")) {
+    ["apiextensions.crossplane.io/environment"] = request.context.getOrNull("apiextensions.crossplane.io/environment")
+  }
+}
+
+meta = if (request.meta != null) new {
+  ttl = 60.s
+} else null
