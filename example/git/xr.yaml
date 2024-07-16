@@ -4,4 +4,4 @@ spec:
   compositionRef:
     name: pkl-git-example
 metadata:
-  name: uri-example
+  name: git-example
