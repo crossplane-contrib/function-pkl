@@ -1,7 +1,7 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: pkl-uri-example
+  name: pkl-git-example
 spec:
   compositeTypeRef:
     apiVersion: example.crossplane.io/v1
