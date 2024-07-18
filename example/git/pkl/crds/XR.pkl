@@ -1,0 +1,27 @@
+module io.crossplane.example.v1.XR
+
+extends "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@0.0.1#/XRDBase.pkl"
+
+import "package://pkg.pkl-lang.org/pkl-k8s/k8s@1.1.0#/apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+import "package://pkg.pkl-lang.org/github.com/crossplane-contrib/function-pkl/crossplane.contrib@0.0.1#/XRDBase.pkl"
+
+fixed apiVersion: "example.crossplane.io/v1"
+
+fixed kind: "XR"
+
+/// Standard object's metadata.
+///
+/// More info: <https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata>.
+metadata: ObjectMeta?
+
+spec: Spec?
+
+status: Status?
+
+class Spec extends XRDBase.Spec {
+
+}
+
+class Status extends XRDBase.Status {
+  someStatus: String?
+}

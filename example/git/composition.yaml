@@ -1,0 +1,19 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: pkl-git-example
+spec:
+  compositeTypeRef:
+    apiVersion: example.crossplane.io/v1
+    kind: XR
+  mode: Pipeline
+  pipeline:
+  - functionRef:
+      name: function-pkl
+    input:
+      apiVersion: pkl.fn.crossplane.io/v1beta1
+      kind: Pkl
+      spec:
+        type: uri
+        uri: https://raw.githubusercontent.com/crossplane-contrib/function-pkl/main/example/git/pkl/step.pkl
+    step: pkl-template

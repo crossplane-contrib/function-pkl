@@ -40,7 +40,10 @@ spec:
 
 ### Example
 see [examples](./example/)
-and see [pkl/crossplane.contrib.example/DEPLOY.md](pkl/crossplane.contrib.example/DEPLOY.md) on instructions how to deploy it.
+and see [pkl/crossplane.contrib.example/DEPLOY.md](pkl/crossplane.contrib.example/DEPLOY.md) on instructions how to deploy using Pkl Packages.
+
+Alternatively [example/git/README.md](example/git/README.md) shows an appraoch without releasing Packages.
+
 ## Creating a new Composition Function
 see [pkl/crossplane.contrib.example/DEVELOP.md](pkl/crossplane.contrib.example/DEVELOP.md)
 

@@ -10,5 +10,5 @@ $ go run . --insecure --debug
 
 ```shell
 # Then, in another terminal, call it with these example manifests
-$ crossplane beta render xr.yaml composition.yaml functions.yaml --observed-resources=observed.yaml
+$ crossplane beta render xr.yaml composition.yaml functions.yaml
 ```
