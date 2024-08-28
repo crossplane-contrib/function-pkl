@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/apple/pkl-go v0.8.0
-	github.com/crossplane/crossplane-runtime v1.15.1
+	github.com/crossplane/crossplane-runtime v1.17.0
 	github.com/crossplane/function-sdk-go v0.2.0
 	github.com/google/go-cmp v0.6.0
 	google.golang.org/protobuf v1.34.2
@@ -21,7 +21,7 @@ require (
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/go-json-experiment/json v0.0.0-20240418180308-af2d5061e6c2 // indirect
-	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
