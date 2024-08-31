@@ -47,6 +47,41 @@ context: Mapping<String, Any>?
 /// Requirements that must be satisfied for this Function to run successfully.
 requirements: Requirements?
 
+/// Status Conditions to be applied to the Composite Resource and sometimes the Claim.
+conditions: Listing<Condition?>
+
+class ResponseMeta {
+
+  /// Time-to-live of this response. Deterministic Functions with no side-effects
+  /// (e.g. simple templating Functions) may specify a TTL. Crossplane may choose
+  /// to cache responses until the TTL expires.
+  ttl: Duration
+}
+
+/// A Result of running a Function.
+class Result {
+  /// Severity of this result.
+  severity: Severity
+
+  /// Human-readable details about the result.
+  message: String
+
+  hidden const SEVERITY_UNSPECIFIED: Severity = 0
+  hidden const SEVERITY_FATAL: Severity = 1
+  hidden const SEVERITY_WARNING: Severity = 2
+  hidden const SEVERITY_NORMAL: Severity = 3
+}
+typealias Severity = Int(isBetween(0,3))
+
+class State {
+  /// The state of the composite resource (XR).
+  composite: Resource
+
+  /// The state of any composed resources.
+  resources: Mapping<String, Resource>
+}
+
+/// Requirements that must be satisfied for a Function to run successfully.
 class Requirements {
   extraResources: Mapping<String, ResourceSelector?>
 }
@@ -70,6 +105,43 @@ class Match {
 class MatchLabels {
   labels: Mapping<String, String>
 }
+
+/// A Status Condition to be applied to the Composite Resource and sometimes the
+/// Claim. For detailed information on proper usage of Conditions, please see
+/// https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties.
+class Condition {
+  /// Type of condition in CamelCase or in foo.example.com/CamelCase.
+  type: String
+  /// Status of the condition.
+  status: Status = STATUS_CONDITION_UNSPECIFIED
+  /// Reason contains a programmatic identifier indicating the reason for the
+  /// condition's last transition. Producers of specific condition types may
+  /// define expected values and meanings for this field, and whether the values
+  /// are considered a guaranteed API. The value should be a CamelCase string.
+  /// This field may not be empty.
+  reason: String
+  /// Message is a human readable message indicating details about the
+  /// transition. This may be an empty string.
+  message: String?
+  /// The resources this condition targets.
+  target: Target?
+
+  hidden const STATUS_CONDITION_UNSPECIFIED: Status = 0
+  hidden const STATUS_CONDITION_UNKNOWN: Status = 1
+  hidden const STATUS_CONDITION_TRUE: Status = 2
+  hidden const STATUS_CONDITION_FALSE: Status = 3
+
+  /// If the target is unspecified, the result targets the composite resource.
+  hidden const TARGET_UNSPECIFIED: Target = 0
+  /// Target the composite resource. Results that target the composite resource
+  /// should include detailed, advanced information.
+  hidden const TARGET_COMPOSITE: Target = 1
+  /// Target the composite and the claim. Results that target the composite and
+  /// the claim should include only end-user friendly information.
+  hidden const TARGET_COMPOSITE_AND_CLAIM: Target = 2
+}
+typealias Status = Int(isBetween(0, 3))
+typealias Target = Int(isBetween(0, 2))
 
 output {
   renderer = new YamlRenderer {
