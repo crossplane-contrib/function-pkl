@@ -3,7 +3,7 @@ module github.com/crossplane-contrib/function-pkl
 go 1.22.4
 
 require (
-	github.com/alecthomas/kong v0.9.0
+	github.com/alecthomas/kong v1.2.1
 	github.com/apple/pkl-go v0.8.0
 	github.com/crossplane/crossplane-runtime v1.15.1
 	github.com/crossplane/function-sdk-go v0.2.0
